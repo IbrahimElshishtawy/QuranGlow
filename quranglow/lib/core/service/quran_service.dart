@@ -28,8 +28,7 @@ class QuranService {
     return Surah(number: chapter, name: name, ayat: ayat);
   }
 
-  Future<List<Map<String, dynamic>>>? listAudioEditions() =>
-      audio.listAudioEditions();
+  Future<List> listAudioEditions() => audio.listAudioEditions();
   Future<Map<String, dynamic>> getSurahAudio(String editionId, int s) =>
       audio.getSurahAudio(editionId, s);
 }
