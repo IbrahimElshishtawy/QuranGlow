@@ -1,15 +1,17 @@
+// lib/core/theme/theme_controller.dart
+
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
+import 'package:state_notifier/state_notifier.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Keys
 const _kThemeMode = 'theme_mode'; // 'system'|'light'|'dark'
-const _kFontScale = 'font_scale'; // double as String
+const _kFontScale = 'font_scale'; // double
 const _kFontFamily = 'font_family'; // String
 
 class ThemeSettings {
   final ThemeMode mode;
-  final double fontScale; // 1.0 = default, 1.1 = 10% larger, etc.
+  final double fontScale;
   final String fontFamily;
 
   const ThemeSettings({
@@ -31,11 +33,13 @@ class ThemeSettings {
   }
 }
 
+// Provider (Riverpod v2 syntax)
 final themeControllerProvider =
     StateNotifierProvider<ThemeController, ThemeSettings>((ref) {
       return ThemeController();
     });
 
+// Controller extends StateNotifier<T>
 class ThemeController extends StateNotifier<ThemeSettings> {
   ThemeController()
     : super(
@@ -49,20 +53,25 @@ class ThemeController extends StateNotifier<ThemeSettings> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final modeStr = prefs.getString(_kThemeMode) ?? 'system';
-    final fontScale = prefs.getDouble(_kFontScale) ?? 1.0;
-    final fontFamily = prefs.getString(_kFontFamily) ?? 'System';
-    final mode = modeStr == 'light'
-        ? ThemeMode.light
-        : modeStr == 'dark'
-        ? ThemeMode.dark
-        : ThemeMode.system;
-    state = ThemeSettings(
-      mode: mode,
-      fontScale: fontScale,
-      fontFamily: fontFamily,
-    );
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final modeStr = prefs.getString(_kThemeMode) ?? 'system';
+      final fontScale = prefs.getDouble(_kFontScale) ?? 1.0;
+      final fontFamily = prefs.getString(_kFontFamily) ?? 'System';
+      final mode = modeStr == 'light'
+          ? ThemeMode.light
+          : modeStr == 'dark'
+          ? ThemeMode.dark
+          : ThemeMode.system;
+
+      state = ThemeSettings(
+        mode: mode,
+        fontScale: fontScale,
+        fontFamily: fontFamily,
+      );
+    } catch (_) {
+      // keep default on error
+    }
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
