@@ -10,8 +10,9 @@ class AlQuranCloudSource {
   Future<List<dynamic>> listAudioEditions() async {
     final uri = Uri.parse('$_base/edition?format=audio&type=versebyverse');
     final resp = await client.get(uri);
-    if (resp.statusCode != 200)
+    if (resp.statusCode != 200) {
       throw Exception('Failed to list audio editions');
+    }
     final body = jsonDecode(resp.body) as Map<String, dynamic>;
     return (body['data'] as List<dynamic>);
   }
