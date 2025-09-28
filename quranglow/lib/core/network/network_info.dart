@@ -1,3 +1,5 @@
+// ignore_for_file: unrelated_type_equality_checks
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 class NetworkInfo {
@@ -7,6 +9,6 @@ class NetworkInfo {
     return res != ConnectivityResult.none;
   }
 
-  Stream<ConnectivityResult> get onStatusChanged =>
+  Stream<List<ConnectivityResult>> get onStatusChanged =>
       _connectivity.onConnectivityChanged;
 }
