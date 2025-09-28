@@ -10,7 +10,6 @@ class HiveStorageImpl implements LocalStorage {
 
   @override
   Future<void> init() async {
-    // Ensure Hive.initFlutter() is called in main before this init in Flutter apps
     _box = await Hive.openBox(boxName);
   }
 
