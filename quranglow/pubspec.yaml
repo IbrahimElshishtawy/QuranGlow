@@ -43,6 +43,7 @@ dependencies:
   dio: ^5.9.0
   connectivity_plus: ^7.0.0
   shared_preferences: ^2.5.3
+  state_notifier: ^1.0.0
 
 dev_dependencies:
   flutter_test:
