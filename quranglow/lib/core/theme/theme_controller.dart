@@ -1,13 +1,15 @@
 // lib/core/theme/theme_controller.dart
 
+// ignore_for_file: unnecessary_import
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:state_notifier/state_notifier.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const _kThemeMode = 'theme_mode'; // 'system'|'light'|'dark'
-const _kFontScale = 'font_scale'; // double
-const _kFontFamily = 'font_family'; // String
+const _kThemeMode = 'theme_mode';
+const _kFontScale = 'font_scale';
+const _kFontFamily = 'font_family';
 
 class ThemeSettings {
   final ThemeMode mode;
@@ -33,13 +35,11 @@ class ThemeSettings {
   }
 }
 
-// Provider (Riverpod v2 syntax)
 final themeControllerProvider =
     StateNotifierProvider<ThemeController, ThemeSettings>((ref) {
       return ThemeController();
     });
 
-// Controller extends StateNotifier<T>
 class ThemeController extends StateNotifier<ThemeSettings> {
   ThemeController()
     : super(
