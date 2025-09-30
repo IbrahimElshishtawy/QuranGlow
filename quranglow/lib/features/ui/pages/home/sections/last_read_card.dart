@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quranglow/features/ui/pages/home/widgets/section_title.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
 
 class LastReadCard extends StatelessWidget {
