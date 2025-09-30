@@ -44,6 +44,8 @@ dependencies:
   connectivity_plus: ^7.0.0
   shared_preferences: ^2.5.3
   state_notifier: ^1.0.0
+  google_fonts: ^6.3.2
+  lottie: ^3.3.2
 
 dev_dependencies:
   flutter_test:
