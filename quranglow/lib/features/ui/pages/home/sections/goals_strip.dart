@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/section_title.dart';
+import 'package:quranglow/features/ui/pages/home/widgets/section_title.dart';
 
 class GoalsStrip extends StatelessWidget {
   const GoalsStrip({super.key});
