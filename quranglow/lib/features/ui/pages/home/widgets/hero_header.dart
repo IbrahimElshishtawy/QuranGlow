@@ -1,55 +1,58 @@
-import 'package:flutter/material.dart';
-import 'package:quranglow/features/ui/routes/app_routes.dart';
+// ignore_for_file: deprecated_member_use
 
-class AppDrawer extends StatelessWidget {
-  final void Function(String route) onNavigate;
-  const AppDrawer({super.key, required this.onNavigate});
+import 'package:flutter/material.dart';
+
+class HeroHeader extends StatelessWidget {
+  const HeroHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Drawer(
-      child: SafeArea(
-        child: ListView(
-          children: [
-            ListTile(
-              leading: Icon(Icons.menu_book, color: cs.primary),
-              title: const Text('المصحف'),
-              onTap: () => onNavigate(AppRoutes.mushaf),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isDark
+                  ? [cs.surfaceContainerHighest.withOpacity(.28), cs.surface]
+                  : [cs.primary.withOpacity(.10), cs.surface],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
             ),
-            ListTile(
-              leading: Icon(Icons.list_alt, color: cs.primary),
-              title: const Text('السور'),
-              onTap: () => onNavigate(AppRoutes.surahs),
-            ),
-            ListTile(
-              leading: Icon(Icons.bookmark, color: cs.primary),
-              title: const Text('المحفوظات'),
-              onTap: () => onNavigate(AppRoutes.bookmarks),
-            ),
-            ListTile(
-              leading: Icon(Icons.menu_book_outlined, color: cs.primary),
-              title: const Text('التفسير'),
-              onTap: () => onNavigate(AppRoutes.tafsir),
-            ),
-            ListTile(
-              leading: Icon(Icons.flag, color: cs.primary),
-              title: const Text('الأهداف'),
-              onTap: () => onNavigate(AppRoutes.goals),
-            ),
-            ListTile(
-              leading: Icon(Icons.insights, color: cs.primary),
-              title: const Text('الإحصائيات'),
-              onTap: () => onNavigate(AppRoutes.stats),
-            ),
-            const Divider(),
-            const ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('الإعدادات'),
-            ),
-          ],
+          ),
         ),
-      ),
+        Align(
+          alignment: const Alignment(-0.9, -0.3),
+          child: Icon(
+            Icons.star_rounded,
+            size: 42,
+            color: cs.primary.withOpacity(.18),
+          ),
+        ),
+        Align(
+          alignment: const Alignment(0.85, -0.4),
+          child: Icon(
+            Icons.nightlight_round,
+            size: 56,
+            color: cs.primary.withOpacity(.16),
+          ),
+        ),
+        Align(
+          alignment: const Alignment(0, .35),
+          child: Text(
+            'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              color: cs.onSurface.withOpacity(.70),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
