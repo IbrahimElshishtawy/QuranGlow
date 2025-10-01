@@ -4,6 +4,8 @@ import 'package:quranglow/features/ui/pages/home/sections/goals_strip.dart';
 import 'package:quranglow/features/ui/pages/home/sections/last_read_card.dart';
 import 'package:quranglow/features/ui/pages/home/sections/quick_actions_grid.dart';
 import 'package:quranglow/features/ui/pages/home/sections/shortcuts_list.dart';
+import 'package:quranglow/features/ui/pages/home/widgets/app_drawer.dart';
+import 'package:quranglow/features/ui/pages/home/widgets/hero_header.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/section_shell.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/section_spacing.dart';
 import '../../routes/app_routes.dart';
