@@ -78,7 +78,8 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: ErrorWidgetSimple(
-                    message: 'تعذّر تحميل السورة\n$e',
+                    message:
+                        'تعذّر تحميل السورة. تحقّق من الاتصال ثم أعد المحاولة.',
                     onRetry: () => ref.invalidate(
                       surahProvider((widget.chapter, widget.editionId)),
                     ),
@@ -88,7 +89,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
               data: (surah) => _SurahView(surah: surah),
             ),
 
-            // طبقة نقر فقط بدون تعطيل السحب
+            // طبقة نقر فقط
             Positioned.fill(
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
@@ -96,53 +97,56 @@ class _MushafPageState extends ConsumerState<MushafPage> {
               ),
             ),
 
-            // شريط علوي خفيف
+            // شريط علوي مع IgnorePointer
             Positioned(
               top: 0,
               left: 0,
               right: 0,
               child: SafeArea(
                 bottom: false,
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 150),
-                  opacity: _uiVisible ? 1 : 0,
-                  child: Container(
-                    height: 56,
-                    margin: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(.35),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          color: Colors.white,
-                          icon: const Icon(Icons.arrow_back),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: asyncSurah.maybeWhen(
-                            data: (s) => Text(
-                              s.name,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
+                child: IgnorePointer(
+                  ignoring: !_uiVisible,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 150),
+                    opacity: _uiVisible ? 1 : 0,
+                    child: Container(
+                      height: 56,
+                      margin: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(.35),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            color: Colors.white,
+                            icon: const Icon(Icons.arrow_back),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: asyncSurah.maybeWhen(
+                              data: (s) => Text(
+                                s.name,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            orElse: () => Text(
-                              'سورة ${widget.chapter}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
+                              orElse: () => Text(
+                                'سورة ${widget.chapter}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                      ],
+                          const SizedBox(width: 8),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -164,6 +168,7 @@ class _SurahView extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return CustomScrollView(
+      key: ValueKey('${surah.number}-${surah.name}'),
       cacheExtent: 1000,
       slivers: [
         SliverToBoxAdapter(
