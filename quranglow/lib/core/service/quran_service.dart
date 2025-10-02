@@ -7,7 +7,11 @@ import 'package:quranglow/core/model/surah.dart';
 class QuranService {
   final FawazCdnSource fawaz;
   final AlQuranCloudSource cloud;
-  QuranService({required this.fawaz, required this.cloud});
+  QuranService({
+    required this.fawaz,
+    required this.cloud,
+    required AlQuranCloudSource audio,
+  });
 
   Future<Surah> getSurahText(String editionId, int chapter) async {
     debugPrint('[SRV] fetch surah=$chapter ed=$editionId');

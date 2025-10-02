@@ -154,8 +154,9 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    if (widget.ayat.isEmpty)
+    if (widget.ayat.isEmpty) {
       return const Center(child: Text('لا يوجد نص للعرض'));
+    }
     if (_pages.isEmpty) {
       _ensureBuilt();
       if (_pages.isEmpty) return const Center(child: Text('جاري التجهيز...'));

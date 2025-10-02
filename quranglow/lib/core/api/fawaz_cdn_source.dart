@@ -1,9 +1,12 @@
+// ignore_for_file: implementation_imports
+
 import 'package:dio/dio.dart';
+import 'package:http/src/client.dart';
 
 class FawazCdnSource {
-  FawazCdnSource({required this.dio});
-  final Dio dio;
+  FawazCdnSource(Client watch, this.dio);
 
+  final Dio? dio;
   // jsDelivr يوصي بـ @1
   static const _base = 'https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1';
   static const _rawGithack =
@@ -22,7 +25,7 @@ class FawazCdnSource {
   }
 
   Future<Map<String, dynamic>> _tryGet(String url) async {
-    final res = await dio.get(
+    final res = await dio!.get(
       url,
       options: Options(
         headers: {'User-Agent': 'QuranGlow/1.0'},

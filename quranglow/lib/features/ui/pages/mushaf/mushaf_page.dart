@@ -1,5 +1,5 @@
 // lib/features/ui/pages/mushaf/mushaf_page.dart
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, unnecessary_brace_in_string_interps
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

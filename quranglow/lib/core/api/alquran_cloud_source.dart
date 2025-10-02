@@ -1,13 +1,16 @@
+// ignore_for_file: implementation_imports
+
 import 'package:dio/dio.dart';
+import 'package:http/src/client.dart';
 
 class AlQuranCloudSource {
-  AlQuranCloudSource({required this.dio});
-  final Dio dio;
+  AlQuranCloudSource(Client watch, {this.dio});
+  final Dio? dio;
 
   static const _base = 'https://api.alquran.cloud/v1';
   Future<Map<String, dynamic>> getSurahText(String edition, int s) async {
     final url = '$_base/surah/$s/$edition';
-    final res = await dio.get(
+    final res = await dio!.get(
       url,
       options: Options(
         sendTimeout: const Duration(seconds: 8),
@@ -21,7 +24,7 @@ class AlQuranCloudSource {
   }
 
   Future<List> listAudioEditions() async {
-    final res = await dio.get('$_base/edition/format/audio');
+    final res = await dio!.get('$_base/edition/format/audio');
     if (res.statusCode != 200) {
       throw Exception('HTTP ${res.statusCode} عند جلب إصدارات الصوت');
     }
@@ -30,7 +33,7 @@ class AlQuranCloudSource {
   }
 
   Future<Map<String, dynamic>> getSurahAudio(String edition, int s) async {
-    final res = await dio.get('$_base/surah/$s/$edition');
+    final res = await dio!.get('$_base/surah/$s/$edition');
     if (res.statusCode != 200) {
       throw Exception(
         'HTTP ${res.statusCode} عند جلب صوت السورة $s ($edition)',
