@@ -7,7 +7,9 @@ import 'package:http/http.dart' as http;
 
 import 'package:quranglow/core/api/fawaz_cdn_source.dart';
 import 'package:quranglow/core/api/alquran_cloud_source.dart';
+import 'package:quranglow/core/model/Goal.dart';
 import 'package:quranglow/core/model/surah.dart';
+import 'package:quranglow/core/service/Goals_Service.dart';
 import 'package:quranglow/core/service/quran_service.dart';
 import 'package:quranglow/core/service/tracking_service.dart';
 import 'package:quranglow/core/storage/hive_storage_impl.dart';
@@ -31,6 +33,12 @@ final fawazProvider = Provider(
   ),
 );
 
+final goalsServiceProvider = Provider<GoalsService>((ref) => GoalsService());
+
+final goalsProvider = FutureProvider<List<Goal>>((ref) async {
+  final service = ref.read(goalsServiceProvider);
+  return service.listGoals();
+});
 final alQuranProvider = Provider(
   (ref) => AlQuranCloudSource(ref.watch(httpClientProvider)),
 );
