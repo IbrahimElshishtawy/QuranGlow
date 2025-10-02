@@ -4,11 +4,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quranglow/features/ui/routes/app_router.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'package:quranglow/core/di/providers.dart'; // quranServiceProvider
 import 'package:quranglow/core/model/surah.dart';
 import 'package:quranglow/features/ui/pages/mushaf/paged_mushaf.dart';
+
+import 'package:quranglow/features/ui/routes/app_routes.dart';
 
 final surahProvider = FutureProvider.autoDispose
     .family<Surah, (int chapter, String editionId)>((ref, args) async {
@@ -112,10 +115,20 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                   child: PagedMushaf(
                     ayat: surah.ayat,
                     surahName: surah.name,
-                    surahNumber: _chapter, // للحفظ/الاسترجاع
+                    surahNumber: _chapter,
                     showBasmala: surah.name.trim() != 'التوبة',
-                    initialSelectedAyah:
-                        null, // الاسترجاع تلقائي داخل PagedMushaf
+                    initialSelectedAyah: null,
+                    onAyahTap: (aya) {
+                      Navigator.pushNamed(
+                        context,
+                        AppRoutes.ayah,
+                        arguments: AyahArgs(
+                          aya: aya,
+                          surah: surah,
+                          tafsir: null,
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
