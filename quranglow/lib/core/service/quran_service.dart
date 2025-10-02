@@ -1,4 +1,3 @@
-// lib/core/service/quran_service.dart
 import 'package:quranglow/core/api/fawaz_cdn_source.dart';
 import 'package:quranglow/core/api/alquran_cloud_source.dart';
 import 'package:quranglow/core/model/aya.dart';
@@ -12,7 +11,7 @@ class QuranService {
   Future<Surah> getSurahText(String editionId, int chapter) async {
     final json = await fawaz.getSurah(editionId, chapter);
 
-    final root = json['chapter'] ?? json;
+    final root = json['chapter'] ?? json['data'] ?? json;
 
     final name =
         (root['name_ar'] ??
@@ -29,17 +28,22 @@ class QuranService {
     final ayat = ayatList.map((e) {
       final m = Map<String, dynamic>.from(e as Map);
       return Aya.fromMap({
-        'global': m['global'] ?? m['globalId'] ?? m['id'],
+        'global': m['global'] ?? m['globalId'] ?? m['id'] ?? m['number'],
         'surah': chapter,
         'number':
-            m['number'] ?? m['verse'] ?? m['verse_number'] ?? m['id'] ?? 0,
+            m['number'] ??
+            m['verse'] ??
+            m['verse_number'] ??
+            m['id'] ??
+            m['numberInSurah'] ??
+            0,
         'text': m['text'] ?? m['arabic'] ?? m['quran'] ?? '',
       });
     }).toList();
 
     if (ayat.isEmpty) {
       throw Exception(
-        'لا توجد آيات مُستخرَجة. جرّب editionId = quran-simple أو quran-uthmani.',
+        'لا توجد آيات مستخرجة. جرّب quran-simple أو quran-uthmani.',
       );
     }
 
