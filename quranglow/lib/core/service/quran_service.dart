@@ -1,34 +1,52 @@
-import 'package:quranglow/core/api/alquran_cloud_source.dart';
+// lib/core/service/quran_service.dart
 import 'package:quranglow/core/api/fawaz_cdn_source.dart';
+import 'package:quranglow/core/api/alquran_cloud_source.dart';
 import 'package:quranglow/core/model/aya.dart';
 import 'package:quranglow/core/model/surah.dart';
 
 class QuranService {
   final FawazCdnSource fawaz;
   final AlQuranCloudSource audio;
-
   QuranService({required this.fawaz, required this.audio});
 
   Future<Surah> getSurahText(String editionId, int chapter) async {
     final json = await fawaz.getSurah(editionId, chapter);
-    // parsing: repo's JSON format may contain 'chapter' with 'verses'
-    final chapterMap = json['chapter'] ?? json;
-    final name = chapterMap['name'] ?? 'سورة $chapter';
-    final verses =
-        (chapterMap['verses'] ?? chapterMap['ayahs'] ?? []) as List<dynamic>;
-    final ayat = verses.map((v) {
-      final m = v as Map<String, dynamic>;
+
+    final root = json['chapter'] ?? json;
+
+    final name =
+        (root['name_ar'] ??
+                root['name_arabic'] ??
+                root['name'] ??
+                'سورة $chapter')
+            as String;
+
+    final dynamic versesAny =
+        root['verses'] ?? root['ayahs'] ?? root['aya'] ?? root['list'] ?? [];
+
+    final List ayatList = versesAny is List ? versesAny : [];
+
+    final ayat = ayatList.map((e) {
+      final m = Map<String, dynamic>.from(e as Map);
       return Aya.fromMap({
-        'global': m['global'] ?? m['globalId'],
+        'global': m['global'] ?? m['globalId'] ?? m['id'],
         'surah': chapter,
-        'number': m['number'] ?? m['verse'] ?? m['verse_number'],
-        'text': m['text'] ?? m['arabic'],
+        'number':
+            m['number'] ?? m['verse'] ?? m['verse_number'] ?? m['id'] ?? 0,
+        'text': m['text'] ?? m['arabic'] ?? m['quran'] ?? '',
       });
     }).toList();
-    return Surah(number: chapter, name: name, ayat: ayat);
+
+    if (ayat.isEmpty) {
+      throw Exception(
+        'لا توجد آيات مُستخرَجة. جرّب editionId = quran-simple أو quran-uthmani.',
+      );
+    }
+
+    return Surah(number: chapter, name: name, ayat: ayat.cast<Aya>());
   }
 
   Future<List> listAudioEditions() => audio.listAudioEditions();
-  Future<Map<String, dynamic>> getSurahAudio(String editionId, int s) =>
-      audio.getSurahAudio(editionId, s);
+  Future<Map<String, dynamic>> getSurahAudio(String ed, int s) =>
+      audio.getSurahAudio(ed, s);
 }
