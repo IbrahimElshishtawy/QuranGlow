@@ -1,19 +1,17 @@
-// lib/core/api/fawaz_cdn_source.dart
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
 class FawazCdnSource {
   FawazCdnSource({required this.dio});
   final Dio dio;
 
-  static const _mirrors = <String>[
-    'https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1',
-    'https://raw.githubusercontent.com/fawazahmed0/quran-api/1',
-  ];
+  // jsDelivr يوصي بـ @1
+  static const _base = 'https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1';
+  static const _rawGithack =
+      'https://rawcdn.githack.com/fawazahmed0/quran-api/1';
 
   String _editionPath(String editionId) {
     switch (editionId) {
-      case 'quran-uthmani':
+      case 'quran-uthmani': // هذا أصلاً من cloud؛ نحطه هنا احتياط
         return 'editions/ara-quranuthmani';
       case 'quran-simple':
         return 'editions/ara-quransimple';
@@ -23,35 +21,38 @@ class FawazCdnSource {
     }
   }
 
+  Future<Map<String, dynamic>> _tryGet(String url) async {
+    final res = await dio.get(
+      url,
+      options: Options(
+        headers: {'User-Agent': 'QuranGlow/1.0'},
+        sendTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 8),
+      ),
+    );
+    if (res.statusCode == 200 && res.data is Map<String, dynamic>) {
+      return Map<String, dynamic>.from(res.data);
+    }
+    throw Exception('HTTP ${res.statusCode} @ $url');
+  }
+
   Future<Map<String, dynamic>> getSurah(String editionId, int chapter) async {
     final path = _editionPath(editionId);
-    DioException? last;
+    final urls = <String>[
+      '$_base/$path/$chapter.min.json', // أسرع
+      '$_base/$path/$chapter.json', // بديل
+      '$_rawGithack/$path/$chapter.min.json', // بدائل للـ403/404
+      '$_rawGithack/$path/$chapter.json',
+    ];
 
-    for (final base in _mirrors) {
-      final url = '$base/$path/$chapter.json';
-      debugPrint('[FWZ] try $url');
+    Object? lastErr;
+    for (final u in urls) {
       try {
-        final res = await dio.get(url);
-        debugPrint('[FWZ] status ${res.statusCode}');
-        if (res.statusCode == 200 && res.data is Map<String, dynamic>) {
-          debugPrint('[FWZ] OK from $base');
-          return Map<String, dynamic>.from(res.data);
-        }
-      } on DioException catch (e) {
-        last = e;
-        debugPrint('[FWZ] error ${e.message}');
+        return await _tryGet(u);
+      } catch (e) {
+        lastErr = e;
       }
     }
-
-    // fallback
-    final fb = await dio.get(
-      'https://api.alquran.cloud/v1/surah/$chapter/quran-uthmani',
-    );
-    debugPrint('[FWZ][FB] status ${fb.statusCode}');
-    if (fb.statusCode == 200 && fb.data is Map<String, dynamic>) {
-      return Map<String, dynamic>.from(fb.data);
-    }
-
-    throw last ?? Exception('فشل جلب السورة $chapter من كل المرايا والبديل.');
+    throw Exception('تعذر جلب السورة $chapter من fawaz CDN: $lastErr');
   }
 }
