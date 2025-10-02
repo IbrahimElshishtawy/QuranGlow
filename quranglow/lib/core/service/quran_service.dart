@@ -1,3 +1,5 @@
+// lib/core/service/quran_service.dart
+import 'package:flutter/foundation.dart';
 import 'package:quranglow/core/api/fawaz_cdn_source.dart';
 import 'package:quranglow/core/api/alquran_cloud_source.dart';
 import 'package:quranglow/core/model/aya.dart';
@@ -9,6 +11,7 @@ class QuranService {
   QuranService({required this.fawaz, required this.audio});
 
   Future<Surah> getSurahText(String editionId, int chapter) async {
+    debugPrint('[SRV] fetch surah=$chapter ed=$editionId');
     final json = await fawaz.getSurah(editionId, chapter);
 
     final root = json['chapter'] ?? json['data'] ?? json;
@@ -41,6 +44,7 @@ class QuranService {
       });
     }).toList();
 
+    debugPrint('[SRV] loaded ${ayat.length} ayat for $name');
     if (ayat.isEmpty) {
       throw Exception(
         'لا توجد آيات مستخرجة. جرّب quran-simple أو quran-uthmani.',
