@@ -22,6 +22,7 @@ import 'package:quranglow/features/ui/pages/tafsir/tafsir_explorer_page.dart';
 
 import 'app_routes.dart';
 import 'package:quranglow/core/model/aya.dart';
+import 'package:quranglow/core/model/surah.dart';
 
 // وسائط مسار mushaf (API)
 class MushafArgs {
@@ -40,8 +41,16 @@ class PagedMushafArgs {
   });
   final List<Aya> ayat;
   final String surahName;
-  final int surahNumber; // جديد
+  final int surahNumber;
   final int? initialSelectedAyah;
+}
+
+// وسائط مسار ayah (تفاصيل آية)
+class AyahArgs {
+  const AyahArgs({required this.aya, required this.surah, this.tafsir});
+  final Aya aya;
+  final Surah surah;
+  final String? tafsir;
 }
 
 Route<dynamic>? onGenerateRoute(RouteSettings s) {
@@ -61,14 +70,31 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
   } else if (name == AppRoutes.mushafPaged) {
     final a = s.arguments;
     if (a is PagedMushafArgs) {
-      return _mat(
-        PagedMushaf(
-          ayat: a.ayat,
-          surahName: a.surahName,
-          surahNumber: a.surahNumber, // تم التمرير
-          initialSelectedAyah: a.initialSelectedAyah,
-        ),
-        s,
+      // نستخدم builder للحصول على context
+      return MaterialPageRoute(
+        settings: s,
+        builder: (context) {
+          return PagedMushaf(
+            ayat: a.ayat,
+            surahName: a.surahName,
+            surahNumber: a.surahNumber,
+            initialSelectedAyah: a.initialSelectedAyah,
+            onAyahTap: (aya) {
+              // Surah مبسّط لفتح صفحة التفاصيل
+              final fakeSurah = Surah(
+                number: a.surahNumber,
+                name: a.surahName,
+                ayat: a.ayat,
+              );
+
+              Navigator.pushNamed(
+                context,
+                AppRoutes.ayah,
+                arguments: AyahArgs(aya: aya, surah: fakeSurah, tafsir: null),
+              );
+            },
+          );
+        },
       );
     }
     return _mat(
@@ -82,7 +108,17 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
   } else if (name == AppRoutes.surahs) {
     return _mat(const SurahListPage(), s);
   } else if (name == AppRoutes.ayah) {
-    return _mat(const AyahDetailPage(), s);
+    final a = s.arguments;
+    if (a is AyahArgs) {
+      return _mat(
+        AyahDetailPage(aya: a.aya, surah: a.surah, tafsir: a.tafsir),
+        s,
+      );
+    }
+    return _mat(
+      const Scaffold(body: Center(child: Text('ayah route يحتاج Aya + Surah'))),
+      s,
+    );
   } else if (name == AppRoutes.player) {
     return _mat(const PlayerPage(), s);
   } else if (name == AppRoutes.search) {
