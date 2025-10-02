@@ -1,5 +1,6 @@
-// lib/core/api/fawaz_cdn_source.dart  (Dio + مرايا للنص)
+// lib/core/api/fawaz_cdn_source.dart
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 class FawazCdnSource {
   FawazCdnSource({required this.dio});
@@ -28,20 +29,25 @@ class FawazCdnSource {
 
     for (final base in _mirrors) {
       final url = '$base/$path/$chapter.json';
+      debugPrint('[FWZ] try $url');
       try {
         final res = await dio.get(url);
+        debugPrint('[FWZ] status ${res.statusCode}');
         if (res.statusCode == 200 && res.data is Map<String, dynamic>) {
+          debugPrint('[FWZ] OK from $base');
           return Map<String, dynamic>.from(res.data);
         }
       } on DioException catch (e) {
         last = e;
+        debugPrint('[FWZ] error ${e.message}');
       }
     }
 
-    // بديل نصي من AlQuranCloud في حالة فشل المرايا
+    // fallback
     final fb = await dio.get(
       'https://api.alquran.cloud/v1/surah/$chapter/quran-uthmani',
     );
+    debugPrint('[FWZ][FB] status ${fb.statusCode}');
     if (fb.statusCode == 200 && fb.data is Map<String, dynamic>) {
       return Map<String, dynamic>.from(fb.data);
     }
