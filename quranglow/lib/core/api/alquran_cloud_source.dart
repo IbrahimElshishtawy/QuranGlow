@@ -1,16 +1,27 @@
-// lib/core/api/alquran_cloud_source.dart
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
 class AlQuranCloudSource {
   AlQuranCloudSource({required this.dio});
   final Dio dio;
 
   static const _base = 'https://api.alquran.cloud/v1';
+  Future<Map<String, dynamic>> getSurahText(String edition, int s) async {
+    final url = '$_base/surah/$s/$edition';
+    final res = await dio.get(
+      url,
+      options: Options(
+        sendTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 8),
+      ),
+    );
+    if (res.statusCode != 200) {
+      throw Exception('HTTP ${res.statusCode} عند جلب نص السورة $s ($edition)');
+    }
+    return Map<String, dynamic>.from(res.data);
+  }
 
   Future<List> listAudioEditions() async {
     final res = await dio.get('$_base/edition/format/audio');
-    debugPrint('[AQC] list editions ${res.statusCode}');
     if (res.statusCode != 200) {
       throw Exception('HTTP ${res.statusCode} عند جلب إصدارات الصوت');
     }
@@ -20,7 +31,6 @@ class AlQuranCloudSource {
 
   Future<Map<String, dynamic>> getSurahAudio(String edition, int s) async {
     final res = await dio.get('$_base/surah/$s/$edition');
-    debugPrint('[AQC] surah audio $s/$edition ${res.statusCode}');
     if (res.statusCode != 200) {
       throw Exception(
         'HTTP ${res.statusCode} عند جلب صوت السورة $s ($edition)',
