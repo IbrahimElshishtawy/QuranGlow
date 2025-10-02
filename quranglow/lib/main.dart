@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'core/theme/theme.dart';
 import 'features/ui/routes/app_router.dart';
 import 'features/ui/routes/app_routes.dart';
 
-void main() {
-  runApp(const ProviderScope(child: QuranGlowApp()));
-}
+void main() => runApp(const ProviderScope(child: QuranGlowApp()));
 
 class QuranGlowApp extends StatelessWidget {
   const QuranGlowApp({super.key});
