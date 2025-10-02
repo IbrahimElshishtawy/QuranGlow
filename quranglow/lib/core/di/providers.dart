@@ -1,10 +1,10 @@
-// lib/core/di/providers.dart
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 
 import 'package:quranglow/core/api/fawaz_cdn_source.dart';
 import 'package:quranglow/core/api/alquran_cloud_source.dart';
+import 'package:quranglow/core/model/surah.dart';
 import 'package:quranglow/core/service/quran_service.dart';
 
 final dioProvider = Provider<Dio>((ref) {
@@ -52,6 +52,14 @@ final alQuranCloudSourceProvider = Provider<AlQuranCloudSource>((ref) {
 final quranServiceProvider = Provider<QuranService>((ref) {
   return QuranService(
     fawaz: ref.read(fawazSourceProvider),
-    audio: ref.read(alQuranCloudSourceProvider),
+    cloud: ref.read(alQuranCloudSourceProvider),
   );
 });
+
+/// مصحف كامل بنفس الـ edition
+final quranAllProvider = FutureProvider.autoDispose.family<List<Surah>, String>(
+  (ref, editionId) {
+    final service = ref.read(quranServiceProvider);
+    return service.getQuranAllText(editionId);
+  },
+);
