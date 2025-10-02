@@ -1,29 +1,36 @@
+// lib/core/di/providers.dart  (Dio مضبوط وتوصيل الخدمات)
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
-import '../api/alquran_cloud_source.dart';
-import '../api/fawaz_cdn_source.dart';
-import '../service/quran_service.dart';
-import '../service/audio_service.dart';
-import '../service/download_service.dart';
+import 'package:dio/dio.dart';
 
-final httpClientProvider = Provider<http.Client>((ref) => http.Client());
+import 'package:quranglow/core/api/fawaz_cdn_source.dart';
+import 'package:quranglow/core/api/alquran_cloud_source.dart';
+import 'package:quranglow/core/service/quran_service.dart';
 
-final fawazProvider = Provider<FawazCdnSource>(
-  (ref) => FawazCdnSource(ref.watch(httpClientProvider)),
-);
+final dioProvider = Provider<Dio>((ref) {
+  return Dio(
+    BaseOptions(
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 15),
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'QuranGlow/1.0 (+flutter; dio)',
+      },
+      validateStatus: (s) => s != null && s < 500, // لا يرمى على 4xx
+    ),
+  );
+});
 
-final alQuranProvider = Provider<AlQuranCloudSource>(
-  (ref) => AlQuranCloudSource(ref.watch(httpClientProvider)),
-);
+final fawazSourceProvider = Provider<FawazCdnSource>((ref) {
+  return FawazCdnSource(dio: ref.read(dioProvider));
+});
 
-final quranServiceProvider = Provider<QuranService>(
-  (ref) => QuranService(
-    fawaz: ref.watch(fawazProvider),
-    audio: ref.watch(alQuranProvider),
-  ),
-);
+final alQuranCloudSourceProvider = Provider<AlQuranCloudSource>((ref) {
+  return AlQuranCloudSource(dio: ref.read(dioProvider));
+});
 
-final audioServiceProvider = Provider<AudioService>((ref) => AudioService());
-final downloadServiceProvider = Provider<DownloadService>(
-  (ref) => DownloadService(),
-);
+final quranServiceProvider = Provider<QuranService>((ref) {
+  return QuranService(
+    fawaz: ref.read(fawazSourceProvider),
+    audio: ref.read(alQuranCloudSourceProvider),
+  );
+});
