@@ -19,6 +19,7 @@ class PagedMushaf extends StatefulWidget {
     this.basmalaText = '﷽',
     this.initialSelectedAyah,
     super.key,
+    required Null Function(dynamic aya) onAyahTap,
   });
 
   final List<Aya> ayat;
