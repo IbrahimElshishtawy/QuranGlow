@@ -1,45 +1,51 @@
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+// lib/core/api/fawaz_cdn_source.dart  (Dio + مرايا للنص)
+import 'package:dio/dio.dart';
 
 class FawazCdnSource {
-  final http.Client client;
-  static const _base = 'https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1';
+  FawazCdnSource({required this.dio});
+  final Dio dio;
 
-  FawazCdnSource([http.Client? c]) : client = c ?? http.Client();
+  static const _mirrors = <String>[
+    'https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1',
+    'https://raw.githubusercontent.com/fawazahmed0/quran-api/1',
+  ];
 
-  Future<List<dynamic>> listEditions() async {
-    final resp = await client.get(Uri.parse('$_base/editions.json'));
-    if (resp.statusCode != 200) throw Exception('Failed to load editions');
-    return jsonDecode(resp.body) as List<dynamic>;
+  String _editionPath(String editionId) {
+    switch (editionId) {
+      case 'quran-uthmani':
+        return 'editions/ara-quranuthmani';
+      case 'quran-simple':
+        return 'editions/ara-quransimple';
+      default:
+        if (editionId.startsWith('ara-')) return 'editions/$editionId';
+        return 'editions/ara-quransimple';
+    }
   }
 
   Future<Map<String, dynamic>> getSurah(String editionId, int chapter) async {
-    final paths = [
-      'editions/$editionId/$chapter.min.json',
-      'editions/$editionId/$chapter.json',
-    ];
-    for (final p in paths) {
-      final uri = Uri.parse('$_base/$p');
-      final resp = await client.get(uri);
-      if (resp.statusCode == 200) {
-        return jsonDecode(resp.body) as Map<String, dynamic>;
-      }
-    }
-    throw Exception('Surah not found');
-  }
+    final path = _editionPath(editionId);
+    DioException? last;
 
-  Future<Map<String, dynamic>> getPage(String editionId, int page) async {
-    final paths = [
-      'editions/$editionId/pages/$page.min.json',
-      'editions/$editionId/pages/$page.json',
-    ];
-    for (final p in paths) {
-      final uri = Uri.parse('$_base/$p');
-      final resp = await client.get(uri);
-      if (resp.statusCode == 200) {
-        return jsonDecode(resp.body) as Map<String, dynamic>;
+    for (final base in _mirrors) {
+      final url = '$base/$path/$chapter.json';
+      try {
+        final res = await dio.get(url);
+        if (res.statusCode == 200 && res.data is Map<String, dynamic>) {
+          return Map<String, dynamic>.from(res.data);
+        }
+      } on DioException catch (e) {
+        last = e;
       }
     }
-    throw Exception('Page not found');
+
+    // بديل نصي من AlQuranCloud في حالة فشل المرايا
+    final fb = await dio.get(
+      'https://api.alquran.cloud/v1/surah/$chapter/quran-uthmani',
+    );
+    if (fb.statusCode == 200 && fb.data is Map<String, dynamic>) {
+      return Map<String, dynamic>.from(fb.data);
+    }
+
+    throw last ?? Exception('فشل جلب السورة $chapter من كل المرايا والبديل.');
   }
 }
