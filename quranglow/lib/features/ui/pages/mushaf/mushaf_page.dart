@@ -1,15 +1,14 @@
-// lib/feature/mushaf/mushaf_page.dart
+// lib/features/ui/pages/mushaf/mushaf_page.dart
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/model/aya.dart';
+
+import 'package:quranglow/core/di/providers.dart'; // quranServiceProvider
 import 'package:quranglow/core/model/surah.dart';
-import 'package:quranglow/core/widget/error_widget.dart';
-import 'package:quranglow/core/widget/loading_widget.dart';
+import 'package:quranglow/features/ui/pages/mushaf/paged_mushaf.dart';
 
 final surahProvider = FutureProvider.autoDispose
     .family<Surah, (int chapter, String editionId)>((ref, args) async {
@@ -23,7 +22,6 @@ class MushafPage extends ConsumerStatefulWidget {
     this.chapter = 1,
     this.editionId = 'quran-uthmani',
   });
-
   final int chapter;
   final String editionId;
 
@@ -33,63 +31,97 @@ class MushafPage extends ConsumerStatefulWidget {
 
 class _MushafPageState extends ConsumerState<MushafPage> {
   bool _uiVisible = false;
+  late int _chapter;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _enterReadingMode());
-  }
-
-  Future<void> _enterReadingMode() async {
-    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    await WakelockPlus.enable();
-  }
-
-  Future<void> _exitReadingMode() async {
-    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-    await WakelockPlus.disable();
+    _chapter = widget.chapter.clamp(1, 114);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+      ]);
+      await WakelockPlus.enable();
+    });
   }
 
   @override
   void dispose() {
-    _exitReadingMode();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    WakelockPlus.disable();
     super.dispose();
+  }
+
+  void _goPrev() {
+    if (_chapter > 1) {
+      setState(() => _chapter--);
+      ref.invalidate(surahProvider((_chapter, widget.editionId)));
+    }
+  }
+
+  void _goNext() {
+    if (_chapter < 114) {
+      setState(() => _chapter++);
+      ref.invalidate(surahProvider((_chapter, widget.editionId)));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final asyncSurah = ref.watch(
-      surahProvider((widget.chapter, widget.editionId)),
-    );
+    final asyncSurah = ref.watch(surahProvider((_chapter, widget.editionId)));
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
         body: Stack(
           children: [
             asyncSurah.when(
-              loading: () => const Center(
-                child: LoadingWidget(message: 'جاري التحميل...'),
-              ),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Center(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: ErrorWidgetSimple(
-                    message:
-                        'تعذّر تحميل السورة. تحقّق من الاتصال ثم أعد المحاولة.',
-                    onRetry: () => ref.invalidate(
-                      surahProvider((widget.chapter, widget.editionId)),
-                    ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('تعذّر تحميل السورة'),
+                      const SizedBox(height: 8),
+                      Text(
+                        '$e',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      const SizedBox(height: 12),
+                      OutlinedButton(
+                        onPressed: () => ref.invalidate(
+                          surahProvider((_chapter, widget.editionId)),
+                        ),
+                        child: const Text('إعادة المحاولة'),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              data: (surah) => _SurahView(surah: surah),
+              data: (surah) => AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                child: KeyedSubtree(
+                  key: ValueKey('surah-${_chapter}-${surah.ayat.length}'),
+                  child: PagedMushaf(
+                    ayat: surah.ayat,
+                    surahName: surah.name,
+                    surahNumber: _chapter, // للحفظ/الاسترجاع
+                    showBasmala: surah.name.trim() != 'التوبة',
+                    initialSelectedAyah:
+                        null, // الاسترجاع تلقائي داخل PagedMushaf
+                  ),
+                ),
+              ),
             ),
 
-            // طبقة نقر فقط
+            // طبقة نقر لإظهار/إخفاء الشريط
             Positioned.fill(
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
@@ -97,7 +129,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
               ),
             ),
 
-            // شريط علوي مع IgnorePointer
+            // شريط علوي + تنقل بين السور
             Positioned(
               top: 0,
               left: 0,
@@ -135,7 +167,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               orElse: () => Text(
-                                'سورة ${widget.chapter}',
+                                'سورة $_chapter',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
@@ -144,7 +176,21 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          IconButton(
+                            tooltip: 'السابق',
+                            onPressed: _chapter > 1 ? _goPrev : null,
+                            color: Colors.white,
+                            icon: const Icon(Icons.skip_next), // RTL: للسابق
+                          ),
+                          IconButton(
+                            tooltip: 'التالي',
+                            onPressed: _chapter < 114 ? _goNext : null,
+                            color: Colors.white,
+                            icon: const Icon(
+                              Icons.skip_previous,
+                            ), // RTL: للتالي
+                          ),
+                          const SizedBox(width: 4),
                         ],
                       ),
                     ),
@@ -154,86 +200,6 @@ class _MushafPageState extends ConsumerState<MushafPage> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _SurahView extends StatelessWidget {
-  const _SurahView({required this.surah});
-  final Surah surah;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return CustomScrollView(
-      key: ValueKey('${surah.number}-${surah.name}'),
-      cacheExtent: 1000,
-      slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-            child: Column(
-              children: [
-                Text(
-                  surah.name,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Divider(color: cs.outlineVariant),
-              ],
-            ),
-          ),
-        ),
-        SliverList.builder(
-          addAutomaticKeepAlives: false,
-          addRepaintBoundaries: true,
-          addSemanticIndexes: false,
-          itemCount: surah.ayat.isEmpty ? 0 : (surah.ayat.length * 2 - 1),
-          itemBuilder: (context, index) {
-            if (index.isOdd) return const Divider(height: 1);
-            final i = index >> 1;
-            return _AyaTile(aya: surah.ayat[i]);
-          },
-        ),
-        SliverToBoxAdapter(
-          child: SizedBox(height: MediaQuery.of(context).padding.bottom + 24),
-        ),
-      ],
-    );
-  }
-}
-
-class _AyaTile extends StatelessWidget {
-  const _AyaTile({required this.aya});
-  final Aya aya;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '${aya.number}',
-            style: TextStyle(fontWeight: FontWeight.w700, color: cs.primary),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              aya.text,
-              textAlign: TextAlign.right,
-              style: const TextStyle(fontSize: 20, height: 1.9),
-            ),
-          ),
-        ],
       ),
     );
   }
