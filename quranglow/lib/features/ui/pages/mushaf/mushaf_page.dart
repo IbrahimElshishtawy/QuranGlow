@@ -1,3 +1,6 @@
+// lib/feature/mushaf/mushaf_page.dart
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,8 +11,8 @@ import 'package:quranglow/core/model/surah.dart';
 import 'package:quranglow/core/widget/error_widget.dart';
 import 'package:quranglow/core/widget/loading_widget.dart';
 
-final surahProvider =
-    FutureProvider.family<Surah, (int chapter, String editionId)>((ref, args) {
+final surahProvider = FutureProvider.autoDispose
+    .family<Surah, (int chapter, String editionId)>((ref, args) async {
       final service = ref.read(quranServiceProvider);
       return service.getSurahText(args.$2, args.$1);
     });
@@ -20,6 +23,7 @@ class MushafPage extends ConsumerStatefulWidget {
     this.chapter = 1,
     this.editionId = 'quran-uthmani',
   });
+
   final int chapter;
   final String editionId;
 
@@ -28,18 +32,18 @@ class MushafPage extends ConsumerStatefulWidget {
 }
 
 class _MushafPageState extends ConsumerState<MushafPage> {
-  bool _uiVisible = false; // إظهار/إخفاء شريط علوي عند النقر
+  bool _uiVisible = false;
 
   @override
   void initState() {
     super.initState();
-    _enterReadingMode();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _enterReadingMode());
   }
 
   Future<void> _enterReadingMode() async {
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    await WakelockPlus.enable(); // الشاشة تظل مفتوحة
+    await WakelockPlus.enable();
   }
 
   Future<void> _exitReadingMode() async {
@@ -63,39 +67,45 @@ class _MushafPageState extends ConsumerState<MushafPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface, // هادئ
-        body: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => setState(() => _uiVisible = !_uiVisible),
-          child: Stack(
-            children: [
-              // المحتوى
-              asyncSurah.when(
-                loading: () => const Center(
-                  child: LoadingWidget(message: 'جاري التحميل...'),
-                ),
-                error: (e, _) => Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: ErrorWidgetSimple(
-                      message: 'تعذّر تحميل السورة',
-                      onRetry: () => ref.invalidate(
-                        surahProvider((widget.chapter, widget.editionId)),
-                      ),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: Stack(
+          children: [
+            asyncSurah.when(
+              loading: () => const Center(
+                child: LoadingWidget(message: 'جاري التحميل...'),
+              ),
+              error: (e, _) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ErrorWidgetSimple(
+                    message: 'تعذّر تحميل السورة\n$e',
+                    onRetry: () => ref.invalidate(
+                      surahProvider((widget.chapter, widget.editionId)),
                     ),
                   ),
                 ),
-                data: (surah) => _SurahView(surah: surah),
               ),
+              data: (surah) => _SurahView(surah: surah),
+            ),
 
-              // شريط علوي عائم يظهر/يختفي بالنقر
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 200),
-                top: _uiVisible ? 0 : -72,
-                left: 0,
-                right: 0,
-                child: SafeArea(
-                  bottom: false,
+            // طبقة نقر فقط بدون تعطيل السحب
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () => setState(() => _uiVisible = !_uiVisible),
+              ),
+            ),
+
+            // شريط علوي خفيف
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                bottom: false,
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 150),
+                  opacity: _uiVisible ? 1 : 0,
                   child: Container(
                     height: 56,
                     margin: const EdgeInsets.all(8),
@@ -112,13 +122,23 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                         ),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: Text(
-                            'سورة ${widget.chapter}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
+                          child: asyncSurah.maybeWhen(
+                            data: (s) => Text(
+                              s.name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            overflow: TextOverflow.ellipsis,
+                            orElse: () => Text(
+                              'سورة ${widget.chapter}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -127,15 +147,13 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
-
-/* ------------------------- عرض السورة والآيات ------------------------- */
 
 class _SurahView extends StatelessWidget {
   const _SurahView({required this.surah});
@@ -146,8 +164,8 @@ class _SurahView extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return CustomScrollView(
+      cacheExtent: 1000,
       slivers: [
-        // ترويسة بسيطة
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
@@ -167,17 +185,17 @@ class _SurahView extends StatelessWidget {
             ),
           ),
         ),
-
-        // قائمة الآيات مع فواصل
-        SliverList(
-          delegate: SliverChildBuilderDelegate((context, index) {
+        SliverList.builder(
+          addAutomaticKeepAlives: false,
+          addRepaintBoundaries: true,
+          addSemanticIndexes: false,
+          itemCount: surah.ayat.isEmpty ? 0 : (surah.ayat.length * 2 - 1),
+          itemBuilder: (context, index) {
             if (index.isOdd) return const Divider(height: 1);
-            final i = index ~/ 2;
-            if (i >= surah.ayat.length) return const SizedBox.shrink();
+            final i = index >> 1;
             return _AyaTile(aya: surah.ayat[i]);
-          }, childCount: surah.ayat.isEmpty ? 0 : (surah.ayat.length * 2 - 1)),
+          },
         ),
-
         SliverToBoxAdapter(
           child: SizedBox(height: MediaQuery.of(context).padding.bottom + 24),
         ),
