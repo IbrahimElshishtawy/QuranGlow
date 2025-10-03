@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:quranglow/features/ui/pages/spa/splash_screen.dart';
 
 import 'core/model/goal.dart';
 import 'core/di/providers.dart';
 import 'core/theme/theme.dart';
+
 import 'features/ui/routes/app_router.dart';
-import 'features/ui/routes/app_routes.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,14 +22,13 @@ class QuranGlowApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
+
     return settings.when(
       loading: () => MaterialApp(
         title: 'QuranGlow',
         debugShowCheckedModeBanner: false,
         theme: buildLightTheme(fontFamily: 'System', fontScale: 1),
         darkTheme: buildDarkTheme(fontFamily: 'System', fontScale: 1),
-        onGenerateRoute: onGenerateRoute,
-        initialRoute: AppRoutes.splash,
         home: const Scaffold(body: Center(child: CircularProgressIndicator())),
       ),
       error: (_, __) => MaterialApp(
@@ -36,8 +36,6 @@ class QuranGlowApp extends ConsumerWidget {
         debugShowCheckedModeBanner: false,
         theme: buildLightTheme(fontFamily: 'System', fontScale: 1),
         darkTheme: buildDarkTheme(fontFamily: 'System', fontScale: 1),
-        onGenerateRoute: onGenerateRoute,
-        initialRoute: AppRoutes.splash,
         home: const Scaffold(
           body: Center(child: Text('خطأ في تحميل الإعدادات')),
         ),
@@ -48,8 +46,8 @@ class QuranGlowApp extends ConsumerWidget {
         theme: buildLightTheme(fontFamily: 'System', fontScale: s.fontScale),
         darkTheme: buildDarkTheme(fontFamily: 'System', fontScale: s.fontScale),
         themeMode: s.darkMode ? ThemeMode.dark : ThemeMode.light,
+        home: const SplashScreen(),
         onGenerateRoute: onGenerateRoute,
-        initialRoute: AppRoutes.splash,
       ),
     );
   }
