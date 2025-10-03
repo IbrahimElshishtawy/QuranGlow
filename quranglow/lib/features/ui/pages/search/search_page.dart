@@ -18,8 +18,8 @@ class SearchHit {
   factory SearchHit.fromMap(Map<String, dynamic> m) => SearchHit(
     surah: (m['surahNumber'] as num).toInt(),
     ayah: (m['ayahNumber'] as num).toInt(),
-    surahName: m['surahName'] as String,
-    text: m['text'] as String,
+    surahName: (m['surahName'] ?? '').toString(),
+    text: (m['text'] ?? '').toString(),
   );
 }
 
@@ -27,14 +27,15 @@ final _editionIdProvider = Provider<String>((_) => 'quran-uthmani');
 
 final searchResultsProvider = FutureProvider.autoDispose
     .family<List<SearchHit>, String>((ref, query) async {
-      if (query.trim().isEmpty) return const [];
+      final q = query.trim();
+      if (q.length < 2) return const [];
       final service = ref.read(quranServiceProvider);
       final editionId = ref.read(_editionIdProvider);
-      final raw = await service.searchAyat(query.trim(), editionId: editionId);
+      final raw = await service.searchAyat(q, editionId: editionId, limit: 100);
       return (raw as List)
           .cast<Map<String, dynamic>>()
           .map(SearchHit.fromMap)
-          .toList(growable: false);
+          .toList();
     });
 
 class SearchPage extends ConsumerStatefulWidget {
@@ -44,7 +45,7 @@ class SearchPage extends ConsumerStatefulWidget {
 }
 
 class _SearchPageState extends ConsumerState<SearchPage> {
-  final _c = TextEditingController();
+  final _c = TextEditingController(text: '');
   String _q = '';
 
   @override
@@ -54,12 +55,18 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   }
 
   void _submit([String? _]) {
-    setState(() => _q = _c.text);
+    setState(() => _q = _c.text.trim());
+  }
+
+  void _clear() {
+    _c.clear();
+    setState(() => _q = '');
   }
 
   @override
   Widget build(BuildContext context) {
     final asyncResults = ref.watch(searchResultsProvider(_q));
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -68,8 +75,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           centerTitle: true,
           actions: [
             IconButton(
-              icon: const Icon(Icons.search),
               onPressed: _submit,
+              icon: const Icon(Icons.search),
               tooltip: 'بحث',
             ),
           ],
@@ -81,18 +88,35 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               child: TextField(
                 controller: _c,
                 textInputAction: TextInputAction.search,
+                autofocus: true,
                 decoration: InputDecoration(
-                  hintText: 'ابحث في الآيات والسور...',
+                  hintText: 'ابحث في الآيات والسور…',
                   prefixIcon: const Icon(Icons.search),
-                  suffixIcon: IconButton(
-                    onPressed: _submit,
-                    icon: const Icon(Icons.search),
-                    tooltip: 'بحث',
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_c.text.isNotEmpty)
+                        IconButton(
+                          onPressed: _clear,
+                          icon: const Icon(Icons.clear),
+                          tooltip: 'مسح',
+                        ),
+                      IconButton(
+                        onPressed: _submit,
+                        icon: const Icon(Icons.arrow_back),
+                        tooltip: 'بحث',
+                      ),
+                    ],
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
+                onChanged: (t) {
+                  // بحث حي بسيط بعد 2 حرف
+                  if (t.trim().length >= 2) _submit();
+                  setState(() {}); // لتحديث زر المسح
+                },
                 onSubmitted: _submit,
               ),
             ),
@@ -108,7 +132,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                     itemBuilder: (_, i) {
                       final r = results[i];
                       return ListTile(
-                        title: Text(r.text, textDirection: TextDirection.rtl),
+                        title: _Highlighted(text: r.text, query: _q),
                         subtitle: Text('${r.surahName} • ${r.surah}:${r.ayah}'),
                         trailing: const Icon(Icons.chevron_left),
                         onTap: () {
@@ -139,6 +163,37 @@ class _SearchPageState extends ConsumerState<SearchPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _Highlighted extends StatelessWidget {
+  final String text;
+  final String query;
+  const _Highlighted({required this.text, required this.query});
+
+  @override
+  Widget build(BuildContext context) {
+    final q = query.trim();
+    if (q.isEmpty) return Text(text, textDirection: TextDirection.rtl);
+    final idx = text.indexOf(q);
+    if (idx < 0) return Text(text, textDirection: TextDirection.rtl);
+
+    final pre = text.substring(0, idx);
+    final mid = text.substring(idx, idx + q.length);
+    final post = text.substring(idx + q.length);
+    final hiStyle = const TextStyle(fontWeight: FontWeight.w700);
+
+    return RichText(
+      textDirection: TextDirection.rtl,
+      text: TextSpan(
+        style: DefaultTextStyle.of(context).style,
+        children: [
+          TextSpan(text: pre),
+          TextSpan(text: mid, style: hiStyle),
+          TextSpan(text: post),
+        ],
       ),
     );
   }
