@@ -4,14 +4,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/features/ui/routes/app_router.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import 'package:quranglow/core/di/providers.dart'; // quranServiceProvider
+import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/model/surah.dart';
 import 'package:quranglow/features/ui/pages/mushaf/paged_mushaf.dart';
-
 import 'package:quranglow/features/ui/routes/app_routes.dart';
+import 'package:quranglow/features/ui/routes/app_router.dart';
 
 final surahProvider = FutureProvider.autoDispose
     .family<Surah, (int chapter, String editionId)>((ref, args) async {
@@ -58,17 +57,11 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   }
 
   void _goPrev() {
-    if (_chapter > 1) {
-      setState(() => _chapter--);
-      ref.invalidate(surahProvider((_chapter, widget.editionId)));
-    }
+    if (_chapter > 1) setState(() => _chapter--);
   }
 
   void _goNext() {
-    if (_chapter < 114) {
-      setState(() => _chapter++);
-      ref.invalidate(surahProvider((_chapter, widget.editionId)));
-    }
+    if (_chapter < 114) setState(() => _chapter++);
   }
 
   @override
@@ -97,7 +90,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                       ),
                       const SizedBox(height: 12),
                       OutlinedButton(
-                        onPressed: () => ref.invalidate(
+                        onPressed: () => ref.refresh(
                           surahProvider((_chapter, widget.editionId)),
                         ),
                         child: const Text('إعادة المحاولة'),
@@ -111,7 +104,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                 switchInCurve: Curves.easeOutCubic,
                 switchOutCurve: Curves.easeInCubic,
                 child: KeyedSubtree(
-                  key: ValueKey('surah-${_chapter}-${surah.ayat.length}'),
+                  key: ValueKey('surah-$_chapter-${surah.ayat.length}'),
                   child: PagedMushaf(
                     ayat: surah.ayat,
                     surahName: surah.name,
@@ -134,7 +127,6 @@ class _MushafPageState extends ConsumerState<MushafPage> {
               ),
             ),
 
-            // طبقة نقر لإظهار/إخفاء الشريط
             Positioned.fill(
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
@@ -142,7 +134,6 @@ class _MushafPageState extends ConsumerState<MushafPage> {
               ),
             ),
 
-            // شريط علوي + تنقل بين السور
             Positioned(
               top: 0,
               left: 0,
@@ -193,15 +184,13 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                             tooltip: 'السابق',
                             onPressed: _chapter > 1 ? _goPrev : null,
                             color: Colors.white,
-                            icon: const Icon(Icons.skip_next), // RTL: للسابق
+                            icon: const Icon(Icons.skip_next), // RTL للسابق
                           ),
                           IconButton(
                             tooltip: 'التالي',
                             onPressed: _chapter < 114 ? _goNext : null,
                             color: Colors.white,
-                            icon: const Icon(
-                              Icons.skip_previous,
-                            ), // RTL: للتالي
+                            icon: const Icon(Icons.skip_previous), // RTL للتالي
                           ),
                           const SizedBox(width: 4),
                         ],
