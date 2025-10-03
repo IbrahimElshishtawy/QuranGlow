@@ -1,7 +1,7 @@
-// lib/features/ui/pages/player/widgets/transport_controls.dart
+// ignore_for_file: unused_field
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:quranglow/core/model/Play_list_State.dart';
 import 'package:quranglow/features/ui/pages/player/controller/player_controller_provider.dart';
 import 'package:quranglow/features/ui/pages/player/widgets/position_bar.dart';
@@ -13,7 +13,6 @@ class TransportControls extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
-    final notifier = ref.read(playerControllerProvider.notifier);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -21,7 +20,7 @@ class TransportControls extends ConsumerWidget {
         PositionBar(
           durationStream: state.durationStream,
           positionStream: state.positionStream,
-          onSeek: notifier.seekTo,
+          onSeek: ref.read(playerControllerProvider.notifier).seekTo,
         ),
         const SizedBox(height: 10),
         Row(
@@ -30,7 +29,8 @@ class TransportControls extends ConsumerWidget {
             IconButton(
               tooltip: 'السابق',
               icon: const Icon(Icons.skip_previous_rounded, size: 28),
-              onPressed: notifier.previous,
+              onPressed: () =>
+                  ref.read(playerControllerProvider.notifier).previous(),
             ),
             const SizedBox(width: 8),
             StreamBuilder<bool>(
@@ -39,12 +39,23 @@ class TransportControls extends ConsumerWidget {
               builder: (_, snap) {
                 final playing = snap.data ?? false;
                 return FilledButton.tonalIcon(
-                  onPressed: playing ? notifier.pause : notifier.play,
+                  onPressed: () => playing
+                      ? ref.read(playerControllerProvider.notifier).pause()
+                      : ref.read(playerControllerProvider.notifier).play(),
                   icon: Icon(
                     playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
                     size: 28,
                   ),
                   label: Text(playing ? 'إيقاف مؤقت' : 'تشغيل'),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
                 );
               },
             ),
@@ -52,7 +63,8 @@ class TransportControls extends ConsumerWidget {
             IconButton(
               tooltip: 'التالي',
               icon: const Icon(Icons.skip_next_rounded, size: 28),
-              onPressed: notifier.next,
+              onPressed: () =>
+                  ref.read(playerControllerProvider.notifier).next(),
             ),
           ],
         ),
@@ -62,68 +74,49 @@ class TransportControls extends ConsumerWidget {
           spacing: 12,
           runSpacing: 4,
           children: [
-            _SpeedMenu(onSelect: (v) => notifier.seekTo(const Duration())),
-            StreamBuilder<LoopMode>(
-              stream: state.loopModeStream,
-              initialData: LoopMode.off,
-              builder: (_, snap) {
-                final on = (snap.data ?? LoopMode.off) != LoopMode.off;
-                return _OutlinedIcon(
-                  text: on ? 'التكرار: يعمل' : 'التكرار: متوقف',
-                  icon: on ? Icons.repeat_on_rounded : Icons.repeat_rounded,
-                  onTap: notifier.toggleLoop,
-                );
+            _SpeedMenu(
+              onSelect: (v) {
+                // يمكن لاحقًا ضبط setSpeed على المشغّل إن رغبت
+                ref
+                    .read(playerControllerProvider.notifier)
+                    .seekTo(const Duration());
               },
             ),
-            StreamBuilder<double>(
-              stream: state.volumeStream,
-              initialData: 1.0,
-              builder: (_, snap) {
-                final muted = (snap.data ?? 1.0) == 0.0;
-                return _OutlinedIcon(
-                  text: muted ? 'صامت: يعمل' : 'صامت: متوقف',
-                  icon: muted
-                      ? Icons.volume_off_rounded
-                      : Icons.volume_up_rounded,
-                  onTap: notifier.toggleMute,
-                );
-              },
+            OutlinedButton.icon(
+              onPressed: () =>
+                  ref.read(playerControllerProvider.notifier).toggleLoop(),
+              icon: const Icon(Icons.repeat_rounded, size: 18),
+              label: const Text('تكرار'),
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: cs.outlineVariant),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+              ),
+            ),
+            OutlinedButton.icon(
+              onPressed: () =>
+                  ref.read(playerControllerProvider.notifier).toggleMute(),
+              icon: const Icon(Icons.volume_off_rounded, size: 18),
+              label: const Text('صامت'),
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: cs.outlineVariant),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 8),
-        Text(
-          'المسارات: ${state.total}',
-          style: TextStyle(color: cs.onSurfaceVariant),
-        ),
       ],
-    );
-  }
-}
-
-class _OutlinedIcon extends StatelessWidget {
-  const _OutlinedIcon({
-    required this.text,
-    required this.icon,
-    required this.onTap,
-  });
-  final String text;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return OutlinedButton.icon(
-      onPressed: onTap,
-      icon: Icon(icon, size: 18),
-      label: Text(text),
-      style: OutlinedButton.styleFrom(
-        foregroundColor: cs.onSurface,
-        side: BorderSide(color: cs.outlineVariant),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      ),
     );
   }
 }
@@ -147,11 +140,11 @@ class _SpeedMenuState extends State<_SpeedMenu> {
         widget.onSelect(v);
       },
       itemBuilder: (context) => _options
-          .map((v) => PopupMenuItem<double>(value: v, child: Text('${v}x')))
+          .map((v) => PopupMenuItem(value: v, child: Text('${v}x')))
           .toList(),
-      child: Chip(
-        label: Text('السرعة ${_speed}x'),
-        avatar: const Icon(Icons.speed_rounded, size: 18),
+      child: const Chip(
+        avatar: Icon(Icons.speed_rounded, size: 18),
+        label: Text('السرعة'),
       ),
     );
   }
