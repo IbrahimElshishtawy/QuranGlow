@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show NetworkAssetBundle;
+import 'package:flutter/material.dart';
 import 'package:quranglow/core/api/fawaz_cdn_source.dart';
 import 'package:quranglow/core/api/alquran_cloud_source.dart';
 import 'package:quranglow/core/model/aya.dart';
@@ -13,7 +15,15 @@ class QuranService {
     required AlQuranCloudSource audio,
   });
 
+  final Map<String, Map<int, Surah>> _surahCacheByEdition = {};
+  final Map<String, Uint8List> _imageCache = {};
+  final int _imageCacheMax = 32;
+
   Future<Surah> getSurahText(String editionId, int chapter) async {
+    final cache = _surahCacheByEdition.putIfAbsent(editionId, () => {});
+    final cached = cache[chapter];
+    if (cached != null) return cached;
+
     debugPrint('[SRV] fetch surah=$chapter ed=$editionId');
     Map<String, dynamic> json;
     if (editionId == 'quran-uthmani') {
@@ -49,8 +59,10 @@ class QuranService {
     if (ayat.isEmpty) {
       throw Exception('لم يتم استخراج آيات للسورة $chapter ($editionId).');
     }
+    final s = Surah(number: chapter, name: name, ayat: ayat.cast<Aya>());
+    cache[chapter] = s;
     debugPrint('[SRV] loaded ${ayat.length} ayat for $name');
-    return Surah(number: chapter, name: name, ayat: ayat.cast<Aya>());
+    return s;
   }
 
   Future<List<Surah>> getQuranAllText(String editionId) async {
@@ -72,8 +84,6 @@ class QuranService {
   Future<List> listAudioEditions() => cloud.listAudioEditions();
   Future<Map<String, dynamic>> getSurahAudio(String ed, int s) =>
       cloud.getSurahAudio(ed, s);
-
-  final Map<String, Map<int, Surah>> _surahCacheByEdition = {};
 
   Future<List<Map<String, dynamic>>> searchAyat(
     String query, {
@@ -101,6 +111,34 @@ class QuranService {
     }
     return hits;
   }
+
+  Future<Uint8List> getImageBytes(String url) async {
+    final u = url.trim();
+    if (u.isEmpty) {
+      throw ArgumentError('empty url');
+    }
+    final cached = _imageCache[u];
+    if (cached != null) return cached;
+    final uri = Uri.parse(u);
+    final byteData = await NetworkAssetBundle(uri).load(uri.toString());
+    final bytes = byteData.buffer.asUint8List();
+    if (bytes.isEmpty) {
+      throw Exception('failed to load image: $u');
+    }
+    if (_imageCache.length >= _imageCacheMax) {
+      _imageCache.remove(_imageCache.keys.first);
+    }
+    _imageCache[u] = bytes;
+    return bytes;
+  }
+
+  ImageProvider getImageProvider(String url) {
+    final cached = _imageCache[url];
+    if (cached != null) return MemoryImage(cached);
+    return NetworkImage(url);
+  }
+
+  void clearImageCache() => _imageCache.clear();
 
   String _normalizeArabic(String input) {
     var s = input.trim();
