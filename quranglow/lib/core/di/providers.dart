@@ -1,6 +1,4 @@
 // lib/core/di/providers.dart
-// ignore_for_file: unnecessary_import
-
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -17,12 +15,11 @@ import 'package:quranglow/core/service/settings_service.dart';
 import 'package:quranglow/core/service/tracking_service.dart';
 import 'package:quranglow/core/storage/hive_storage_impl.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
-import 'package:state_notifier/state_notifier.dart';
 
 final httpClientProvider = Provider<http.Client>((ref) => http.Client());
 
 final dioProvider = Provider<Dio>((ref) {
-  final dio = Dio(
+  return Dio(
     BaseOptions(
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 15),
@@ -30,21 +27,20 @@ final dioProvider = Provider<Dio>((ref) {
       validateStatus: (s) => s != null && s < 500,
     ),
   );
-  return dio;
 });
 
 final storageProvider = Provider<LocalStorage>((ref) => HiveStorageImpl());
 
-/// FawazCdnSource(client, dio)
 final fawazProvider = Provider<FawazCdnSource>((ref) {
   final client = ref.watch(httpClientProvider);
   final dio = ref.watch(dioProvider);
   return FawazCdnSource(client, dio);
 });
 
-final alQuranProvider = Provider<AlQuranCloudSource>(
-  (ref) => AlQuranCloudSource(ref.watch(httpClientProvider)),
-);
+final alQuranProvider = Provider<AlQuranCloudSource>((ref) {
+  final dio = ref.watch(dioProvider);
+  return AlQuranCloudSource(dio: dio);
+});
 
 final goalsServiceProvider = Provider<GoalsService>((ref) => GoalsService());
 
