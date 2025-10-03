@@ -1,76 +1,101 @@
-// lib/features/ui/pages/player/widgets/header_controls.dart
-// ignore_for_file: deprecated_member_use
-
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/features/ui/pages/player/controller/player_controller_provider.dart';
 
-class HeaderControls extends ConsumerWidget {
-  const HeaderControls({super.key});
+class HeaderCard extends StatelessWidget {
+  const HeaderCard({super.key, required this.editionId, required this.chapter});
+
+  final String editionId;
+  final int chapter;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final editions = ref.watch(audioEditionsProvider);
-    final ed = ref.watch(editionIdProvider);
-    final chapter = ref.watch(chapterProvider);
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final t = Theme.of(context).textTheme;
 
-    return Row(
-      children: [
-        Expanded(
-          child: editions.when(
-            loading: () => const LinearProgressIndicator(),
-            error: (e, _) => Text('خطأ بالإصدارات: $e'),
-            data: (list) {
-              final items = list
-                  .whereType<Map>()
-                  .map((m) => Map<String, dynamic>.from(m))
-                  .toList();
-              if (items.isEmpty)
-                return const Text('لا توجد إصدارات صوتية متاحة');
-              return DropdownButtonFormField<String>(
-                value: ed,
-                decoration: const InputDecoration(
-                  labelText: 'اختيار القارئ',
-                  border: OutlineInputBorder(),
-                  isDense: true,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerHigh.withOpacity(.7),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: cs.outlineVariant.withOpacity(.4)),
+          ),
+          padding: const EdgeInsets.all(18),
+          child: Row(
+            children: [
+              Container(
+                width: 88,
+                height: 88,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [cs.primary, cs.secondary],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: cs.primary.withOpacity(.25),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
-                isExpanded: true,
-                items: items.map((m) {
-                  final id = (m['identifier'] ?? '').toString();
-                  final name = (m['name'] ?? m['englishName'] ?? id).toString();
-                  return DropdownMenuItem(value: id, child: Text(name));
-                }).toList(),
-                onChanged: (v) {
-                  if (v != null) {
-                    ref
-                        .read(playerControllerProvider.notifier)
-                        .changeEdition(v);
-                  }
-                },
-              );
-            },
+                child: const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: Colors.white,
+                  size: 44,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'سورة $chapter',
+                      style: t.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text('القارئ: $editionId', style: t.bodyMedium),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: -6,
+                      children: [
+                        _Pill(text: 'تشغيل متصل'),
+                        _Pill(text: 'جودة عادية'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(width: 12),
-        SizedBox(
-          width: 120,
-          child: TextFormField(
-            initialValue: chapter.toString(),
-            decoration: const InputDecoration(
-              labelText: 'السورة',
-              border: OutlineInputBorder(),
-              isDense: true,
-            ),
-            textAlign: TextAlign.center,
-            keyboardType: TextInputType.number,
-            onFieldSubmitted: (v) {
-              final n = int.tryParse(v) ?? chapter;
-              ref.read(playerControllerProvider.notifier).changeChapter(n);
-            },
-          ),
-        ),
-      ],
+      ),
+    );
+  }
+}
+
+class _Pill extends StatelessWidget {
+  const _Pill({required this.text});
+  final String text;
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: cs.primary.withOpacity(.10),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.outlineVariant),
+      ),
+      child: Text(text, style: const TextStyle(fontWeight: FontWeight.w600)),
     );
   }
 }
