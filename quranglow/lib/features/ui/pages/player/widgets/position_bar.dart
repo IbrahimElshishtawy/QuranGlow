@@ -1,7 +1,4 @@
 // lib/features/ui/pages/player/widgets/position_bar.dart
-// ignore_for_file: unnecessary_import
-
-import 'dart:ui' show FontFeature;
 import 'package:flutter/material.dart';
 
 class PositionBar extends StatelessWidget {
@@ -37,12 +34,7 @@ class PositionBar extends StatelessWidget {
                   value: v.clamp(0.0, 1.0),
                   onChanged: (x) => onSeek(dur * x),
                 ),
-                Text(
-                  '${_fmt(pos)} / ${_fmt(dur)}',
-                  style: const TextStyle(
-                    fontFeatures: [FontFeature.tabularFigures()],
-                  ),
-                ),
+                Text('${_fmt(pos)} / ${_fmt(dur)}'),
               ],
             );
           },
