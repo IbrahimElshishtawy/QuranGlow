@@ -1,4 +1,3 @@
-// lib/core/service/settings_service.dart
 import 'package:quranglow/core/model/App_Settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
