@@ -63,7 +63,17 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(title: const Text('بحث'), centerTitle: true),
+        appBar: AppBar(
+          title: const Text('بحث'),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: _submit,
+              tooltip: 'بحث',
+            ),
+          ],
+        ),
         body: Column(
           children: [
             Padding(
@@ -76,7 +86,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   prefixIcon: const Icon(Icons.search),
                   suffixIcon: IconButton(
                     onPressed: _submit,
-                    icon: const Icon(Icons.arrow_back),
+                    icon: const Icon(Icons.search),
                     tooltip: 'بحث',
                   ),
                   border: OutlineInputBorder(
@@ -128,10 +138,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               ),
             ),
           ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _submit,
-          child: const Icon(Icons.search),
         ),
       ),
     );
