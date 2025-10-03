@@ -1,10 +1,9 @@
 // lib/core/di/providers.dart
-// ignore_for_file: implementation_imports
+// ignore_for_file: unnecessary_import
 
-import 'package:dio/src/dio.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:flutter_riverpod/misc.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:quranglow/core/api/fawaz_cdn_source.dart';
@@ -12,55 +11,59 @@ import 'package:quranglow/core/api/alquran_cloud_source.dart';
 import 'package:quranglow/core/model/App_Settings.dart';
 import 'package:quranglow/core/model/goal.dart';
 import 'package:quranglow/core/model/surah.dart';
-import 'package:quranglow/core/service/Goals_Service.dart';
+import 'package:quranglow/core/service/goals_service.dart';
 import 'package:quranglow/core/service/quran_service.dart';
 import 'package:quranglow/core/service/settings_service.dart';
 import 'package:quranglow/core/service/tracking_service.dart';
 import 'package:quranglow/core/storage/hive_storage_impl.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:state_notifier/state_notifier.dart';
 
-/// HTTP client (موحّد)
 final httpClientProvider = Provider<http.Client>((ref) => http.Client());
 
-/// Local storage (تأكد من init() في main قبل runApp)
-final storageProvider = Provider<LocalStorage>((ref) {
-  final s = HiveStorageImpl();
-  return s;
+final dioProvider = Provider<Dio>((ref) {
+  final dio = Dio(
+    BaseOptions(
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 15),
+      headers: {'Accept': 'application/json', 'User-Agent': 'QuranGlow/1.0'},
+      validateStatus: (s) => s != null && s < 500,
+    ),
+  );
+  return dio;
 });
 
-/// Data sources
-final fawazProvider = Provider(
-  (ref) => FawazCdnSource(
-    ref.watch(httpClientProvider),
-    ref.watch(storageProvider as ProviderListenable<Dio?>),
-  ),
+final storageProvider = Provider<LocalStorage>((ref) => HiveStorageImpl());
+
+/// FawazCdnSource(client, dio)
+final fawazProvider = Provider<FawazCdnSource>((ref) {
+  final client = ref.watch(httpClientProvider);
+  final dio = ref.watch(dioProvider);
+  return FawazCdnSource(client, dio);
+});
+
+final alQuranProvider = Provider<AlQuranCloudSource>(
+  (ref) => AlQuranCloudSource(ref.watch(httpClientProvider)),
 );
 
 final goalsServiceProvider = Provider<GoalsService>((ref) => GoalsService());
 
-final goalsProvider = FutureProvider<List<Goal>>((ref) async {
-  final service = ref.read(goalsServiceProvider);
-  return service.listGoals();
-});
-final alQuranProvider = Provider(
-  (ref) => AlQuranCloudSource(ref.watch(httpClientProvider)),
+final goalsProvider = FutureProvider<List<Goal>>(
+  (ref) async => ref.read(goalsServiceProvider).listGoals(),
 );
 
-/// Services
-final quranServiceProvider = Provider(
-  (ref) => QuranService(
+final quranServiceProvider = Provider<QuranService>((ref) {
+  return QuranService(
     fawaz: ref.watch(fawazProvider),
-    audio: ref.watch(alQuranProvider),
     cloud: ref.watch(alQuranProvider),
-  ),
-);
+    audio: ref.watch(alQuranProvider),
+  );
+});
 
-final trackingServiceProvider = Provider(
+final trackingServiceProvider = Provider<TrackingService>(
   (ref) => TrackingService(ref.watch(storageProvider)),
 );
 
-/// مصحف كامل لنفس الـ edition
 final quranAllProvider = FutureProvider.autoDispose.family<List<Surah>, String>(
   (ref, editionId) {
     final service = ref.read(quranServiceProvider);
@@ -74,48 +77,43 @@ final settingsServiceProvider = Provider<SettingsService>(
 
 final settingsProvider =
     StateNotifierProvider<SettingsController, AsyncValue<AppSettings>>(
-      (ref) => SettingsController(ref.read as Ref),
+      (ref) => SettingsController(ref),
     );
 
 class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
-  SettingsController(this._ref) : super(const AsyncValue.loading()) {
+  SettingsController(this.ref) : super(const AsyncValue.loading()) {
     _init();
   }
-  final Ref _ref;
+  final Ref ref;
 
   Future<void> _init() async {
-    final svc = _ref.read(settingsServiceProvider);
+    final svc = ref.read(settingsServiceProvider);
     final s = await svc.load();
     state = AsyncValue.data(s);
   }
 
   Future<void> setDark(bool v) async {
-    final svc = _ref.read(settingsServiceProvider);
     final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
     if (cur == null) return;
     state = AsyncValue.data(cur.copyWith(darkMode: v));
-    await svc.setDark(v);
+    await ref.read(settingsServiceProvider).setDark(v);
   }
 
   Future<void> setFontScale(double v) async {
-    final svc = _ref.read(settingsServiceProvider);
     final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
     if (cur == null) return;
     state = AsyncValue.data(cur.copyWith(fontScale: v));
-    await svc.setFontScale(v);
+    await ref.read(settingsServiceProvider).setFontScale(v);
   }
 
   Future<void> setReader(String id) async {
-    final svc = _ref.read(settingsServiceProvider);
     final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
     if (cur == null) return;
     state = AsyncValue.data(cur.copyWith(readerEditionId: id));
-    await svc.setReader(id);
+    await ref.read(settingsServiceProvider).setReader(id);
   }
 }
 
 final audioEditionsProvider = FutureProvider<List<dynamic>>((ref) async {
-  final svc = ref.read(quranServiceProvider);
-  final list = await svc.listAudioEditions();
-  return list;
+  return ref.read(quranServiceProvider).listAudioEditions();
 });
