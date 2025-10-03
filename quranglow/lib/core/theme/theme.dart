@@ -16,9 +16,7 @@ ThemeData buildLightTheme({
     scaffoldBackgroundColor: AppColors.lightBgBottom,
   );
 
-  final textTheme = GoogleFonts.scheherazadeNewTextTheme(
-    base.textTheme,
-  ).apply(fontSizeFactor: fontScale);
+  final textTheme = GoogleFonts.scheherazadeNewTextTheme(base.textTheme);
 
   return base.copyWith(
     textTheme: textTheme,
@@ -52,9 +50,7 @@ ThemeData buildDarkTheme({
     scaffoldBackgroundColor: AppColors.darkBgBottom,
   );
 
-  final textTheme = GoogleFonts.scheherazadeNewTextTheme(
-    base.textTheme,
-  ).apply(fontSizeFactor: fontScale);
+  final textTheme = GoogleFonts.scheherazadeNewTextTheme(base.textTheme);
 
   return base.copyWith(
     textTheme: textTheme,
@@ -67,7 +63,6 @@ ThemeData buildDarkTheme({
   );
 }
 
-// جراديانت موحّد للواجهات (Splash وغيره)
 class AppGradients {
   static LinearGradient background(Brightness b) => LinearGradient(
     colors: b == Brightness.dark
