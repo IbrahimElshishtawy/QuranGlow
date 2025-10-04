@@ -127,7 +127,6 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
   } else if (name == AppRoutes.downloadDetail) {
     return _mat(const DownloadDetailPage(), s);
   } else if (name == AppRoutes.setting) {
-    // ✅ استخدم نفس الاسم الذي يُستعمل في بقية التطبيق
     return _mat(const SettingsPage(), s);
   } else if (name == AppRoutes.goals) {
     return _mat(const GoalsPage(), s);
