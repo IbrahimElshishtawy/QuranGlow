@@ -20,13 +20,7 @@ class PlayerPage extends ConsumerWidget {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         resizeToAvoidBottomInset: true,
-        appBar: AppBar(
-          title: const Text('المشغّل'),
-          centerTitle: true,
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          foregroundColor: cs.onSurface,
-        ),
+
         body: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
