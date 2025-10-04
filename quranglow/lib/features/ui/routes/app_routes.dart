@@ -2,7 +2,7 @@ class AppRoutes {
   static const splash = '/';
   static const home = '/home';
   static const mushaf = '/mushaf';
-  static const mushafPaged = '/mushaf-paged'; // <-- صح
+  static const mushafPaged = '/mushaf-paged';
   static const surahs = '/surahs';
   static const ayah = '/ayah';
   static const player = '/player';
