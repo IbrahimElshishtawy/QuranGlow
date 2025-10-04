@@ -1,3 +1,6 @@
+// lib/features/ui/pages/home/home_page.dart
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:quranglow/features/ui/pages/home/sections/daily_ayah_card.dart';
 import 'package:quranglow/features/ui/pages/home/sections/goals_strip.dart';
@@ -8,7 +11,10 @@ import 'package:quranglow/features/ui/pages/home/widgets/app_drawer.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/hero_header.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/section_shell.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/section_spacing.dart';
-import '../../routes/app_routes.dart';
+
+// أعرض الصفحات داخل التبويبات بدل التنقّل
+import 'package:quranglow/features/ui/pages/search/search_page.dart';
+import 'package:quranglow/features/ui/pages/player/player_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -27,7 +33,8 @@ class _HomePageState extends State<HomePage> {
         drawer: AppDrawer(
           onNavigate: (r) {
             Navigator.pop(context);
-            Navigator.pushNamed(context, r);
+            // لو محتاجين تنقّل من القائمة الجانبية يبقى هنا
+            // Navigator.pushNamed(context, r);
           },
         ),
         bottomNavigationBar: NavigationBar(
@@ -54,16 +61,14 @@ class _HomePageState extends State<HomePage> {
               expandedHeight: 150,
               centerTitle: true,
               title: Text(_titleForTab(_tab)),
-              actions: [
-                IconButton(
-                  tooltip: 'الإعدادات',
-                  onPressed: () =>
-                      Navigator.pushNamed(context, AppRoutes.settings),
-                  icon: const Icon(Icons.settings),
-                ),
+              actions: const [
+                // مثال: زر إعدادات (اختياري تحذف لو عندك صفحة إعدادات مستقلة)
+                // IconButton(onPressed: (){}, icon: Icon(Icons.settings)),
               ],
               flexibleSpace: const FlexibleSpaceBar(background: HeroHeader()),
             ),
+
+            // الرئيسية
             if (_tab == 0) ...[
               const SliverToBoxAdapter(
                 child: SectionSpacing(child: LastReadCard()),
@@ -86,14 +91,15 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ],
+
+            // البحث — يُعرَض داخل نفس الصفحة
             if (_tab == 1)
               const SliverFillRemaining(
-                hasScrollBody: false,
-                child: SectionShell(
-                  title: 'بحث',
-                  subtitle: 'ابحث في المصحف، السور، والآيات',
-                ),
+                hasScrollBody: true,
+                child: SearchPage(),
               ),
+
+            // التنزيلات (قالب بسيط)
             if (_tab == 2)
               const SliverFillRemaining(
                 hasScrollBody: false,
@@ -102,13 +108,12 @@ class _HomePageState extends State<HomePage> {
                   subtitle: 'إدارة التحميلات والتشغيل دون إنترنت',
                 ),
               ),
+
+            // المشغّل — يُعرَض داخل نفس الصفحة
             if (_tab == 3)
               const SliverFillRemaining(
-                hasScrollBody: false,
-                child: SectionShell(
-                  title: 'المشغّل',
-                  subtitle: 'التحكم في التلاوة وتشغيل القارئ',
-                ),
+                hasScrollBody: true,
+                child: PlayerPage(),
               ),
           ],
         ),
