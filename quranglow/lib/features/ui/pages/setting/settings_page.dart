@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quranglow/features/ui/routes/app_routes.dart';
 
 // أقسام الصفحة
 import 'widgets/index.dart';
@@ -15,17 +16,22 @@ class SettingsPage extends ConsumerWidget {
         appBar: AppBar(
           centerTitle: true,
           title: const Text('الإعدادات'),
-          automaticallyImplyLeading: true,
-          leading: Navigator.of(context).canPop()
-              ? IconButton(
-                  icon: Icon(
-                    Directionality.of(context) == TextDirection.rtl
-                        ? Icons.arrow_forward
-                        : Icons.arrow_back,
-                  ),
-                  onPressed: () => Navigator.of(context).maybePop(),
-                )
-              : null,
+          automaticallyImplyLeading: false, // عشان نتحكّم إحنا في الـ leading
+          leading: IconButton(
+            icon: Icon(
+              Directionality.of(context) == TextDirection.rtl
+                  ? Icons.arrow_forward
+                  : Icons.arrow_back,
+            ),
+            onPressed: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).maybePop();
+              } else {
+                // مافيش حاجة نرجع لها؟ ارجع للرئيسية
+                Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+              }
+            },
+          ),
         ),
         body: ListView(
           children: [
