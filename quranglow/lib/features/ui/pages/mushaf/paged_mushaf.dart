@@ -5,21 +5,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import 'paginator.dart';
 import 'span_builder.dart';
 import 'position_store.dart';
 import 'package:quranglow/core/model/aya.dart';
 
 class PagedMushaf extends StatefulWidget {
   const PagedMushaf({
+    super.key,
     required this.ayat,
     required this.surahName,
     required this.surahNumber,
     this.showBasmala = false,
     this.basmalaText = '﷽',
     this.initialSelectedAyah,
-    super.key,
-    required Null Function(dynamic aya) onAyahTap,
+    required this.onAyahTap,
   });
 
   final List<Aya> ayat;
@@ -28,29 +27,31 @@ class PagedMushaf extends StatefulWidget {
   final bool showBasmala;
   final String basmalaText;
   final int? initialSelectedAyah; // index صفرّي
+  final void Function(Aya aya) onAyahTap;
 
   @override
   State<PagedMushaf> createState() => _PagedMushafState();
 }
 
-class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
-  final List<PageChunk> _pages = [];
-  List<InlineSpan>? _cachedSpans;
-  bool _built = false;
-  Size? _lastSize;
-  double? _lastTextScale;
+class _PageRange {
+  final int start; // شامل
+  final int end; // غير شامل
+  const _PageRange(this.start, this.end);
+}
 
-  int? _currentAyah; // index صفرّي
-  final _recognizers = <TapGestureRecognizer>[];
-  late final AyahSpanBuilder _builder;
+class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
   final _store = PositionStore();
+  int? _currentAyah; // index صفرّي
+
+  // كل عنصر يمثل (بداية..نهاية) آيات صفحة واحدة—14 آية ثابتًا
+  List<_PageRange> _pages = const [];
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _currentAyah = widget.initialSelectedAyah;
-    _builder = AyahSpanBuilder(onAyahTap: _onAyahTap);
+    _recomputePages(); // أول تقسيم
     if (_currentAyah == null) _restoreLast();
   }
 
@@ -62,11 +63,6 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
     }
   }
 
-  void _onAyahTap(int index) {
-    setState(() => _currentAyah = index);
-    _store.save(widget.surahNumber, index);
-  }
-
   @override
   void didUpdateWidget(covariant PagedMushaf oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -75,79 +71,48 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
         oldWidget.showBasmala != widget.showBasmala ||
         oldWidget.basmalaText != widget.basmalaText ||
         oldWidget.surahNumber != widget.surahNumber) {
-      _invalidate();
+      _recomputePages();
     }
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final scale = MediaQuery.textScalerOf(context).textScaleFactor;
-    if (_lastTextScale != scale) {
-      _lastTextScale = scale;
-      _invalidate();
-    }
-    _ensureBuilt();
+    if (_pages.isEmpty) _recomputePages();
   }
 
   @override
   void didChangeMetrics() {
-    final size =
-        WidgetsBinding.instance.platformDispatcher.views.first.physicalSize;
-    if (_lastSize != size) {
-      _lastSize = size;
-      _rebalancePages();
-    }
+    // لا حاجة لإعادة التقسيم حسب الحجم لأننا نستخدم 14 آية ثابتًا
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    for (final r in _recognizers) {
-      r.dispose();
-    }
-    _recognizers.clear();
     super.dispose();
   }
 
-  void _invalidate() {
-    _cachedSpans = null;
-    _built = false;
-    for (final r in _recognizers) {
-      r.dispose();
+  void _onAyahTap(int index) {
+    setState(() => _currentAyah = index);
+    _store.save(widget.surahNumber, index);
+    if (index >= 0 && index < widget.ayat.length) {
+      widget.onAyahTap(widget.ayat[index]);
     }
-    _recognizers.clear();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _rebalancePages());
   }
 
-  void _ensureBuilt() {
-    if (_built) return;
-    _pages.clear();
-    _cachedSpans ??= _builder.buildSpans(
-      ayat: widget.ayat,
-      showBasmala: widget.showBasmala,
-      basmala: widget.basmalaText,
-      currentAyahIndex: _currentAyah,
-      recognizersBucket: _recognizers,
-    );
-    _pages.addAll(paginate(context, _cachedSpans!));
-    _built = true;
-  }
+  /// تقسيم بسيط: كل صفحة = 14 آية، والصفحة الأخيرة قد تكون أقل (الباقي)
+  void _recomputePages() {
+    final ranges = <_PageRange>[];
+    const perPage = 14;
+    final n = widget.ayat.length;
 
-  void _rebalancePages() {
-    if (!mounted) return;
-    setState(() {
-      _pages.clear();
-      _cachedSpans ??= _builder.buildSpans(
-        ayat: widget.ayat,
-        showBasmala: widget.showBasmala,
-        basmala: widget.basmalaText,
-        currentAyahIndex: _currentAyah,
-        recognizersBucket: _recognizers,
-      );
-      _pages.addAll(paginate(context, _cachedSpans!));
-      _built = true;
-    });
+    for (int i = 0; i < n; i += perPage) {
+      final end = (i + perPage <= n) ? i + perPage : n;
+      ranges.add(_PageRange(i, end));
+    }
+    if (ranges.isEmpty) ranges.add(const _PageRange(0, 0));
+
+    setState(() => _pages = ranges);
   }
 
   @override
@@ -158,15 +123,14 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
       return const Center(child: Text('لا يوجد نص للعرض'));
     }
     if (_pages.isEmpty) {
-      _ensureBuilt();
-      if (_pages.isEmpty) return const Center(child: Text('جاري التجهيز...'));
+      return const Center(child: Text('جاري التجهيز...'));
     }
 
     return PageView.builder(
       reverse: true,
       itemCount: _pages.length,
-      itemBuilder: (context, index) {
-        final p = _pages[index];
+      itemBuilder: (context, pageIndex) {
+        final r = _pages[pageIndex];
         return Directionality(
           textDirection: TextDirection.rtl,
           child: SafeArea(
@@ -188,26 +152,25 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
                       const SizedBox(height: 6),
                       Divider(color: cs.outlineVariant),
                       const SizedBox(height: 8),
+
+                      // محتوى الصفحة — نُوَلِّده عند الطلب فقط
                       Expanded(
-                        child: SingleChildScrollView(
-                          physics: const NeverScrollableScrollPhysics(),
-                          child: RichText(
-                            textAlign: TextAlign.justify,
-                            textDirection: TextDirection.rtl,
-                            strutStyle: const StrutStyle(
-                              fontSize: 20,
-                              height: 1.9,
-                            ),
-                            text: p.span,
-                          ),
+                        child: _PageRichBlock(
+                          ayat: widget.ayat,
+                          range: r,
+                          showBasmala: widget.showBasmala && pageIndex == 0,
+                          basmalaText: widget.basmalaText,
+                          currentAyahIndex: _currentAyah,
+                          onTapIndex: _onAyahTap,
                         ),
                       ),
+
                       const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            '${_toArabicDigits(index + 1)} / ${_toArabicDigits(_pages.length)}',
+                            '${_toArabicDigits(pageIndex + 1)} / ${_toArabicDigits(_pages.length)}',
                             style: TextStyle(color: cs.outline),
                           ),
                         ],
@@ -259,6 +222,83 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
         );
       },
     );
+  }
+}
+
+class _PageRichBlock extends StatefulWidget {
+  const _PageRichBlock({
+    required this.ayat,
+    required this.range,
+    required this.showBasmala,
+    required this.basmalaText,
+    required this.currentAyahIndex,
+    required this.onTapIndex,
+  });
+
+  final List<Aya> ayat;
+  final _PageRange range;
+  final bool showBasmala;
+  final String basmalaText;
+  final int? currentAyahIndex;
+  final void Function(int index) onTapIndex;
+
+  @override
+  State<_PageRichBlock> createState() => _PageRichBlockState();
+}
+
+class _PageRichBlockState extends State<_PageRichBlock> {
+  final _recognizers = <TapGestureRecognizer>[];
+  late final AyahSpanBuilder _builder;
+
+  @override
+  void initState() {
+    super.initState();
+    _builder = AyahSpanBuilder(onAyahTap: widget.onTapIndex);
+  }
+
+  @override
+  void dispose() {
+    for (final r in _recognizers) {
+      r.dispose();
+    }
+    _recognizers.clear();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final subAyat = widget.ayat.sublist(widget.range.start, widget.range.end);
+
+    final localCurrentIndex = widget.currentAyahIndex == null
+        ? null
+        : _mapToLocal(
+            widget.currentAyahIndex!,
+            widget.range.start,
+            widget.range.end,
+          );
+
+    final spans = _builder.buildSpans(
+      ayat: subAyat,
+      showBasmala: widget.showBasmala,
+      basmala: widget.basmalaText,
+      currentAyahIndex: localCurrentIndex,
+      recognizersBucket: _recognizers,
+    );
+
+    return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      child: RichText(
+        textAlign: TextAlign.justify,
+        textDirection: TextDirection.rtl,
+        strutStyle: const StrutStyle(fontSize: 20, height: 1.9),
+        text: TextSpan(children: spans),
+      ),
+    );
+  }
+
+  int? _mapToLocal(int global, int start, int end) {
+    if (global < start || global >= end) return null;
+    return global - start;
   }
 }
 
