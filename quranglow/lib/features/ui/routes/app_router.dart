@@ -70,7 +70,6 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
   } else if (name == AppRoutes.mushafPaged) {
     final a = s.arguments;
     if (a is PagedMushafArgs) {
-      // نستخدم builder للحصول على context
       return MaterialPageRoute(
         settings: s,
         builder: (context) {
@@ -80,13 +79,11 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
             surahNumber: a.surahNumber,
             initialSelectedAyah: a.initialSelectedAyah,
             onAyahTap: (aya) {
-              // Surah مبسّط لفتح صفحة التفاصيل
               final fakeSurah = Surah(
                 number: a.surahNumber,
                 name: a.surahName,
                 ayat: a.ayat,
               );
-
               Navigator.pushNamed(
                 context,
                 AppRoutes.ayah,
@@ -129,7 +126,8 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
     return _mat(const DownloadsPage(), s);
   } else if (name == AppRoutes.downloadDetail) {
     return _mat(const DownloadDetailPage(), s);
-  } else if (name == AppRoutes.settings) {
+  } else if (name == AppRoutes.setting) {
+    // ✅ استخدم نفس الاسم الذي يُستعمل في بقية التطبيق
     return _mat(const SettingsPage(), s);
   } else if (name == AppRoutes.goals) {
     return _mat(const GoalsPage(), s);
