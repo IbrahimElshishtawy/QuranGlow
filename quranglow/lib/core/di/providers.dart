@@ -16,6 +16,8 @@ import 'package:quranglow/core/service/tracking_service.dart';
 import 'package:quranglow/core/storage/hive_storage_impl.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
 
+// --- HTTP & Dio --------------------------------------------------------------
+
 final httpClientProvider = Provider<http.Client>((ref) => http.Client());
 
 final dioProvider = Provider<Dio>((ref) {
@@ -29,7 +31,11 @@ final dioProvider = Provider<Dio>((ref) {
   );
 });
 
+// --- Storage -----------------------------------------------------------------
+
 final storageProvider = Provider<LocalStorage>((ref) => HiveStorageImpl());
+
+// --- API Sources -------------------------------------------------------------
 
 final fawazProvider = Provider<FawazCdnSource>((ref) {
   final client = ref.watch(httpClientProvider);
@@ -42,11 +48,13 @@ final alQuranProvider = Provider<AlQuranCloudSource>((ref) {
   return AlQuranCloudSource(dio: dio);
 });
 
-final goalsServiceProvider = Provider<GoalsService>((ref) => GoalsService());
+// --- Services ----------------------------------------------------------------
 
-final goalsProvider = FutureProvider<List<Goal>>(
-  (ref) async => ref.read(goalsServiceProvider).listGoals(),
-);
+final goalsServiceProvider = Provider<GoalsService>((ref) {
+  final svc = GoalsService(); // لو عندك constructor مختلف عدّله هنا
+  ref.onDispose(svc.dispose);
+  return svc;
+});
 
 final quranServiceProvider = Provider<QuranService>((ref) {
   return QuranService(
@@ -60,6 +68,25 @@ final trackingServiceProvider = Provider<TrackingService>(
   (ref) => TrackingService(ref.watch(storageProvider)),
 );
 
+final settingsServiceProvider = Provider<SettingsService>(
+  (ref) => SettingsService(),
+);
+
+// --- Goals (Future + Stream) -------------------------------------------------
+
+final goalsProvider = FutureProvider.autoDispose<List<Goal>>((ref) async {
+  final service = ref.read(goalsServiceProvider);
+  return service.listGoals();
+});
+
+final goalsStreamProvider = StreamProvider.autoDispose<List<Goal>>((ref) {
+  final service = ref.watch(goalsServiceProvider);
+  // إن كان عندك watchGoalsWithInitial في الخدمة فإرجعه مباشرة
+  return service.watchGoalsWithInitial();
+});
+
+// --- Quran Text --------------------------------------------------------------
+
 final quranAllProvider = FutureProvider.autoDispose.family<List<Surah>, String>(
   (ref, editionId) {
     final service = ref.read(quranServiceProvider);
@@ -67,9 +94,7 @@ final quranAllProvider = FutureProvider.autoDispose.family<List<Surah>, String>(
   },
 );
 
-final settingsServiceProvider = Provider<SettingsService>(
-  (ref) => SettingsService(),
-);
+// --- Settings (StateNotifier) ------------------------------------------------
 
 final settingsProvider =
     StateNotifierProvider<SettingsController, AsyncValue<AppSettings>>(
@@ -109,6 +134,8 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
     await ref.read(settingsServiceProvider).setReader(id);
   }
 }
+
+// --- Audio Editions ----------------------------------------------------------
 
 final audioEditionsProvider = FutureProvider<List<dynamic>>((ref) async {
   return ref.read(quranServiceProvider).listAudioEditions();
