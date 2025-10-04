@@ -1,4 +1,4 @@
-// lib/features/ui/pages/settings/settings_page.dart  (استبدل المحتوى)
+// lib/features/ui/pages/settings/settings_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
