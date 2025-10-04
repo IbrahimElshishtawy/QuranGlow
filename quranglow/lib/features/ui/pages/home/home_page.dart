@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
           onNavigate: (r) {
             Navigator.pop(context);
             // لو محتاجين تنقّل من القائمة الجانبية يبقى هنا
-            // Navigator.pushNamed(context, r);
+            Navigator.pushNamed(context, r);
           },
         ),
         bottomNavigationBar: NavigationBar(
