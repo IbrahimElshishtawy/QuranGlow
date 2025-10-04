@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:quranglow/core/model/Goal.dart';
 import 'package:quranglow/features/ui/pages/spa/splash_screen.dart';
-
-import 'core/model/goal.dart';
 import 'core/di/providers.dart';
 import 'core/theme/theme.dart';
 
@@ -12,7 +11,7 @@ import 'features/ui/routes/app_router.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  Hive.registerAdapter(GoalAdapter());
+  Hive.registerAdapter(GoalAdapter()); // الآن مُعرّف
   runApp(const ProviderScope(child: QuranGlowApp()));
 }
 
