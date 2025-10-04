@@ -70,17 +70,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('بحث'),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              onPressed: _submit,
-              icon: const Icon(Icons.search),
-              tooltip: 'بحث',
-            ),
-          ],
-        ),
         body: Column(
           children: [
             Padding(
