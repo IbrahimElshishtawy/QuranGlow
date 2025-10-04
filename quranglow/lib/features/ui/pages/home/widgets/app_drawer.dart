@@ -43,9 +43,10 @@ class AppDrawer extends StatelessWidget {
               onTap: () => onNavigate(AppRoutes.stats),
             ),
             const Divider(),
-            const ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('الإعدادات'),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('الإعدادات'),
+              onTap: () => onNavigate(AppRoutes.settings),
             ),
           ],
         ),
