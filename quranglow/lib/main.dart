@@ -13,13 +13,14 @@ import 'features/ui/pages/spa/splash_screen.dart';
 import 'features/ui/routes/app_router.dart';
 
 Future<void> main() async {
-  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  final binding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: binding);
   await Hive.initFlutter();
   Hive.registerAdapter(GoalAdapter());
-
   runApp(const ProviderScope(child: QuranGlowApp()));
-  FlutterNativeSplash.remove();
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    FlutterNativeSplash.remove();
+  });
 }
 
 class QuranGlowApp extends ConsumerWidget {
@@ -34,7 +35,10 @@ class QuranGlowApp extends ConsumerWidget {
         debugShowCheckedModeBanner: false,
         theme: buildLightTheme(fontFamily: 'System', fontScale: 1),
         darkTheme: buildDarkTheme(fontFamily: 'System', fontScale: 1),
-        home: const Scaffold(body: Center(child: CircularProgressIndicator())),
+        home: const Scaffold(
+          backgroundColor: Colors.white,
+          body: Center(child: CircularProgressIndicator()),
+        ),
       ),
       error: (_, __) => MaterialApp(
         title: 'QuranGlow',
@@ -42,6 +46,7 @@ class QuranGlowApp extends ConsumerWidget {
         theme: buildLightTheme(fontFamily: 'System', fontScale: 1),
         darkTheme: buildDarkTheme(fontFamily: 'System', fontScale: 1),
         home: const Scaffold(
+          backgroundColor: Colors.white,
           body: Center(child: Text('خطأ في تحميل الإعدادات')),
         ),
       ),
