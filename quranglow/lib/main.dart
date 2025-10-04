@@ -25,7 +25,6 @@ class QuranGlowApp extends ConsumerWidget {
 
     return settings.when(
       loading: () => MaterialApp(
-        title: 'QuranGlow',
         debugShowCheckedModeBanner: false,
         theme: buildLightTheme(fontFamily: 'System', fontScale: 1),
         darkTheme: buildDarkTheme(fontFamily: 'System', fontScale: 1),
