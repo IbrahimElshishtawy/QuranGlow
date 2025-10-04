@@ -285,13 +285,20 @@ class _PageRichBlockState extends State<_PageRichBlock> {
       recognizersBucket: _recognizers,
     );
 
+    // 👇 تحديد اللون حسب الثيم: أسود في الفاتح، أبيض في الداكن
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
       child: RichText(
         textAlign: TextAlign.justify,
         textDirection: TextDirection.rtl,
         strutStyle: const StrutStyle(fontSize: 20, height: 1.9),
-        text: TextSpan(children: spans),
+        text: TextSpan(
+          style: TextStyle(color: textColor),
+          children: spans,
+        ),
       ),
     );
   }
