@@ -1,3 +1,4 @@
+// lib/features/ui/pages/home/widgets/app_drawer.dart
 import 'package:flutter/material.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
 
@@ -8,27 +9,27 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final routeName = ModalRoute.of(context)?.settings.name;
+    final currentRoute = ModalRoute.of(context)?.settings.name;
 
-    void go(String r) {
-      // لو نفس الصفحة: بس اقفل الدرج
-      if (routeName == r) {
-        Navigator.of(context).pop();
+    void go(String route) {
+      // لو نفس الصفحة: اقفل الدرج فقط
+      if (currentRoute == route) {
+        Scaffold.maybeOf(context)?.closeDrawer();
         return;
       }
 
-      // اقفل الدرج أولًا
-      Navigator.of(context).pop();
+      // اقفل الدرج بأمان
+      Scaffold.maybeOf(context)?.closeDrawer();
 
-      // نفّذ التنقل بعد ما يقفل الدرج (لمنع فلاش/شاشة سوداء)
+      // نفّذ التنقّل بعد إغلاق الدرج (فريم لاحق) لمنع الشاشة السودة
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (onNavigate != null) {
-          onNavigate!(r);
+          onNavigate!(route);
         } else {
-          // لصفحات رئيسية، يفضّل إزالة المكدس
-          Navigator.of(context).pushNamedAndRemoveUntil(r, (route) => false);
-          // لو عايز تكدّس الصفحات بدل الإزالة:
-          // Navigator.of(context).pushNamed(r);
+          final stillCurrent = ModalRoute.of(context)?.settings.name;
+          if (stillCurrent != route) {
+            Navigator.of(context).pushNamed(route); // بدون replacement
+          }
         }
       });
     }
@@ -38,7 +39,7 @@ class AppDrawer extends StatelessWidget {
       required String title,
       required String route,
     }) {
-      final selected = routeName == route;
+      final selected = currentRoute == route;
       return ListTile(
         leading: Icon(icon, color: selected ? cs.onPrimary : cs.primary),
         title: Text(
@@ -59,7 +60,7 @@ class AppDrawer extends StatelessWidget {
       child: SafeArea(
         child: Column(
           children: [
-            // هيدر
+            // هيدر بسيط
             Container(
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(16),
@@ -138,7 +139,6 @@ class AppDrawer extends StatelessWidget {
                     route: AppRoutes.stats,
                   ),
                   const Divider(height: 24),
-                  // تأكد إن الاسم يطابق الراوتر: setting أو settings
                   tile(
                     icon: Icons.settings,
                     title: 'الإعدادات',
