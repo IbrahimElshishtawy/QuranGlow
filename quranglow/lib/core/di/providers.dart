@@ -1,4 +1,8 @@
 // lib/core/di/providers.dart
+// ignore_for_file: implementation_imports
+
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -15,6 +19,7 @@ import 'package:quranglow/core/service/settings_service.dart';
 import 'package:quranglow/core/service/tracking_service.dart';
 import 'package:quranglow/core/storage/hive_storage_impl.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
+import 'package:riverpod/src/framework.dart';
 
 // --- HTTP & Dio --------------------------------------------------------------
 
@@ -51,7 +56,9 @@ final alQuranProvider = Provider<AlQuranCloudSource>((ref) {
 // --- Services ----------------------------------------------------------------
 
 final goalsServiceProvider = Provider<GoalsService>((ref) {
-  final svc = GoalsService(); // لو عندك constructor مختلف عدّله هنا
+  final svc = GoalsService(
+    storage: ref.watch(storageProvider),
+  ); // لو عندك constructor مختلف عدّله هنا
   ref.onDispose(svc.dispose);
   return svc;
 });
@@ -140,3 +147,44 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
 final audioEditionsProvider = FutureProvider<List<dynamic>>((ref) async {
   return ref.read(quranServiceProvider).listAudioEditions();
 });
+// --- Daily Ayah --------------------------------------------------------------
+
+final dailyAyahProvider = FutureProvider.autoDispose<Map<String, String>>((
+  ref,
+) async {
+  // نقرأ الإعدادات للحصول على نسخة القارئ الحالية
+  final settings = await ref.watch(settingsProvider.future);
+  final editionId = settings.readerEditionId.isNotEmpty
+      ? settings.readerEditionId
+      : 'ar.alafasy';
+
+  final dio = ref.read(dioProvider);
+  // endpoint من AlQuran Cloud: آية عشوائية حسب النسخة
+  final res = await dio.get(
+    'https://api.alquran.cloud/v1/ayah/random/$editionId',
+  );
+
+  if (res.statusCode != 200 || res.data == null) {
+    throw Exception('تعذر جلب آية اليوم');
+  }
+
+  final data = res.data['data'] ?? {};
+  final text = (data['text'] ?? data['ayahText'] ?? '').toString();
+
+  final surah = data['surah'] ?? {};
+  final surahName = (surah['name'] ?? surah['englishName'] ?? 'سورة غير معروفة')
+      .toString();
+  final nInSurah = data['numberInSurah']?.toString() ?? '';
+
+  return {'text': text, 'ref': '$surahName • $nInSurah'};
+});
+
+extension on Object? {
+  get readerEditionId => this.hashCode;
+}
+
+extension
+    on StateNotifierProvider<SettingsController, AsyncValue<AppSettings>> {
+  ProviderListenable<FutureOr<Object?>> get future =>
+      this.select((s) => s.whenOrNull(data: (v) => v));
+}
