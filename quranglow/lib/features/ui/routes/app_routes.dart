@@ -10,7 +10,7 @@ class AppRoutes {
   static const bookmarks = '/bookmarks';
   static const downloads = '/downloads';
   static const downloadDetail = '/downloads/detail';
-  static const settings = '/settings';
+  static const setting = '/setting';
   static const goals = '/goals';
   static const stats = '/stats';
   static const onboarding = '/onboarding';
