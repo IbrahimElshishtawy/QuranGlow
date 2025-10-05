@@ -1,5 +1,5 @@
 // lib/core/di/providers.dart
-// ignore_for_file: implementation_imports
+// ignore_for_file: implementation_imports, unnecessary_this
 
 import 'dart:async';
 
