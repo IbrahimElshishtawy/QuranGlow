@@ -1,4 +1,6 @@
 // lib/features/ui/pages/player/widgets/position_bar.dart
+// ignore_for_file: deprecated_member_use
+
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
