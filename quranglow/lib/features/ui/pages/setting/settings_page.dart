@@ -27,7 +27,6 @@ class SettingsPage extends ConsumerWidget {
               if (Navigator.of(context).canPop()) {
                 Navigator.of(context).maybePop();
               } else {
-                // مافيش حاجة نرجع لها؟ ارجع للرئيسية
                 Navigator.of(context).pushReplacementNamed(AppRoutes.home);
               }
             },
@@ -36,7 +35,7 @@ class SettingsPage extends ConsumerWidget {
         body: ListView(
           children: [
             AppearanceSection(),
-            GoalsSettings(),
+            GoalsSection(),
             NotificationsSection(),
             UsageSection(),
             AyahOfDaySection(),
