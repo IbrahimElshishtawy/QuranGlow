@@ -184,3 +184,10 @@ final tafsirForAyahProvider = FutureProvider.family<String, (int, int, String)>(
     return ref.read(quranServiceProvider).getAyahTafsir(surah, ayah, editionId);
   },
 );
+final quranSurahProvider = FutureProvider.autoDispose
+    .family<Surah, (int, String)>((ref, t) {
+      final (surah, editionId) = t;
+      return ref
+          .read(quranServiceProvider)
+          .getSurahText(surah as String, editionId as int);
+    });
