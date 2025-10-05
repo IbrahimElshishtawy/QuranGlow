@@ -1,11 +1,13 @@
 // lib/core/di/daily_ayah_api.dart
+// ignore_for_file: no_leading_underscores_for_local_identifiers
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart'; // للوصول إلى dioProvider
+import 'package:quranglow/core/di/providers.dart';
 
 class DailyAyah {
   final String text;
-  final String ref; // مثال: "البقرة • 255"
+  final String ref;
   const DailyAyah({required this.text, required this.ref});
 }
 
@@ -14,7 +16,6 @@ final dailyAyatApiProvider = FutureProvider.autoDispose<List<DailyAyah>>((
 ) async {
   final dio = ref.read(dioProvider);
 
-  // استخدم نسخة نصية (وليست صوتية). يمكنك تغييرها لاحقًا من الإعدادات لو أردت.
   const textEditionId = 'quran-uthmani';
 
   Future<Map<String, dynamic>> _fetchOne() async {
@@ -30,13 +31,11 @@ final dailyAyatApiProvider = FutureProvider.autoDispose<List<DailyAyah>>((
   final picked = <DailyAyah>[];
   final seen = <int>{};
   int attempts = 0;
-
-  // جرّب لغاية 12 محاولة للحصول على 4 آيات غير مكرّرة
   while (picked.length < 4 && attempts < 12) {
     attempts++;
     final d = await _fetchOne();
 
-    final globalNumber = d['number'] as int?; // رقم آية عالمي (1..6236)
+    final globalNumber = d['number'] as int?;
     if (globalNumber == null || !seen.add(globalNumber)) continue;
 
     final text = (d['text'] ?? d['ayahText'] ?? '').toString();
@@ -48,7 +47,8 @@ final dailyAyatApiProvider = FutureProvider.autoDispose<List<DailyAyah>>((
     picked.add(DailyAyah(text: text, ref: '$surahName • $nInSurah'));
   }
 
-  if (picked.isEmpty)
+  if (picked.isEmpty) {
     throw Exception('لم يتم العثور على آيات الآن، حاول لاحقًا.');
+  }
   return picked;
 });
