@@ -36,7 +36,7 @@ class SettingsPage extends ConsumerWidget {
         body: ListView(
           children: [
             AppearanceSection(),
-            GoalsSection(),
+            GoalsSettings(),
             NotificationsSection(),
             UsageSection(),
             AyahOfDaySection(),
