@@ -1,18 +1,66 @@
+// lib/features/ui/pages/player/widgets/header_card.dart
 // ignore_for_file: deprecated_member_use
 
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quranglow/core/di/providers.dart';
 
-class HeaderCard extends StatelessWidget {
-  const HeaderCard({super.key, required this.editionId, required this.chapter});
+class HeaderCard extends ConsumerWidget {
+  const HeaderCard({
+    super.key,
+    required this.editionId,
+    required this.chapter,
+    this.surahName,
+    this.readerName,
+  });
 
+  /// مثال: ar.alafasy
   final String editionId;
+
+  /// رقم السورة (1..114)
   final int chapter;
 
+  /// لو حابب تمرّر الاسم جاهزًا بدل الاعتماد على القائمة
+  final String? surahName;
+
+  /// لو حابب تمرّر اسم الشيخ جاهزًا
+  final String? readerName;
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
+
+    // اسم السورة
+    final displaySurah = _safeSurahName(chapter, fallback: surahName);
+
+    // نحاول جلب اسم الشيخ من مزود النسخ الصوتية إن لم يُمرر يدويًا
+    final editions = ref.watch(audioEditionsProvider);
+
+    Widget readerLine;
+    if (readerName != null && readerName!.trim().isNotEmpty) {
+      readerLine = Text('القارئ: $readerName', style: t.bodyMedium);
+    } else {
+      readerLine = editions.when(
+        loading: () => Text('القارئ: …', style: t.bodyMedium),
+        error: (e, _) => Text('القارئ: $editionId', style: t.bodyMedium),
+        data: (list) {
+          String name = editionId;
+          try {
+            // العناصر عادةً خرائط: {identifier, name, englishName, ...}
+            final m = list.cast<Map>().firstWhere(
+              (e) => (e['identifier'] ?? e['id'] ?? '').toString() == editionId,
+              orElse: () => const {},
+            );
+            if (m.isNotEmpty) {
+              name = (m['name'] ?? m['englishName'] ?? editionId).toString();
+            }
+          } catch (_) {}
+          return Text('القارئ: $name', style: t.bodyMedium);
+        },
+      );
+    }
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
@@ -57,18 +105,18 @@ class HeaderCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'سورة $chapter',
+                      displaySurah,
                       style: t.titleLarge?.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                     const SizedBox(height: 6),
-                    Text('القارئ: $editionId', style: t.bodyMedium),
+                    readerLine,
                     const SizedBox(height: 10),
                     Wrap(
                       spacing: 8,
                       runSpacing: -6,
-                      children: [
+                      children: const [
                         _Pill(text: 'تشغيل متصل'),
                         _Pill(text: 'جودة عادية'),
                       ],
@@ -81,6 +129,13 @@ class HeaderCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _safeSurahName(int n, {String? fallback}) {
+    if (fallback != null && fallback.trim().isNotEmpty) return 'سورة $fallback';
+    if (n >= 1 && n <= _kSurahNames.length)
+      return 'سورة ${_kSurahNames[n - 1]}';
+    return 'سورة $n';
   }
 }
 
@@ -101,3 +156,121 @@ class _Pill extends StatelessWidget {
     );
   }
 }
+
+// أسماء السور بالترتيب
+const List<String> _kSurahNames = [
+  'الفاتحة',
+  'البقرة',
+  'آل عمران',
+  'النساء',
+  'المائدة',
+  'الأنعام',
+  'الأعراف',
+  'الأنفال',
+  'التوبة',
+  'يونس',
+  'هود',
+  'يوسف',
+  'الرعد',
+  'إبراهيم',
+  'الحجر',
+  'النحل',
+  'الإسراء',
+  'الكهف',
+  'مريم',
+  'طه',
+  'الأنبياء',
+  'الحج',
+  'المؤمنون',
+  'النور',
+  'الفرقان',
+  'الشعراء',
+  'النمل',
+  'القصص',
+  'العنكبوت',
+  'الروم',
+  'لقمان',
+  'السجدة',
+  'الأحزاب',
+  'سبأ',
+  'فاطر',
+  'يس',
+  'الصافات',
+  'ص',
+  'الزمر',
+  'غافر',
+  'فصلت',
+  'الشورى',
+  'الزخرف',
+  'الدخان',
+  'الجاثية',
+  'الأحقاف',
+  'محمد',
+  'الفتح',
+  'الحجرات',
+  'ق',
+  'الذاريات',
+  'الطور',
+  'النجم',
+  'القمر',
+  'الرحمن',
+  'الواقعة',
+  'الحديد',
+  'المجادلة',
+  'الحشر',
+  'الممتحنة',
+  'الصف',
+  'الجمعة',
+  'المنافقون',
+  'التغابن',
+  'الطلاق',
+  'التحريم',
+  'الملك',
+  'القلم',
+  'الحاقة',
+  'المعارج',
+  'نوح',
+  'الجن',
+  'المزمل',
+  'المدثر',
+  'القيامة',
+  'الإنسان',
+  'المرسلات',
+  'النبأ',
+  'النازعات',
+  'عبس',
+  'التكوير',
+  'الانفطار',
+  'المطففين',
+  'الانشقاق',
+  'البروج',
+  'الطارق',
+  'الأعلى',
+  'الغاشية',
+  'الفجر',
+  'البلد',
+  'الشمس',
+  'الليل',
+  'الضحى',
+  'الشرح',
+  'التين',
+  'العلق',
+  'القدر',
+  'البينة',
+  'الزلزلة',
+  'العاديات',
+  'القارعة',
+  'التكاثر',
+  'العصر',
+  'الهمزة',
+  'الفيل',
+  'قريش',
+  'الماعون',
+  'الكوثر',
+  'الكافرون',
+  'النصر',
+  'المسد',
+  'الإخلاص',
+  'الفلق',
+  'الناس',
+];
