@@ -1,4 +1,7 @@
+// lib/core/di/daily_ayah_api.dart
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quranglow/core/di/providers.dart'; // للوصول إلى dioProvider
 
 class DailyAyah {
   final String text;
@@ -6,31 +9,46 @@ class DailyAyah {
   const DailyAyah({required this.text, required this.ref});
 }
 
-final dailyAyahProvider = FutureProvider<DailyAyah>((ref) async {
-  final day = DateTime.now().toUtc().difference(DateTime(2024, 1, 1)).inDays;
+final dailyAyatApiProvider = FutureProvider.autoDispose<List<DailyAyah>>((
+  ref,
+) async {
+  final dio = ref.read(dioProvider);
 
-  const samples = <DailyAyah>[
-    DailyAyah(
-      text: '﴿اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ﴾',
-      ref: 'البقرة • 255',
-    ),
-    DailyAyah(
-      text: '﴿إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ﴾',
-      ref: 'الفاتحة • 5',
-    ),
-    DailyAyah(text: '﴿فَاذْكُرُونِي أَذْكُرْكُمْ﴾', ref: 'البقرة • 152'),
-    DailyAyah(text: '﴿وَهُوَ مَعَكُمْ أَيْنَ مَا كُنتُمْ﴾', ref: 'الحديد • 4'),
-    DailyAyah(text: '﴿وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ﴾', ref: 'هود • 88'),
-    DailyAyah(text: '﴿إِنَّ مَعَ الْعُسْرِ يُسْرًا﴾', ref: 'الشرح • 6'),
-    DailyAyah(
-      text: '﴿وَعَسَىٰ أَنْ تَكْرَهُوا شَيْئًا وَهُوَ خَيْرٌ لَكُمْ﴾',
-      ref: 'البقرة • 216',
-    ),
-    DailyAyah(
-      text: '﴿لَا تَقْنَطُوا مِنْ رَحْمَةِ اللَّهِ﴾',
-      ref: 'الزمر • 53',
-    ),
-  ];
+  // استخدم نسخة نصية (وليست صوتية). يمكنك تغييرها لاحقًا من الإعدادات لو أردت.
+  const textEditionId = 'quran-uthmani';
 
-  return samples[day % samples.length];
+  Future<Map<String, dynamic>> _fetchOne() async {
+    final Response res = await dio.get(
+      'https://api.alquran.cloud/v1/ayah/random/$textEditionId',
+    );
+    if (res.statusCode != 200 || res.data == null || res.data['data'] == null) {
+      throw Exception('تعذر جلب آية عشوائية');
+    }
+    return res.data['data'] as Map<String, dynamic>;
+  }
+
+  final picked = <DailyAyah>[];
+  final seen = <int>{};
+  int attempts = 0;
+
+  // جرّب لغاية 12 محاولة للحصول على 4 آيات غير مكرّرة
+  while (picked.length < 4 && attempts < 12) {
+    attempts++;
+    final d = await _fetchOne();
+
+    final globalNumber = d['number'] as int?; // رقم آية عالمي (1..6236)
+    if (globalNumber == null || !seen.add(globalNumber)) continue;
+
+    final text = (d['text'] ?? d['ayahText'] ?? '').toString();
+    final surah = (d['surah'] ?? {}) as Map<String, dynamic>;
+    final surahName = (surah['name'] ?? surah['englishName'] ?? 'سورة')
+        .toString();
+    final nInSurah = (d['numberInSurah'] ?? '').toString();
+
+    picked.add(DailyAyah(text: text, ref: '$surahName • $nInSurah'));
+  }
+
+  if (picked.isEmpty)
+    throw Exception('لم يتم العثور على آيات الآن، حاول لاحقًا.');
+  return picked;
 });
