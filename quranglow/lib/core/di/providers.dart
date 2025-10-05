@@ -188,3 +188,15 @@ extension
   ProviderListenable<FutureOr<Object?>> get future =>
       this.select((s) => s.whenOrNull(data: (v) => v));
 }
+
+final tafsirEditionsProvider = FutureProvider<List<Map<String, String>>>((ref) {
+  return ref.read(quranServiceProvider).listTafsirEditions();
+});
+
+/// tuple: (surah, ayah, editionId)
+final tafsirForAyahProvider = FutureProvider.family<String, (int, int, String)>(
+  (ref, t) {
+    final (surah, ayah, editionId) = t;
+    return ref.read(quranServiceProvider).getAyahTafsir(surah, ayah, editionId);
+  },
+);
