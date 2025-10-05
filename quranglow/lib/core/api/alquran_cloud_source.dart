@@ -2,8 +2,14 @@
 import 'package:dio/dio.dart';
 
 class AlQuranCloudSource {
-  AlQuranCloudSource({required this.dio});
+  AlQuranCloudSource({
+    required this.dio,
+    baseUrl = 'https://api.alquran.cloud/v1',
+  }) : baseUrl = baseUrl.endsWith('/')
+           ? baseUrl.substring(0, baseUrl.length - 1)
+           : baseUrl;
   final Dio dio;
+  final String baseUrl;
 
   static const _base = 'https://api.alquran.cloud/v1';
 
@@ -56,5 +62,26 @@ class AlQuranCloudSource {
           };
         })
         .toList(growable: false);
+  }
+
+  Future<List<Map<String, dynamic>>> listTafsirEditions() async {
+    final res = await dio.get(
+      '$baseUrl/edition',
+      queryParameters: {'format': 'text', 'type': 'tafsir'},
+    );
+    final data = res.data;
+    final list = (data['data'] as List).cast<Map<String, dynamic>>();
+    return list;
+  }
+
+  Future<String> getAyahTafsir({
+    required int surah,
+    required int ayah,
+    required String editionId,
+  }) async {
+    final res = await dio.get('$baseUrl/ayah/$surah:$ayah/$editionId');
+    final data = res.data;
+    // API يعيد النص داخل data.text
+    return (data['data']?['text'] ?? '').toString();
   }
 }
