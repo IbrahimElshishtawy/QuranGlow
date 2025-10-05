@@ -135,7 +135,7 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
   } else if (name == AppRoutes.onboarding) {
     return _mat(const OnboardingPage(), s);
   } else if (name == AppRoutes.tafsir) {
-    return _mat(const TafsirExplorerPage(), s);
+    return _mat(const TafsirReaderPage(), s);
   }
 
   return _mat(const Scaffold(body: Center(child: Text('Route not found'))), s);
