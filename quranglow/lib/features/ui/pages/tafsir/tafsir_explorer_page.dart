@@ -41,7 +41,6 @@ class TafsirExplorerPage extends ConsumerWidget {
                   ),
                   trailing: const Icon(Icons.chevron_left),
                   onTap: () async {
-                    // افتح صفحة عرض التفسير (سورة/آية افتراضيًا 1:1 ويمكن تغييرهما من داخل الصفحة)
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) =>
