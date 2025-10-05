@@ -77,15 +77,15 @@ final settingsServiceProvider = Provider<SettingsService>(
 
 // --- Goals (Future + Stream) -------------------------------------------------
 
-final goalsStreamProvider = StreamProvider.autoDispose<List<Goal>>((ref) {
-  final svc = ref.watch(goalsServiceProvider);
-  return svc.watchGoalsWithInitial();
+final goalsserviceProvider = Provider<GoalsService>((ref) {
+  final svc = GoalsService(storage: ref.watch(storageProvider));
+  ref.onDispose(svc.dispose);
+  return svc;
 });
 
-final goalsProvider = FutureProvider.autoDispose<List<Goal>>(
-  (ref) => ref.read(goalsServiceProvider).listGoals(),
-);
-
+final goalsStreamProvider = StreamProvider.autoDispose<List<Goal>>((ref) {
+  return ref.watch(goalsServiceProvider).watchGoalsWithInitial();
+});
 // --- Quran Text --------------------------------------------------------------
 
 final quranAllProvider = FutureProvider.autoDispose.family<List<Surah>, String>(
@@ -145,7 +145,6 @@ final audioEditionsProvider = FutureProvider<List<dynamic>>((ref) async {
 final dailyAyahProvider = FutureProvider.autoDispose<Map<String, String>>((
   ref,
 ) async {
-  // احصل على الإعدادات من الحالة إن كانت جاهزة، وإلا حمّلها مباشرة من الخدمة
   final s =
       ref.read(settingsProvider).whenOrNull(data: (v) => v) ??
       await ref.read(settingsServiceProvider).load();
