@@ -30,11 +30,12 @@ class ReaderRow extends StatelessWidget {
                   .whereType<Map>()
                   .map((m) => Map<String, dynamic>.from(m))
                   .toList();
-              if (items.isEmpty)
+              if (items.isEmpty) {
                 return const Text('لا توجد إصدارات صوتية متاحة');
+              }
 
               return DropdownButtonFormField<String>(
-                value: selectedEditionId,
+                initialValue: selectedEditionId,
                 decoration: const InputDecoration(
                   labelText: 'اختيار القارئ',
                   border: OutlineInputBorder(),
