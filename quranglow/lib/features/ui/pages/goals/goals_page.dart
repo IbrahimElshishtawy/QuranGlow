@@ -1,9 +1,10 @@
 // lib/features/ui/pages/goals/goals_page.dart
-// ignore_for_file: deprecated_member_use
-
+// ignore_for_file: deprecated_member_use, unnecessary_cast
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart' as di;
+import 'package:quranglow/core/model/Goal.dart' as models;
 
 class GoalsPage extends ConsumerWidget {
   const GoalsPage({super.key});
@@ -11,8 +12,6 @@ class GoalsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
-
-    // استخدم البثّ اللحظي مع قيمة ابتدائية
     final asyncGoals = ref.watch(di.goalsStreamProvider);
 
     return Directionality(
@@ -28,7 +27,7 @@ class GoalsPage extends ConsumerWidget {
                     itemCount: goals.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 12),
                     itemBuilder: (context, i) {
-                      final g = goals[i];
+                      final g = goals[i] as models.Goal;
                       return Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
@@ -53,20 +52,31 @@ class GoalsPage extends ConsumerWidget {
                             const SizedBox(height: 8),
                             Row(
                               children: [
-                                Text('${(g.progress * 100).round()}%'),
+                                Text(
+                                  '${g.current} / ${g.target} (${(g.progress * 100).round()}%)',
+                                ),
                                 const Spacer(),
                                 FilledButton.tonal(
                                   onPressed: () async {
-                                    final next = (g.progress + 0.05).clamp(
-                                      0.0,
-                                      1.0,
+                                    final svc = ref.read(
+                                      di.goalsServiceProvider,
                                     );
-                                    await ref
-                                        .read(di.goalsServiceProvider)
-                                        .updateGoal(
-                                          title: g.title,
-                                          progress: next,
-                                        );
+                                    final list = List<models.Goal>.from(
+                                      await svc.listGoals(),
+                                    );
+                                    final idx = list.indexWhere(
+                                      (x) => x.id == g.id,
+                                    );
+                                    if (idx != -1) {
+                                      final cur = list[idx];
+                                      list[idx] = cur.copyWith(
+                                        current: min(
+                                          cur.target,
+                                          cur.current + 1,
+                                        ),
+                                      );
+                                      await svc.saveAll(list);
+                                    }
                                   },
                                   child: const Text('+1'),
                                 ),
