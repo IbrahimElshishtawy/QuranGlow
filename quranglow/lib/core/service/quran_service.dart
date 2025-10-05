@@ -151,4 +151,17 @@ class QuranService {
     s = s.replaceAll(RegExp(r'\s+'), ' ').trim();
     return s;
   }
+
+  Future<List<Map<String, String>>> listTafsirEditions() async {
+    final raw = await cloud.listTafsirEditions();
+    return raw.map((m) {
+      final id = (m['identifier'] ?? m['id'] ?? '').toString();
+      final name = (m['name'] ?? m['englishName'] ?? id).toString();
+      return {'id': id, 'name': name};
+    }).toList();
+  }
+
+  Future<String> getAyahTafsir(int surah, int ayah, String editionId) {
+    return cloud.getAyahTafsir(surah: surah, ayah: ayah, editionId: editionId);
+  }
 }
