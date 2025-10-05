@@ -1,21 +1,14 @@
 // lib/features/ui/pages/home/sections/goals_strip.dart
 // ignore_for_file: deprecated_member_use
-
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart' as di;
 import 'package:quranglow/features/ui/pages/home/widgets/section_title.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
-import 'package:quranglow/core/model/goal.dart';
+import 'package:quranglow/core/model/Goal.dart' as models;
 
-/// عدد الأهداف التي تُعرض في الصفحة الرئيسية.
-/// مبدئيًا 3. لو أضفت لاحقًا حقلًا في AppSettings (مثل homeGoalsCount)
-/// استبدل هذه القيمة بقراءة من settingsProvider.
-final homeGoalsCountProvider = Provider<int>((ref) {
-  // final settings = ref.watch(di.settingsProvider);
-  // return settings.maybeWhen(data: (s) => s.homeGoalsCount, orElse: () => 3);
-  return 3;
-});
+final homeGoalsCountProvider = Provider<int>((ref) => 3);
 
 class GoalsStrip extends ConsumerWidget {
   const GoalsStrip({super.key});
@@ -35,7 +28,6 @@ class GoalsStrip extends ConsumerWidget {
           onAction: () => Navigator.pushNamed(context, AppRoutes.goals),
         ),
         const SizedBox(height: 8),
-
         goalsAsync.when(
           loading: () => Container(
             height: 86,
@@ -57,7 +49,8 @@ class GoalsStrip extends ConsumerWidget {
             child: Text('تعذّر تحميل الأهداف: $e'),
           ),
           data: (goals) {
-            final shown = goals.take(limit).toList();
+            final list = goals.cast<models.Goal>();
+            final shown = list.take(limit).toList();
             if (shown.isEmpty) {
               return Container(
                 padding: const EdgeInsets.all(16),
@@ -68,7 +61,7 @@ class GoalsStrip extends ConsumerWidget {
                 ),
                 child: Row(
                   children: [
-                    Expanded(
+                    const Expanded(
                       child: Text('لا توجد أهداف بعد — ابدأ بإضافة هدف'),
                     ),
                     const SizedBox(width: 8),
@@ -106,7 +99,7 @@ class GoalsStrip extends ConsumerWidget {
 
 class _GoalPill extends ConsumerWidget {
   const _GoalPill({required this.goal});
-  final Goal goal;
+  final models.Goal goal;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -151,13 +144,16 @@ class _GoalPill extends ConsumerWidget {
                   tooltip: 'زيادة التقدّم',
                   icon: const Icon(Icons.add, size: 18),
                   onPressed: () async {
-                    final newValue = (goal.progress + 0.05)
-                        .clamp(0.0, 1.0)
-                        .toDouble();
-                    await ref
-                        .read(di.goalsServiceProvider)
-                        .updateGoal(title: goal.title, progress: newValue);
-                    // ليس ضرورياً عمل refresh لأننا على Stream
+                    final svc = ref.read(di.goalsServiceProvider);
+                    final list = List<models.Goal>.from(await svc.listGoals());
+                    final idx = list.indexWhere((x) => x.id == goal.id);
+                    if (idx != -1) {
+                      final cur = list[idx];
+                      list[idx] = cur.copyWith(
+                        current: min(cur.target, cur.current + 1),
+                      );
+                      await svc.saveAll(list);
+                    }
                   },
                 ),
               ],
