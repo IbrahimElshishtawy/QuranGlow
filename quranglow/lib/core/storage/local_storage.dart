@@ -6,4 +6,7 @@ abstract class LocalStorage {
   Map<String, dynamic>? getMap(String key);
   Future<void> delete(String key);
   Future<void> clear();
+  Future<T?> read<T>(String key);
+  Future<void> write(String key, Object? value);
+  Future<void> remove(String key);
 }
