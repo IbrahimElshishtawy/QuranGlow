@@ -10,6 +10,7 @@ class PositionBar extends StatelessWidget {
     required this.durationStream,
     required this.positionStream,
     required this.onSeek,
+    required Stream<Duration> bufferedStream,
   });
 
   final Stream<Duration?> durationStream;
