@@ -8,45 +8,55 @@ class HiveStorageImpl implements LocalStorage {
   HiveStorageImpl({this.boxName = CoreConstants.appBoxName});
 
   final String boxName;
-  late Box _box;
+  Box? _box; // قابل للا-null لتجنّب LateInitializationError
+
+  Future<void> _ensureBox() async {
+    if (Hive.isBoxOpen(boxName)) {
+      _box ??= Hive.box(boxName);
+      return;
+    }
+    _box = await Hive.openBox(boxName);
+  }
 
   @override
-  Future<void> init() async {
-    _box = Hive.isBoxOpen(boxName)
-        ? Hive.box(boxName)
-        : await Hive.openBox(boxName);
-  }
+  Future<void> init() async => _ensureBox();
 
   // --- واجهة LocalStorage الأساسية ---
   @override
   Future<void> write(String key, Object? value) async {
-    await _box.put(key, value);
+    await _ensureBox();
+    await _box!.put(key, value);
   }
 
   @override
   Future<T?> read<T>(String key) async {
-    final v = _box.get(key);
+    await _ensureBox();
+    final v = _box!.get(key);
     return v as T?;
   }
 
   @override
   Future<void> remove(String key) async {
-    await _box.delete(key);
+    await _ensureBox();
+    await _box!.delete(key);
   }
 
   @override
   Future<void> clear() async {
-    await _box.clear();
+    await _ensureBox();
+    await _box!.clear();
   }
 
   // --- Helpers ---
   @override
   Future<void> putString(String key, String value) => write(key, value);
 
-  // يجب أن تكون متزامنة لتطابق LocalStorage.getString: String? Function(String)
+  // getString/getMap متزامنتان: أعِد null بأمان إن لم يكن الـBox جاهزًا بعد
   @override
   String? getString(String key) {
-    final v = _box.get(key);
+    final bx = Hive.isBoxOpen(boxName) ? Hive.box(boxName) : _box;
+    if (bx == null) return null;
+    final v = bx.get(key);
     if (v == null) return null;
     return v is String ? v : v.toString();
   }
@@ -55,10 +65,12 @@ class HiveStorageImpl implements LocalStorage {
   Future<void> putMap(String key, Map<String, dynamic> value) =>
       write(key, value);
 
-  // يجب أن تكون متزامنة لتطابق LocalStorage.getMap: Map<String, dynamic>? Function(String)
   @override
   Map<String, dynamic>? getMap(String key) {
-    final v = _box.get(key);
+    final bx = Hive.isBoxOpen(boxName) ? Hive.box(boxName) : _box;
+    if (bx == null) return null;
+
+    final v = bx.get(key);
     if (v is Map) {
       return Map<String, dynamic>.from(v.cast<String, dynamic>());
     }
