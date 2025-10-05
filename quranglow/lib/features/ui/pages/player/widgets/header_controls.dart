@@ -133,8 +133,9 @@ class HeaderCard extends ConsumerWidget {
 
   String _safeSurahName(int n, {String? fallback}) {
     if (fallback != null && fallback.trim().isNotEmpty) return 'سورة $fallback';
-    if (n >= 1 && n <= _kSurahNames.length)
+    if (n >= 1 && n <= _kSurahNames.length) {
       return 'سورة ${_kSurahNames[n - 1]}';
+    }
     return 'سورة $n';
   }
 }
