@@ -10,7 +10,8 @@ import 'package:http/http.dart' as http;
 import 'package:quranglow/core/api/alquran_cloud_source.dart';
 import 'package:quranglow/core/api/fawaz_cdn_source.dart';
 import 'package:quranglow/core/model/App_Settings.dart';
-import 'package:quranglow/core/model/goal.dart';
+// استخدم نموذج Goal الصحيح (النسخة التي تحتوي active/target/current/unit)
+import 'package:quranglow/core/model/Goal.dart';
 import 'package:quranglow/core/model/surah.dart';
 import 'package:quranglow/core/service/Settings_Service.dart';
 import 'package:quranglow/core/service/goals_service.dart';
@@ -75,17 +76,12 @@ final settingsServiceProvider = Provider<SettingsService>(
   (ref) => SettingsService(),
 );
 
-// --- Goals (Future + Stream) -------------------------------------------------
-
-final goalsserviceProvider = Provider<GoalsService>((ref) {
-  final svc = GoalsService(storage: ref.watch(storageProvider));
-  ref.onDispose(svc.dispose);
-  return svc;
-});
+// --- Goals (Stream) ----------------------------------------------------------
 
 final goalsStreamProvider = StreamProvider.autoDispose<List<Goal>>((ref) {
   return ref.watch(goalsServiceProvider).watchGoalsWithInitial();
 });
+
 // --- Quran Text --------------------------------------------------------------
 
 final quranAllProvider = FutureProvider.autoDispose.family<List<Surah>, String>(
@@ -141,7 +137,9 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
 final audioEditionsProvider = FutureProvider<List<dynamic>>((ref) async {
   return ref.read(quranServiceProvider).listAudioEditions();
 });
+
 // --- Daily Ayah --------------------------------------------------------------
+
 final dailyAyahProvider = FutureProvider.autoDispose<Map<String, String>>((
   ref,
 ) async {
