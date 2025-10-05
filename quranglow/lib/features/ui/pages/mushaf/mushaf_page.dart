@@ -8,14 +8,16 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/model/surah.dart';
+import 'package:quranglow/core/model/aya.dart';
 import 'package:quranglow/features/ui/pages/mushaf/paged_mushaf.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
-import 'package:quranglow/features/ui/routes/app_router.dart';
 
+// مزود سورة واحدة: (surah, editionId) بالترتيب الصحيح
 final surahProvider = FutureProvider.autoDispose
-    .family<Surah, (int chapter, String editionId)>((ref, args) async {
+    .family<Surah, (int surah, String editionId)>((ref, args) async {
       final service = ref.read(quranServiceProvider);
-      return service.getSurahText(args.$2, args.$1);
+      // افترض توقيع الخدمة: getSurahText(int surah, String editionId)
+      return service.getSurahText(args.$1 as String, args.$2 as int);
     });
 
 class MushafPage extends ConsumerStatefulWidget {
@@ -24,6 +26,7 @@ class MushafPage extends ConsumerStatefulWidget {
     this.chapter = 1,
     this.editionId = 'quran-uthmani',
   });
+
   final int chapter;
   final String editionId;
 
@@ -111,14 +114,17 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                     surahNumber: _chapter,
                     showBasmala: surah.name.trim() != 'التوبة',
                     initialSelectedAyah: null,
-                    onAyahTap: (aya) {
+                    // التوقيع الجديد: (ayahNumber, aya)
+                    onAyahTap: (int ayahNumber, Aya aya) {
                       Navigator.pushNamed(
                         context,
-                        AppRoutes.ayah,
-                        arguments: AyahArgs(
-                          aya: aya,
-                          surah: surah,
-                          tafsir: null,
+                        AppRoutes.tafsirReader, // اذهب لصفحة التفسير
+                        arguments: TafsirArgs(
+                          surah: _chapter,
+                          ayah: ayahNumber,
+                          // يمكن تمرير نسخة التفسير الحالية إن رغبت:
+                          // editionId: 'ar.tafsir.jalalayn',
+                          // editionName: 'تفسير الجلالين',
                         ),
                       );
                     },
@@ -127,6 +133,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
               ),
             ),
 
+            // طبقة إظهار/إخفاء شريط التحكم
             Positioned.fill(
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
@@ -134,6 +141,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
               ),
             ),
 
+            // شريط علوي شفاف للتنقل بين السور والرجوع
             Positioned(
               top: 0,
               left: 0,
