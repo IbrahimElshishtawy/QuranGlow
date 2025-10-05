@@ -1,4 +1,6 @@
 // lib/core/service/goals_service.dart
+// ignore_for_file: await_only_futures
+
 import 'dart:async';
 import 'dart:convert';
 import 'package:quranglow/core/model/goal.dart';
