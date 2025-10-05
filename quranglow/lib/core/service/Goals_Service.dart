@@ -68,8 +68,6 @@ class GoalsService {
         progress: progress.clamp(0, 1),
       );
       _cache = [...goals]..[i] = updated;
-
-      // TODO: احفظ في التخزين إن حبيت
       if (!_controller.isClosed) _controller.add(_cache);
     }
   }
