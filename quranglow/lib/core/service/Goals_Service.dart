@@ -1,78 +1,100 @@
 // lib/core/service/goals_service.dart
-// ignore_for_file: unused_field
-
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:quranglow/core/model/goal.dart';
+import 'package:quranglow/core/model/Goal.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
 
 class GoalsService {
-  GoalsService({LocalStorage? storage}) : _storage = storage;
+  static const _kStorageKey = 'goals.v1';
 
-  final LocalStorage? _storage;
+  GoalsService({required LocalStorage storage}) : _storage = storage;
+
+  final LocalStorage _storage;
 
   List<Goal> _cache = const [];
   final _controller = StreamController<List<Goal>>.broadcast();
 
-  List<Goal> _defaults() => const [
-    Goal(title: 'ورد يومي', progress: 0.5),
-    Goal(title: 'حفظ سورة', progress: 0.24),
-    Goal(title: 'تدبّر آيات', progress: 0.8),
+  Future<List<Goal>> listGoals() async {
+    if (_cache.isNotEmpty) return _cache;
+
+    final raw = _storage.getString(_kStorageKey); // getString متزامنة
+    if (raw != null && raw.isNotEmpty) {
+      try {
+        final List list = jsonDecode(raw);
+        _cache = list.map((e) => Goal.fromMap(e)).cast<Goal>().toList();
+        return _cache;
+      } catch (e, st) {
+        debugPrint('Goals decode error: $e\n$st');
+      }
+    }
+    _cache = _defaults();
+    return _cache;
+  }
+
+  Future<void> saveAll(List<Goal> goals) async {
+    _cache = goals;
+    final s = jsonEncode(goals.map((g) => g.toMap()).toList());
+    await _storage.putString(_kStorageKey, s);
+    if (!_controller.isClosed) _controller.add(_cache);
+  }
+
+  Stream<List<Goal>> watchGoalsWithInitial() async* {
+    yield await listGoals();
+    yield* _controller.stream;
+  }
+
+  // تتبّع تلقائي حسب الحدث
+  Future<void> trackReading({int verses = 1}) =>
+      _bump(GoalType.reading, verses);
+  Future<void> trackListening({int verses = 1}) =>
+      _bump(GoalType.listening, verses);
+  Future<void> trackMemorization({int verses = 1}) =>
+      _bump(GoalType.memorization, verses);
+  Future<void> trackTafsir({int verses = 1}) => _bump(GoalType.tafsir, verses);
+
+  Future<void> _bump(GoalType t, int by) async {
+    final goals = await listGoals();
+    bool changed = false;
+    final upd = goals.map((g) {
+      if (!g.active || g.type != t) return g;
+      changed = true;
+      final next = g.current + by;
+      return g.copyWith(current: next > g.target ? g.target : next);
+    }).toList();
+    if (changed) await saveAll(upd);
+  }
+
+  List<Goal> _defaults() => [
+    Goal(
+      id: 'reading-daily',
+      type: GoalType.reading,
+      title: 'ورد قراءة يومي',
+      target: 40,
+      unit: 'آية',
+    ),
+    Goal(
+      id: 'listening-daily',
+      type: GoalType.listening,
+      title: 'استماع يومي',
+      target: 40,
+      unit: 'آية',
+    ),
+    Goal(
+      id: 'memorize-weekly',
+      type: GoalType.memorization,
+      title: 'حفظ أسبوعي',
+      target: 20,
+      unit: 'آية',
+    ),
+    Goal(
+      id: 'tafsir-daily',
+      type: GoalType.tafsir,
+      title: 'تفسير يومي',
+      target: 10,
+      unit: 'آية',
+    ),
   ];
 
-  Future<List<Goal>> listGoals() async {
-    try {
-      if (_cache.isNotEmpty) return _cache;
-      _cache = _defaults();
-      return _cache;
-    } catch (e, st) {
-      debugPrint('GoalsService.listGoals error: $e\n$st');
-      _cache = _cache.isNotEmpty ? _cache : _defaults();
-      return _cache;
-    }
-  }
-
-  Stream<List<Goal>> watchGoals() => _controller.stream;
-
-  /// أول دفعة + أي تحديثات لاحقة — مع حماية من الأخطاء
-  Stream<List<Goal>> watchGoalsWithInitial() async* {
-    try {
-      final first = await listGoals();
-      yield first;
-    } catch (e, st) {
-      debugPrint('watchGoalsWithInitial initial error: $e\n$st');
-      yield _cache.isNotEmpty ? _cache : _defaults();
-    }
-
-    // لو حصل Error لاحقًا ما نرميهوش برا، بس نطبعه
-    yield* _controller.stream.handleError((e, st) {
-      debugPrint('watchGoalsWithInitial stream error: $e\n$st');
-    });
-  }
-
-  /// ادفع نسخة محدثة للستريم (مثلاً بعد كتابة/قراءة)
-  Future<void> refresh() async {
-    final goals = await listGoals();
-    if (!_controller.isClosed) _controller.add(goals);
-  }
-
-  Future<void> updateGoal({
-    required String title,
-    required double progress,
-  }) async {
-    final goals = await listGoals();
-    final i = goals.indexWhere((g) => g.title == title);
-    if (i != -1) {
-      final updated = Goal(
-        title: goals[i].title,
-        progress: progress.clamp(0, 1),
-      );
-      _cache = [...goals]..[i] = updated;
-      if (!_controller.isClosed) _controller.add(_cache);
-    }
-  }
-
-  void dispose() {
-    _controller.close();
-  }
+  void dispose() => _controller.close();
 }
