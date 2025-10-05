@@ -1,4 +1,6 @@
 // lib/features/ui/pages/player/controller/player_controller_provider.dart
+// ignore_for_file: unnecessary_this
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:just_audio/just_audio.dart';
