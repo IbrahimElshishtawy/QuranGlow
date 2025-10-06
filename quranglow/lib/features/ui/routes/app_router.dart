@@ -1,7 +1,10 @@
-// router.dart
+// lib/features/ui/routes/router.dart
 // ignore_for_file: unused_local_variable
 
 import 'package:flutter/material.dart';
+
+import 'package:quranglow/core/model/aya.dart';
+import 'package:quranglow/core/model/surah.dart';
 
 import 'package:quranglow/features/ui/pages/ayah/ayah_detail_page.dart';
 import 'package:quranglow/features/ui/pages/bookmarks/bookmarks_page.dart';
@@ -21,8 +24,6 @@ import 'package:quranglow/features/ui/pages/surah/surah_list_page.dart';
 import 'package:quranglow/features/ui/pages/tafsir/tafsir_explorer_page.dart';
 
 import 'app_routes.dart';
-import 'package:quranglow/core/model/aya.dart';
-import 'package:quranglow/core/model/surah.dart';
 
 // وسائط مسار mushaf (API)
 class MushafArgs {
@@ -78,7 +79,8 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
             surahName: a.surahName,
             surahNumber: a.surahNumber,
             initialSelectedAyah: a.initialSelectedAyah,
-            onAyahTap: (aya) {
+            // التوقيع الصحيح: (int ayahNumber, Aya aya)
+            onAyahTap: (int ayahNumber, Aya aya) {
               final fakeSurah = Surah(
                 number: a.surahNumber,
                 name: a.surahName,
