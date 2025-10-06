@@ -3,9 +3,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
+import 'package:quranglow/features/ui/pages/downloads/downloads_library_page.dart'; // ✅ تمت إضافتها
 
 class AppDrawer extends StatelessWidget {
-  final void Function(String route)? onNavigate; // اختياري
+  final void Function(String route)? onNavigate;
   const AppDrawer({super.key, this.onNavigate});
 
   @override
@@ -14,23 +15,18 @@ class AppDrawer extends StatelessWidget {
     final currentRoute = ModalRoute.of(context)?.settings.name;
 
     void go(String route) {
-      // لو نفس الصفحة: اقفل الدرج فقط
       if (currentRoute == route) {
         Scaffold.maybeOf(context)?.closeDrawer();
         return;
       }
-
-      // اقفل الدرج بأمان
       Scaffold.maybeOf(context)?.closeDrawer();
-
-      // نفّذ التنقّل بعد إغلاق الدرج (فريم لاحق) لمنع الشاشة السودة
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (onNavigate != null) {
           onNavigate!(route);
         } else {
           final stillCurrent = ModalRoute.of(context)?.settings.name;
           if (stillCurrent != route) {
-            Navigator.of(context).pushNamed(route); // بدون replacement
+            Navigator.of(context).pushNamed(route);
           }
         }
       });
@@ -39,9 +35,10 @@ class AppDrawer extends StatelessWidget {
     Widget tile({
       required IconData icon,
       required String title,
-      required String route,
+      String? route,
+      VoidCallback? onTap,
     }) {
-      final selected = currentRoute == route;
+      final selected = (route != null && currentRoute == route);
       return ListTile(
         leading: Icon(icon, color: selected ? cs.onPrimary : cs.primary),
         title: Text(
@@ -54,7 +51,7 @@ class AppDrawer extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         selected: selected,
         selectedTileColor: cs.primary,
-        onTap: () => go(route),
+        onTap: onTap ?? () => go(route!),
       );
     }
 
@@ -62,7 +59,7 @@ class AppDrawer extends StatelessWidget {
       child: SafeArea(
         child: Column(
           children: [
-            // هيدر بسيط
+            // 🔹 الهيدر
             Container(
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(16),
@@ -106,6 +103,7 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
 
+            // 🔹 القوائم
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -140,17 +138,36 @@ class AppDrawer extends StatelessWidget {
                     title: 'الإحصائيات',
                     route: AppRoutes.stats,
                   ),
+
                   const Divider(height: 24),
+
                   tile(
                     icon: Icons.settings,
                     title: 'الإعدادات',
                     route: AppRoutes.setting,
                   ),
+
+                  // ✅ زر مكتبة التنزيلات
+                  tile(
+                    icon: Icons.library_music,
+                    title: 'مكتبة التنزيلات',
+                    onTap: () {
+                      Scaffold.of(context).closeDrawer();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const DownloadsLibraryPage(),
+                        ),
+                      );
+                    },
+                  ),
+
                   const SizedBox(height: 8),
                 ],
               ),
             ),
 
+            // 🔹 تذييل
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Text(
