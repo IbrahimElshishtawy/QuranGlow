@@ -164,4 +164,17 @@ class QuranService {
   Future<String> getAyahTafsir(int surah, int ayah, String editionId) {
     return cloud.getAyahTafsir(surah: surah, ayah: ayah, editionId: editionId);
   }
+
+  Future<List<String>> getSurahAudioUrls(String editionId, int surah) async {
+    final map = await cloud.getSurahAudio(editionId, surah);
+    final data = map['data'];
+    if (data is Map && data['ayahs'] is List) {
+      final ayahs = data['ayahs'] as List;
+      return ayahs
+          .map((e) => (e as Map)['audio'] as String?)
+          .whereType<String>()
+          .toList();
+    }
+    return <String>[];
+  }
 }
