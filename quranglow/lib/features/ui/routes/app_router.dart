@@ -8,12 +8,14 @@ import 'package:quranglow/core/model/surah.dart';
 
 import 'package:quranglow/features/ui/pages/ayah/ayah_detail_page.dart';
 import 'package:quranglow/features/ui/pages/bookmarks/bookmarks_page.dart';
-import 'package:quranglow/features/ui/pages/downloads/download_detail_page.dart';
-import 'package:quranglow/features/ui/pages/downloads/downloads_page.dart';
+import 'package:quranglow/features/ui/pages/downloads/download_detail_page.dart'
+    as ddp;
+import 'package:quranglow/features/ui/pages/downloads/downloads_page.dart'
+    as dlp;
 import 'package:quranglow/features/ui/pages/goals/goals_page.dart';
 import 'package:quranglow/features/ui/pages/home/home_page.dart';
-import 'package:quranglow/features/ui/pages/mushaf/mushaf_page.dart'; // يجلب من الـ API
-import 'package:quranglow/features/ui/pages/mushaf/paged_mushaf.dart'; // عرض صفحي مباشر
+import 'package:quranglow/features/ui/pages/mushaf/mushaf_page.dart';
+import 'package:quranglow/features/ui/pages/mushaf/paged_mushaf.dart';
 import 'package:quranglow/features/ui/pages/onboarding/onboarding_page.dart';
 import 'package:quranglow/features/ui/pages/player/player_page.dart';
 import 'package:quranglow/features/ui/pages/search/search_page.dart';
@@ -21,18 +23,21 @@ import 'package:quranglow/features/ui/pages/setting/settings_page.dart';
 import 'package:quranglow/features/ui/pages/spa/splash_screen.dart';
 import 'package:quranglow/features/ui/pages/stats/stats_page.dart';
 import 'package:quranglow/features/ui/pages/surah/surah_list_page.dart';
-import 'package:quranglow/features/ui/pages/tafsir/tafsir_explorer_page.dart';
+import 'package:quranglow/features/ui/pages/tafsir/tafsir_reader_page.dart';
 
 import 'app_routes.dart';
 
-// وسائط مسار mushaf (API)
 class MushafArgs {
-  const MushafArgs({this.chapter = 1, this.editionId = 'quran-uthmani'});
+  const MushafArgs({
+    this.initialAyah,
+    this.chapter = 1,
+    this.editionId = 'quran-uthmani',
+  });
   final int chapter;
+  final int? initialAyah; // 1-based
   final String editionId;
 }
 
-// وسائط مسار mushafPaged (عرض صفحي مباشر)
 class PagedMushafArgs {
   const PagedMushafArgs({
     required this.ayat,
@@ -43,10 +48,9 @@ class PagedMushafArgs {
   final List<Aya> ayat;
   final String surahName;
   final int surahNumber;
-  final int? initialSelectedAyah;
+  final int? initialSelectedAyah; // 1-based
 }
 
-// وسائط مسار ayah (تفاصيل آية)
 class AyahArgs {
   const AyahArgs({required this.aya, required this.surah, this.tafsir});
   final Aya aya;
@@ -65,7 +69,11 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
     final a = s.arguments;
     final args = a is MushafArgs ? a : const MushafArgs();
     return _mat(
-      MushafPage(chapter: args.chapter, editionId: args.editionId),
+      MushafPage(
+        chapter: args.chapter,
+        editionId: args.editionId,
+        initialAyah: args.initialAyah,
+      ),
       s,
     );
   } else if (name == AppRoutes.mushafPaged) {
@@ -79,7 +87,6 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
             surahName: a.surahName,
             surahNumber: a.surahNumber,
             initialSelectedAyah: a.initialSelectedAyah,
-            // التوقيع الصحيح: (int ayahNumber, Aya aya)
             onAyahTap: (int ayahNumber, Aya aya) {
               final fakeSurah = Surah(
                 number: a.surahNumber,
@@ -125,9 +132,48 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
   } else if (name == AppRoutes.bookmarks) {
     return _mat(const BookmarksPage(), s);
   } else if (name == AppRoutes.downloads) {
-    return _mat(const DownloadsPage(), s);
+    // DownloadsPage تتطلب surah و reciterId
+    final a = s.arguments;
+    if (a is Map<String, dynamic> &&
+        a['surah'] is int &&
+        a['reciterId'] is String) {
+      return _mat(
+        dlp.DownloadsPage(
+          surah: a['surah'] as int,
+          reciterId: a['reciterId'] as String,
+        ),
+        s,
+      );
+    }
+    return _mat(
+      const Scaffold(
+        body: Center(
+          child: Text('downloads يحتاج {surah:int, reciterId:String}'),
+        ),
+      ),
+      s,
+    );
   } else if (name == AppRoutes.downloadDetail) {
-    return _mat(const DownloadDetailPage(), s);
+    final a = s.arguments;
+    if (a is Map<String, dynamic> &&
+        a['surah'] is int &&
+        a['reciterId'] is String) {
+      return _mat(
+        ddp.DownloadDetailPage(
+          surah: a['surah'] as int,
+          reciterId: a['reciterId'] as String,
+        ),
+        s,
+      );
+    }
+    return _mat(
+      const Scaffold(
+        body: Center(
+          child: Text('downloadDetail يحتاج {surah:int, reciterId:String}'),
+        ),
+      ),
+      s,
+    );
   } else if (name == AppRoutes.setting) {
     return _mat(const SettingsPage(), s);
   } else if (name == AppRoutes.goals) {
@@ -136,7 +182,7 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
     return _mat(const StatsPage(), s);
   } else if (name == AppRoutes.onboarding) {
     return _mat(const OnboardingPage(), s);
-  } else if (name == AppRoutes.tafsir) {
+  } else if (name == AppRoutes.tafsir || name == AppRoutes.tafsirReader) {
     return _mat(const TafsirReaderPage(), s);
   }
 
