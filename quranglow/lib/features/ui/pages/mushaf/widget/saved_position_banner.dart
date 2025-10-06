@@ -1,4 +1,6 @@
 // lib/features/ui/pages/mushaf/widgets/saved_position_banner.dart
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 class SavedPositionBanner extends StatelessWidget {
