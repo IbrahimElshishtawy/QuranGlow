@@ -1,33 +1,110 @@
-// ignore_for_file: unused_local_variable
+// lib/features/ui/pages/downloads/download_detail_page.dart
+// ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quranglow/core/di/providers.dart';
+import 'package:quranglow/features/ui/pages/downloads/controller/download_controller.dart';
 
-class DownloadsPage extends StatelessWidget {
-  const DownloadsPage({super.key});
+class DownloadsPage extends ConsumerStatefulWidget {
+  const DownloadsPage({
+    super.key,
+    required this.surah, // مثال: 18
+    required this.reciterId, // مثال: 'ar.alafasy'
+  });
+
+  final int surah;
+  final String reciterId;
+
+  @override
+  ConsumerState<DownloadsPage> createState() => _DownloadDetailPageState();
+}
+
+class _DownloadDetailPageState extends ConsumerState<DownloadsPage> {
+  @override
+  void initState() {
+    super.initState();
+    _kickoff();
+  }
+
+  Future<void> _kickoff() async {
+    final service = ref.read(quranServiceProvider);
+    final urls = await service.getSurahAudioUrls(
+      widget.reciterId,
+      widget.surah,
+    );
+    ref
+        .read(downloadControllerProvider.notifier)
+        .downloadSurah(
+          surah: widget.surah,
+          reciterId: widget.reciterId,
+          ayahUrls: urls,
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final items = List.generate(4, (i) => ('ملف صوتي #${i + 1}', i * 0.2));
+    final st = ref.watch(downloadControllerProvider);
+
+    final title = 'سورة ${widget.surah}';
+    final sub = 'القارئ: ${widget.reciterId}';
+
+    final VoidCallback? cancelAction = (st.status == DownloadStatus.running)
+        ? ref.read(downloadControllerProvider.notifier).cancel
+        : null;
+
+    final statusText = switch (st.status) {
+      DownloadStatus.running => 'جاري التنزيل...',
+      DownloadStatus.done => 'اكتمل التنزيل',
+      DownloadStatus.error => 'خطأ: ${st.message ?? ''}',
+      DownloadStatus.cancelled => 'تم الإلغاء',
+      _ => 'جاهز',
+    };
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(title: const Text('التنزيلات'), centerTitle: true),
-        body: ListView.separated(
-          itemCount: items.length,
-          separatorBuilder: (_, __) => const Divider(height: 1),
-          itemBuilder: (_, i) {
-            final (title, p) = items[i];
-            return ListTile(
-              title: Text(title),
-              subtitle: LinearProgressIndicator(value: p.toDouble()),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () {},
+        appBar: AppBar(title: const Text('تفاصيل التنزيل'), centerTitle: true),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              ListTile(title: Text(title), subtitle: Text(sub)),
+              const SizedBox(height: 12),
+              LinearProgressIndicator(
+                value:
+                    (st.status == DownloadStatus.running ||
+                        st.status == DownloadStatus.done)
+                    ? st.progress
+                    : null,
+                backgroundColor: cs.primary.withOpacity(.12),
               ),
-              onTap: () {},
-            );
-          },
+              const SizedBox(height: 12),
+              Text(statusText, style: TextStyle(color: cs.onSurfaceVariant)),
+              if (st.total > 0) ...[
+                const SizedBox(height: 6),
+                Text('${st.current} / ${st.total}'),
+              ],
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: null, // يمكن لاحقًا تفعيل إيقاف مؤقت/استئناف
+                    icon: const Icon(Icons.pause),
+                    label: const Text('—'),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton.icon(
+                    onPressed: cancelAction,
+                    icon: const Icon(Icons.cancel),
+                    label: const Text('إلغاء'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
