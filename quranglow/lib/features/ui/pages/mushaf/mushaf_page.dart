@@ -4,20 +4,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quranglow/features/ui/pages/mushaf/widget/mushaf_reader_view.dart';
+import 'package:quranglow/features/ui/pages/mushaf/widget/mushaf_top_bar.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/model/surah.dart';
 import 'package:quranglow/core/model/aya.dart';
-import 'package:quranglow/features/ui/pages/mushaf/paged_mushaf.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
 
-// مزود سورة واحدة: (surah, editionId) بالترتيب الصحيح
 final surahProvider = FutureProvider.autoDispose
-    .family<Surah, (int surah, String editionId)>((ref, args) async {
+    .family<Surah, (int chapter, String editionId)>((ref, args) async {
       final service = ref.read(quranServiceProvider);
-      // افترض توقيع الخدمة: getSurahText(int surah, String editionId)
-      return service.getSurahText(args.$1 as String, args.$2 as int);
+      return service.getSurahText(args.$2, args.$1);
     });
 
 class MushafPage extends ConsumerStatefulWidget {
@@ -76,64 +75,21 @@ class _MushafPageState extends ConsumerState<MushafPage> {
       child: Scaffold(
         body: Stack(
           children: [
-            asyncSurah.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text('تعذّر تحميل السورة'),
-                      const SizedBox(height: 8),
-                      Text(
-                        '$e',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      const SizedBox(height: 12),
-                      OutlinedButton(
-                        onPressed: () => ref.refresh(
-                          surahProvider((_chapter, widget.editionId)),
-                        ),
-                        child: const Text('إعادة المحاولة'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              data: (surah) => AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                switchInCurve: Curves.easeOutCubic,
-                switchOutCurve: Curves.easeInCubic,
-                child: KeyedSubtree(
-                  key: ValueKey('surah-$_chapter-${surah.ayat.length}'),
-                  child: PagedMushaf(
-                    ayat: surah.ayat,
-                    surahName: surah.name,
-                    surahNumber: _chapter,
-                    showBasmala: surah.name.trim() != 'التوبة',
-                    initialSelectedAyah: null,
-                    // التوقيع الجديد: (ayahNumber, aya)
-                    onAyahTap: (int ayahNumber, Aya aya) {
-                      Navigator.pushNamed(
-                        context,
-                        AppRoutes.tafsirReader, // اذهب لصفحة التفسير
-                        arguments: TafsirArgs(
-                          surah: _chapter,
-                          ayah: ayahNumber,
-                          // يمكن تمرير نسخة التفسير الحالية إن رغبت:
-                          // editionId: 'ar.tafsir.jalalayn',
-                          // editionName: 'تفسير الجلالين',
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
+            MushafReaderView(
+              asyncSurah: asyncSurah,
+              chapter: _chapter,
+              onRetry: () =>
+                  ref.refresh(surahProvider((_chapter, widget.editionId))),
+              onAyahTap: (int ayahNumber, Aya aya) {
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.tafsirReader,
+                  arguments: TafsirArgs(surah: _chapter, ayah: ayahNumber),
+                );
+              },
             ),
 
-            // طبقة إظهار/إخفاء شريط التحكم
+            // طبقة تبديل ظهور الـ UI
             Positioned.fill(
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
@@ -141,72 +97,14 @@ class _MushafPageState extends ConsumerState<MushafPage> {
               ),
             ),
 
-            // شريط علوي شفاف للتنقل بين السور والرجوع
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: SafeArea(
-                bottom: false,
-                child: IgnorePointer(
-                  ignoring: !_uiVisible,
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 150),
-                    opacity: _uiVisible ? 1 : 0,
-                    child: Container(
-                      height: 56,
-                      margin: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(.35),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            color: Colors.white,
-                            icon: const Icon(Icons.arrow_back),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: asyncSurah.maybeWhen(
-                              data: (s) => Text(
-                                s.name,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              orElse: () => Text(
-                                'سورة $_chapter',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            tooltip: 'السابق',
-                            onPressed: _chapter > 1 ? _goPrev : null,
-                            color: Colors.white,
-                            icon: const Icon(Icons.skip_next), // RTL للسابق
-                          ),
-                          IconButton(
-                            tooltip: 'التالي',
-                            onPressed: _chapter < 114 ? _goNext : null,
-                            color: Colors.white,
-                            icon: const Icon(Icons.skip_previous), // RTL للتالي
-                          ),
-                          const SizedBox(width: 4),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            // الشريط العلوي
+            MushafTopBar(
+              visible: _uiVisible,
+              asyncSurah: asyncSurah,
+              chapter: _chapter,
+              onBack: () => Navigator.pop(context),
+              onPrev: _chapter > 1 ? _goPrev : null,
+              onNext: _chapter < 114 ? _goNext : null,
             ),
           ],
         ),
