@@ -139,8 +139,8 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
         a['reciterId'] is String) {
       return _mat(
         dlp.DownloadsPage(
-          surah: a['surah'] as int,
-          reciterId: a['reciterId'] as String,
+          // surah: a['surah'] as int,
+          // reciterId: a['reciterId'] as String,
         ),
         s,
       );
