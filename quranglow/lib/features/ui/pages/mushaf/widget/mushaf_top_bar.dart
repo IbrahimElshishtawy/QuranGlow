@@ -1,6 +1,4 @@
-// lib/features/ui/pages/mushaf/widgets/mushaf_top_bar.dart
 // ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/model/surah.dart';
