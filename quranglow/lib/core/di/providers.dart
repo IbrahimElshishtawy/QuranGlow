@@ -12,6 +12,7 @@ import 'package:quranglow/core/api/fawaz_cdn_source.dart';
 import 'package:quranglow/core/model/App_Settings.dart';
 // استخدم نموذج Goal الصحيح (النسخة التي تحتوي active/target/current/unit)
 import 'package:quranglow/core/model/Goal.dart';
+import 'package:quranglow/core/model/bookmark.dart';
 import 'package:quranglow/core/model/surah.dart';
 import 'package:quranglow/core/service/Settings_Service.dart';
 import 'package:quranglow/core/service/download_service.dart';
@@ -20,6 +21,8 @@ import 'package:quranglow/core/service/quran_service.dart';
 import 'package:quranglow/core/service/tracking_service.dart';
 import 'package:quranglow/core/storage/hive_storage_impl.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
+import 'package:quranglow/features/ui/pages/bookmarks/controllers/bookmarks_controller.dart';
+import 'package:quranglow/features/ui/pages/bookmarks/logic/bookmarks_usecase.dart';
 
 // --- HTTP & Dio --------------------------------------------------------------
 
@@ -197,4 +200,25 @@ final quranSurahProvider = FutureProvider.autoDispose
 
 final downloadServiceProvider = Provider<DownloadService>((ref) {
   return DownloadService(dio: ref.read(dioProvider));
+});
+
+// --- bookmarks controller -----------------------------------------------------
+
+final bookmarksProvider =
+    StateNotifierProvider<BookmarksController, List<Bookmark>>(
+      (ref) => BookmarksController(),
+    );
+
+final bookmarksUseCaseProvider = Provider<BookmarksUseCase>(
+  (ref) => BookmarksUseCase(ref),
+);
+
+final surahNameProvider = FutureProvider.family<String, int>((ref, n) {
+  final uc = ref.read(bookmarksUseCaseProvider);
+  return uc.getSurahName(n);
+});
+
+final surahAyatCountProvider = FutureProvider.family<int, int>((ref, n) {
+  final uc = ref.read(bookmarksUseCaseProvider);
+  return uc.getAyatCount(n);
 });
