@@ -1,111 +1,164 @@
-// lib/features/ui/pages/downloads/download_detail_page.dart
+// lib/features/ui/pages/downloads/downloads_page.dart
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/features/ui/pages/downloads/controller/download_controller.dart';
+import 'package:quranglow/features/ui/routes/app_routes.dart';
 
 class DownloadsPage extends ConsumerStatefulWidget {
-  const DownloadsPage({
-    super.key,
-    required this.surah, // مثال: 18
-    required this.reciterId, // مثال: 'ar.alafasy'
-  });
-
-  final int surah;
-  final String reciterId;
+  final bool embedded;
+  const DownloadsPage({super.key, this.embedded = true});
 
   @override
-  ConsumerState<DownloadsPage> createState() => _DownloadDetailPageState();
+  ConsumerState<DownloadsPage> createState() => _DownloadsPageState();
 }
 
-class _DownloadDetailPageState extends ConsumerState<DownloadsPage> {
+class _DownloadsPageState extends ConsumerState<DownloadsPage> {
+  final _formKey = GlobalKey<FormState>();
+  int _surah = 18;
+  String? _reciterId;
+  bool _loading = true;
+  List<Map<String, String>> _editions = const [];
+
   @override
   void initState() {
     super.initState();
-    _kickoff();
+    _load();
   }
 
-  Future<void> _kickoff() async {
-    final service = ref.read(quranServiceProvider);
-    final urls = await service.getSurahAudioUrls(
-      widget.reciterId,
-      widget.surah,
+  Future<void> _load() async {
+    try {
+      final service = ref.read(quranServiceProvider);
+      final raw = await service.listAudioEditions();
+
+      final editions = raw
+          .map<Map<String, String>>((e) {
+            final m = Map<String, dynamic>.from(e as Map);
+            final id = (m['identifier'] ?? m['id'] ?? '').toString();
+            final name = (m['name'] ?? m['englishName'] ?? id).toString();
+            return {'id': id, 'name': name};
+          })
+          .where((e) => (e['id'] ?? '').isNotEmpty)
+          .toList();
+
+      editions.sort((a, b) {
+        final an = (a['name'] ?? '').toLowerCase();
+        final bn = (b['name'] ?? '').toLowerCase();
+        final ap = (an.contains('ar.') || an.contains('arabic')) ? 0 : 1;
+        final bp = (bn.contains('ar.') || bn.contains('arabic')) ? 0 : 1;
+        return ap.compareTo(bp);
+      });
+
+      setState(() {
+        _editions = editions;
+        _reciterId = editions.isNotEmpty ? editions.first['id'] : null;
+        _loading = false;
+      });
+    } catch (_) {
+      setState(() => _loading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('تعذّر جلب القرّاء')));
+      }
+    }
+  }
+
+  void _startDownload() {
+    if (!_formKey.currentState!.validate()) return;
+    if (_reciterId == null || _reciterId!.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('اختر قارئًا')));
+      return;
+    }
+    Navigator.pushNamed(
+      context,
+      AppRoutes.downloadDetail,
+      arguments: {'surah': _surah, 'reciterId': _reciterId!},
     );
-    ref
-        .read(downloadControllerProvider.notifier)
-        .downloadSurah(
-          surah: widget.surah,
-          reciterId: widget.reciterId,
-          ayahUrls: urls,
-        );
   }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final st = ref.watch(downloadControllerProvider);
 
-    final title = 'سورة ${widget.surah}';
-    final sub = 'القارئ: ${widget.reciterId}';
-
-    final VoidCallback? cancelAction = (st.status == DownloadStatus.running)
-        ? ref.read(downloadControllerProvider.notifier).cancel
-        : null;
-
-    final statusText = switch (st.status) {
-      DownloadStatus.running => 'جاري التنزيل...',
-      DownloadStatus.done => 'اكتمل التنزيل',
-      DownloadStatus.error => 'خطأ: ${st.message ?? ''}',
-      DownloadStatus.cancelled => 'تم الإلغاء',
-      _ => 'جاهز',
-    };
+    final content = _loading
+        ? const Center(child: CircularProgressIndicator())
+        : Padding(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  DropdownButtonFormField<int>(
+                    value: _surah,
+                    decoration: const InputDecoration(
+                      labelText: 'السورة',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: List.generate(
+                      114,
+                      (i) => DropdownMenuItem(
+                        value: i + 1,
+                        child: Text('سورة رقم ${i + 1}'),
+                      ),
+                    ),
+                    onChanged: (v) => setState(() => _surah = v ?? 1),
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    value: _reciterId,
+                    decoration: const InputDecoration(
+                      labelText: 'القارئ',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _editions
+                        .map(
+                          (e) => DropdownMenuItem<String>(
+                            value: e['id'],
+                            child: Text('${e['name']} (${e['id']})'),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (v) => setState(() => _reciterId = v),
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'اختر قارئًا' : null,
+                  ),
+                  const Spacer(),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: _startDownload,
+                      icon: const Icon(Icons.download),
+                      label: const Text('ابدأ التنزيل'),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'سيتم تنزيل كل آيات السورة المختارة بصوت القارئ المحدد.',
+                    style: TextStyle(color: cs.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+          );
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(title: const Text('تفاصيل التنزيل'), centerTitle: true),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              ListTile(title: Text(title), subtitle: Text(sub)),
-              const SizedBox(height: 12),
-              LinearProgressIndicator(
-                value:
-                    (st.status == DownloadStatus.running ||
-                        st.status == DownloadStatus.done)
-                    ? st.progress
-                    : null,
-                backgroundColor: cs.primary.withOpacity(.12),
+        appBar: widget.embedded
+            ? null
+            : AppBar(
+                title: const Text('التنزيلات'),
+                centerTitle: true,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ),
-              const SizedBox(height: 12),
-              Text(statusText, style: TextStyle(color: cs.onSurfaceVariant)),
-              if (st.total > 0) ...[
-                const SizedBox(height: 6),
-                Text('${st.current} / ${st.total}'),
-              ],
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: null, // يمكن لاحقًا تفعيل إيقاف مؤقت/استئناف
-                    icon: const Icon(Icons.pause),
-                    label: const Text('—'),
-                  ),
-                  const SizedBox(width: 8),
-                  FilledButton.icon(
-                    onPressed: cancelAction,
-                    icon: const Icon(Icons.cancel),
-                    label: const Text('إلغاء'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+        body: content,
       ),
     );
   }
