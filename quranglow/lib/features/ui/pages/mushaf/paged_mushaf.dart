@@ -1,12 +1,13 @@
-// lib/features/ui/pages/mushaf/paged_mushaf.dart
-// أهم تغيير: onAyahTap يُمرّر رقم الآية 1-based
+// أهم شيء: التقسيم حسب صفحات مصحف المدينة + تلوين رقم الآية + حفظ الموضع
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:quranglow/core/model/aya.dart';
+import 'package:quran/quran.dart' as quran;
 
+import 'package:quranglow/core/model/aya.dart';
+import 'package:quranglow/features/ui/pages/mushaf/page_rich_block.dart';
 import 'package:quranglow/features/ui/pages/mushaf/widget/mushaf_header.dart';
 import 'package:quranglow/features/ui/pages/mushaf/widget/page_indicator.dart';
-import 'package:quranglow/features/ui/pages/mushaf/widget/page_rich_block.dart';
+import 'package:quranglow/features/ui/pages/mushaf/widget/position_store.dart';
 import 'package:quranglow/features/ui/pages/mushaf/widget/saved_position_banner.dart';
 
 class PagedMushaf extends StatefulWidget {
@@ -34,14 +35,12 @@ class PagedMushaf extends StatefulWidget {
 }
 
 class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
-  final _store = _PosStore();
+  final _pos = PositionStore();
   final _controller = PageController(keepPage: true);
 
-  /// المؤشر الحالي داخل السورة 0-based
   int? _currentAyah;
-
-  /// التقسيم إلى صفحات
   late final List<PageRange> _pages;
+  bool _justSaved = false;
 
   @override
   void initState() {
@@ -62,11 +61,24 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  void _onAyahTap(int index) {
+  void _onAyahTap(int index) async {
     setState(() => _currentAyah = index);
-    _store.save(widget.surahNumber, index);
+    await _pos.save(widget.surahNumber, index);
+
+    // رسالة حفظ
+    setState(() => _justSaved = true);
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _justSaved = false);
+    });
+
+    // فتح التفسير
     if (index >= 0 && index < widget.ayat.length) {
       widget.onAyahTap(index + 1, widget.ayat[index]); // 1-based
+    }
+
+    if (kDebugMode) {
+      // ignore: avoid_print
+      print('حفظ موضع السورة ${widget.surahNumber}، الآية ${index + 1}');
     }
   }
 
@@ -75,6 +87,7 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
     return PageView.builder(
       controller: _controller,
       reverse: true,
+      physics: const BouncingScrollPhysics(),
       itemCount: _pages.length,
       itemBuilder: (context, pageIndex) {
         final r = _pages[pageIndex];
@@ -113,10 +126,10 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
                   ),
                 ),
                 SavedPositionBanner(
-                  visible: _currentAyah != null,
-                  text: (_currentAyah == null)
+                  visible: _justSaved,
+                  text: _currentAyah == null
                       ? ''
-                      : 'موضعي: آية ${_toArabicDigits((_currentAyah! + 1))} من ${widget.surahName}',
+                      : 'تم حفظ موضعك: آية ${_toArabicDigits((_currentAyah! + 1))} من ${widget.surahName}',
                 ),
               ],
             ),
@@ -126,16 +139,24 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
     );
   }
 
-  // تقسيم بسيط: كل صفحة ~ 12 آية. عدّل الرقم حسب تصميمك.
+  // تقسيم يعتمد على رقم صفحة مصحف المدينة لكل آية
   List<PageRange> _buildPages(List<Aya> ayat) {
-    const perPage = 12;
+    if (ayat.isEmpty) return [const PageRange(start: 0, end: 0)];
+
     final res = <PageRange>[];
-    for (int i = 0; i < ayat.length; i += perPage) {
-      final end = (i + perPage > ayat.length) ? ayat.length : i + perPage;
-      res.add(PageRange(start: i, end: end));
+    int start = 0;
+    int currentPage = quran.getPageNumber(widget.surahNumber, 1);
+
+    for (int i = 0; i < ayat.length; i++) {
+      final page = quran.getPageNumber(widget.surahNumber, i + 1);
+      if (page != currentPage) {
+        res.add(PageRange(start: start, end: i));
+        start = i;
+        currentPage = page;
+      }
     }
-    if (res.isEmpty) {
-      res.add(const PageRange(start: 0, end: 0));
+    if (res.isEmpty || res.last.end != ayat.length) {
+      res.add(PageRange(start: start, end: ayat.length));
     }
     return res;
   }
@@ -150,16 +171,5 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
       buf.write(idx >= 0 ? eastern[idx] : ch);
     }
     return buf.toString();
-  }
-}
-
-/// تخزين موضع القراءة الحالي. استبدله بتخزينك الفعلي (Hive/SharedPrefs).
-class _PosStore {
-  void save(int surahNumber, int ayahIndex) {
-    // حفظ الموضع (surahNumber, ayahIndex)
-    // استبدل هذا بالتخزين الفعلي
-    if (kDebugMode) {
-      print('حفظ موضع السورة $surahNumber، الآية ${ayahIndex + 1}');
-    }
   }
 }
