@@ -14,6 +14,7 @@ import 'package:quranglow/core/model/App_Settings.dart';
 import 'package:quranglow/core/model/Goal.dart';
 import 'package:quranglow/core/model/surah.dart';
 import 'package:quranglow/core/service/Settings_Service.dart';
+import 'package:quranglow/core/service/download_service.dart';
 import 'package:quranglow/core/service/goals_service.dart';
 import 'package:quranglow/core/service/quran_service.dart';
 import 'package:quranglow/core/service/tracking_service.dart';
@@ -191,3 +192,9 @@ final quranSurahProvider = FutureProvider.autoDispose
           .read(quranServiceProvider)
           .getSurahText(surah as String, editionId as int);
     });
+
+// --- download service ---------------------------------------------------------
+
+final downloadServiceProvider = Provider<DownloadService>((ref) {
+  return DownloadService(dio: ref.read(dioProvider));
+});
