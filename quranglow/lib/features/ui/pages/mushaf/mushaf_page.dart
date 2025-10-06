@@ -1,10 +1,7 @@
-// lib/features/ui/pages/mushaf/mushaf_page.dart
 // ignore_for_file: deprecated_member_use, unnecessary_brace_in_string_interps
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/features/ui/pages/mushaf/widget/mushaf_reader_view.dart';
 import 'package:quranglow/features/ui/pages/mushaf/widget/mushaf_top_bar.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -12,6 +9,8 @@ import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/model/surah.dart';
 import 'package:quranglow/core/model/aya.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
+
+import 'package:quranglow/features/ui/pages/mushaf/paged_mushaf.dart';
 
 final surahProvider = FutureProvider.autoDispose
     .family<Surah, (int chapter, String editionId)>((ref, args) async {
@@ -75,18 +74,46 @@ class _MushafPageState extends ConsumerState<MushafPage> {
       child: Scaffold(
         body: Stack(
           children: [
-            MushafReaderView(
-              asyncSurah: asyncSurah,
-              chapter: _chapter,
-              onRetry: () =>
-                  ref.refresh(surahProvider((_chapter, widget.editionId))),
-              onAyahTap: (int ayahNumber, Aya aya) {
-                Navigator.pushNamed(
-                  context,
-                  AppRoutes.tafsirReader,
-                  arguments: TafsirArgs(surah: _chapter, ayah: ayahNumber),
-                );
-              },
+            asyncSurah.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('تعذّر تحميل السورة'),
+                      const SizedBox(height: 8),
+                      Text(
+                        '$e',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      const SizedBox(height: 12),
+                      OutlinedButton(
+                        onPressed: () => ref.refresh(
+                          surahProvider((_chapter, widget.editionId)),
+                        ),
+                        child: const Text('إعادة المحاولة'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              data: (surah) => PagedMushaf(
+                ayat: surah.ayat,
+                surahName: surah.name,
+                surahNumber: _chapter,
+                showBasmala: surah.name.trim() != 'التوبة',
+                initialSelectedAyah: null,
+                onAyahTap: (int ayahNumber, Aya aya) {
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.tafsirReader,
+                    arguments: TafsirArgs(surah: _chapter, ayah: ayahNumber),
+                  );
+                },
+              ),
             ),
 
             // طبقة تبديل ظهور الـ UI
