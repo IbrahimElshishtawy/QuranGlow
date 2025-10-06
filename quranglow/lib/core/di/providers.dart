@@ -195,7 +195,23 @@ final quranSurahProvider = FutureProvider.autoDispose
           .read(quranServiceProvider)
           .getSurahText(surah as String, editionId as int);
     });
+final tafsirFutureProvider = FutureProvider.autoDispose
+    .family<String?, ({int surah, int ayah, String editionId})>((ref, p) async {
+      final svc = ref.read(quranServiceProvider);
+      try {
+        final t = await svc.getAyahTafsir(p.surah, p.ayah, p.editionId);
+        return (t.trim().isEmpty) ? null : t;
+      } catch (_) {
+        return null;
+      }
+    });
 
+/// يجلب جميع روابط الصوت لسورة واحدة لقارئ معيّن
+final surahAudioUrlsProvider = FutureProvider.autoDispose
+    .family<List<String>, ({int surah, String reciterId})>((ref, p) async {
+      final svc = ref.read(quranServiceProvider);
+      return svc.getSurahAudioUrls(p.reciterId, p.surah);
+    });
 // --- download service ---------------------------------------------------------
 
 final downloadServiceProvider = Provider<DownloadService>((ref) {
