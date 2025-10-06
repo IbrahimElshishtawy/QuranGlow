@@ -1,27 +1,42 @@
+// lib/core/service/download_service.dart
 import 'dart:io';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 
 class DownloadService {
-  Future<String> downloadFile(
-    String url,
-    String filename,
-    void Function(int, int)? onProgress,
-  ) async {
-    final client = http.Client();
-    final req = await client.send(http.Request('GET', Uri.parse(url)));
-    final total = req.contentLength ?? 0;
+  DownloadService({required this.dio});
+  final Dio dio;
+
+  Future<Directory> _rootDir() async {
     final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/$filename');
-    final sink = file.openWrite();
-    int received = 0;
-    await for (final chunk in req.stream) {
-      received += chunk.length;
-      sink.add(chunk);
-      if (onProgress != null) onProgress(received, total);
-    }
-    await sink.flush();
-    await sink.close();
-    return file.path;
+    final base = Directory('${dir.path}/quran_audio');
+    if (!await base.exists()) await base.create(recursive: true);
+    return base;
+  }
+
+  Future<Directory> surahDir({
+    required String reciter,
+    required int surah,
+  }) async {
+    final root = await _rootDir();
+    final d = Directory('${root.path}/$reciter/$surah');
+    if (!await d.exists()) await d.create(recursive: true);
+    return d;
+  }
+
+  /// تنزيل ملف واحد مع تقدم
+  Future<void> downloadOne({
+    required String url,
+    required String savePath,
+    required void Function(int received, int total) onProgress,
+    CancelToken? cancelToken,
+  }) async {
+    await dio.download(
+      url,
+      savePath,
+      onReceiveProgress: onProgress,
+      options: Options(responseType: ResponseType.stream),
+      cancelToken: cancelToken,
+    );
   }
 }
