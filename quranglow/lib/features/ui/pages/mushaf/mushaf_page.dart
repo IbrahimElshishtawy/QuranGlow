@@ -2,15 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/features/ui/pages/mushaf/widget/mushaf_top_bar.dart';
+import 'package:quranglow/features/ui/pages/mushaf/widget/position_store.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/model/surah.dart';
 import 'package:quranglow/core/model/aya.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
-
 import 'package:quranglow/features/ui/pages/mushaf/paged_mushaf.dart';
+import 'package:quranglow/features/ui/pages/mushaf/widget/mushaf_top_bar.dart';
 
 final surahProvider = FutureProvider.autoDispose
     .family<Surah, (int chapter, String editionId)>((ref, args) async {
@@ -23,6 +23,7 @@ class MushafPage extends ConsumerStatefulWidget {
     super.key,
     this.chapter = 1,
     this.editionId = 'quran-uthmani',
+    int? initialAyah,
   });
 
   final int chapter;
@@ -35,6 +36,9 @@ class MushafPage extends ConsumerStatefulWidget {
 class _MushafPageState extends ConsumerState<MushafPage> {
   bool _uiVisible = false;
   late int _chapter;
+
+  int? _lastAyahNumber;
+  final _pos = PositionStore(); // ← NEW
 
   @override
   void initState() {
@@ -58,11 +62,39 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   }
 
   void _goPrev() {
-    if (_chapter > 1) setState(() => _chapter--);
+    if (_chapter > 1) {
+      setState(() {
+        _chapter--;
+        _lastAyahNumber = null;
+      });
+    }
   }
 
   void _goNext() {
-    if (_chapter < 114) setState(() => _chapter++);
+    if (_chapter < 114) {
+      setState(() {
+        _chapter++;
+        _lastAyahNumber = null;
+      });
+    }
+  }
+
+  Future<void> _saveCurrentPosition() async {
+    final ayahIndex0 = (_lastAyahNumber ?? 1) - 1;
+    await _pos.save(_chapter, ayahIndex0);
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('تم حفظ موضع القراءة')));
+  }
+
+  void _openTafsirForCurrent() {
+    final ayahNum = _lastAyahNumber ?? 1;
+    Navigator.pushNamed(
+      context,
+      AppRoutes.tafsirReader,
+      arguments: TafsirArgs(surah: _chapter, ayah: ayahNum),
+    );
   }
 
   @override
@@ -107,6 +139,8 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                 showBasmala: surah.name.trim() != 'التوبة',
                 initialSelectedAyah: null,
                 onAyahTap: (int ayahNumber, Aya aya) {
+                  _lastAyahNumber = ayahNumber;
+
                   Navigator.pushNamed(
                     context,
                     AppRoutes.tafsirReader,
@@ -116,15 +150,13 @@ class _MushafPageState extends ConsumerState<MushafPage> {
               ),
             ),
 
-            // طبقة تبديل ظهور الـ UI
+            // Toggle UI overlay
             Positioned.fill(
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () => setState(() => _uiVisible = !_uiVisible),
               ),
             ),
-
-            // الشريط العلوي
             MushafTopBar(
               visible: _uiVisible,
               asyncSurah: asyncSurah,
@@ -132,6 +164,8 @@ class _MushafPageState extends ConsumerState<MushafPage> {
               onBack: () => Navigator.pop(context),
               onPrev: _chapter > 1 ? _goPrev : null,
               onNext: _chapter < 114 ? _goNext : null,
+              onSave: _saveCurrentPosition,
+              onTafsir: _openTafsirForCurrent,
             ),
           ],
         ),
