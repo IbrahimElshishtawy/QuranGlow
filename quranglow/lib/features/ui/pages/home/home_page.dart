@@ -9,12 +9,12 @@ import 'package:quranglow/features/ui/pages/home/sections/quick_actions_grid.dar
 import 'package:quranglow/features/ui/pages/home/sections/shortcuts_list.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/app_drawer.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/hero_header.dart';
-import 'package:quranglow/features/ui/pages/home/widgets/section_shell.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/section_spacing.dart';
 
-// أعرض الصفحات داخل التبويبات بدل التنقّل
+// الصفحات الأخرى
 import 'package:quranglow/features/ui/pages/search/search_page.dart';
 import 'package:quranglow/features/ui/pages/player/player_page.dart';
+import 'package:quranglow/features/ui/pages/downloads/downloads_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,6 +25,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _tab = 0;
 
+  // final int _defaultSurah = 18;
+  // final String _defaultReciterId = 'ar.alafasy';
+
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -33,7 +36,6 @@ class _HomePageState extends State<HomePage> {
         drawer: AppDrawer(
           onNavigate: (r) {
             Navigator.pop(context);
-            // لو محتاجين تنقّل من القائمة الجانبية يبقى هنا
             Navigator.pushNamed(context, r);
           },
         ),
@@ -61,10 +63,6 @@ class _HomePageState extends State<HomePage> {
               expandedHeight: 150,
               centerTitle: true,
               title: Text(_titleForTab(_tab)),
-              actions: const [
-                // مثال: زر إعدادات (اختياري تحذف لو عندك صفحة إعدادات مستقلة)
-                // IconButton(onPressed: (){}, icon: Icon(Icons.settings)),
-              ],
               flexibleSpace: const FlexibleSpaceBar(background: HeroHeader()),
             ),
 
@@ -92,24 +90,24 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
 
-            // البحث — يُعرَض داخل نفس الصفحة
+            // البحث
             if (_tab == 1)
               const SliverFillRemaining(
                 hasScrollBody: true,
                 child: SearchPage(),
               ),
 
-            // التنزيلات (قالب بسيط)
+            // التنزيلات — تمرير البراميتر المطلوبة
             if (_tab == 2)
-              const SliverFillRemaining(
-                hasScrollBody: false,
-                child: SectionShell(
-                  title: 'التنزيلات',
-                  subtitle: 'إدارة التحميلات والتشغيل دون إنترنت',
+              SliverFillRemaining(
+                hasScrollBody: true,
+                child: DownloadsPage(
+                  // surah: _defaultSurah,
+                  // reciterId: _defaultReciterId,
                 ),
               ),
 
-            // المشغّل — يُعرَض داخل نفس الصفحة
+            // المشغّل
             if (_tab == 3)
               const SliverFillRemaining(
                 hasScrollBody: true,
