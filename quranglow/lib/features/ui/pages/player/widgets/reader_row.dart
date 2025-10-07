@@ -9,15 +9,15 @@ class ReaderRow extends StatelessWidget {
   const ReaderRow({
     super.key,
     required this.editions,
-    required this.surahs, // ⬅️ أضف هذه
+    required this.surahs,
     required this.selectedEditionId,
-    required this.selectedSurah, // ⬅️ بدل initialChapter
+    required this.selectedSurah,
     required this.onEditionChanged,
-    required this.onChapterSubmitted, // سيستقبل رقم السورة كنص
+    required this.onChapterSubmitted,
   });
 
   final AsyncValue<List<dynamic>> editions;
-  final AsyncValue<List<Surah>> surahs; // ⬅️ أسماء/أرقام السور
+  final AsyncValue<List<Surah>> surahs;
   final String selectedEditionId;
   final int selectedSurah;
   final ValueChanged<String> onEditionChanged;
@@ -27,7 +27,6 @@ class ReaderRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // اختيار القارئ
         Expanded(
           child: editions.when(
             loading: () => const LinearProgressIndicator(),
@@ -64,7 +63,6 @@ class ReaderRow extends StatelessWidget {
 
         const SizedBox(width: 12),
 
-        // اختيار السورة بالاسم
         Expanded(
           child: surahs.when(
             loading: () => const LinearProgressIndicator(),
@@ -82,12 +80,11 @@ class ReaderRow extends StatelessWidget {
                 items: list.map((s) {
                   return DropdownMenuItem<int>(
                     value: s.number,
-                    child: Text(s.name), // اسم السورة
+                    child: Text(s.name),
                   );
                 }).toList(),
                 onChanged: (v) {
                   if (v != null) {
-                    // مرّر رقم السورة كنص لنفس الكولباك الحالي
                     onChapterSubmitted(v.toString());
                   }
                 },
