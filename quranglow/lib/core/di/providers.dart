@@ -18,6 +18,8 @@ import 'package:quranglow/core/service/Settings_Service.dart';
 import 'package:quranglow/core/service/download_service.dart';
 import 'package:quranglow/core/service/goals_service.dart';
 import 'package:quranglow/core/service/quran_service.dart';
+import 'package:quranglow/core/service/stats_service.dart';
+import 'package:quranglow/core/service/stats_service_mock.dart';
 import 'package:quranglow/core/service/tracking_service.dart';
 import 'package:quranglow/core/storage/hive_storage_impl.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
@@ -237,4 +239,9 @@ final surahNameProvider = FutureProvider.family<String, int>((ref, n) {
 final surahAyatCountProvider = FutureProvider.family<int, int>((ref, n) {
   final uc = ref.read(bookmarksUseCaseProvider);
   return uc.getAyatCount(n);
+});
+// --- Stats Service ------------------------------------------------------------
+
+final statsServiceProvider = Provider<StatsService>((ref) {
+  return StatsServiceMock();
 });
