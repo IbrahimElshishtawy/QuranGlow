@@ -1,10 +1,15 @@
+// transport_controls.dart
 // ignore_for_file: unused_field
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:quranglow/core/model/Play_list_State.dart';
 import 'package:quranglow/features/ui/pages/player/controller/player_controller_provider.dart';
 import 'package:quranglow/features/ui/pages/player/widgets/position_bar.dart';
+import 'package:quranglow/features/ui/pages/player/widgets/speed_menu.dart';
+
+final playbackSpeedProvider = StateProvider<double>((_) => 1.0);
 
 class TransportControls extends ConsumerWidget {
   const TransportControls({super.key, required this.state});
@@ -13,6 +18,7 @@ class TransportControls extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
+    final speed = ref.watch(playbackSpeedProvider);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -74,12 +80,11 @@ class TransportControls extends ConsumerWidget {
           spacing: 12,
           runSpacing: 4,
           children: [
-            _SpeedMenu(
+            SpeedMenu(
+              currentSpeed: speed,
               onSelect: (v) {
-                // يمكن لاحقًا ضبط setSpeed على المشغّل إن رغبت
-                ref
-                    .read(playerControllerProvider.notifier)
-                    .seekTo(const Duration());
+                ref.read(playbackSpeedProvider.notifier).state = v;
+                ref.read(playerControllerProvider.notifier).setSpeed(v);
               },
             ),
             OutlinedButton.icon(
@@ -117,35 +122,6 @@ class TransportControls extends ConsumerWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-class _SpeedMenu extends StatefulWidget {
-  const _SpeedMenu({required this.onSelect});
-  final void Function(double) onSelect;
-  @override
-  State<_SpeedMenu> createState() => _SpeedMenuState();
-}
-
-class _SpeedMenuState extends State<_SpeedMenu> {
-  double _speed = 1.0;
-  final _options = const [0.5, 0.75, 1.0, 1.25, 1.5];
-  @override
-  Widget build(BuildContext context) {
-    return PopupMenuButton<double>(
-      tooltip: 'السرعة',
-      onSelected: (v) {
-        setState(() => _speed = v);
-        widget.onSelect(v);
-      },
-      itemBuilder: (context) => _options
-          .map((v) => PopupMenuItem(value: v, child: Text('${v}x')))
-          .toList(),
-      child: const Chip(
-        avatar: Icon(Icons.speed_rounded, size: 18),
-        label: Text('السرعة'),
-      ),
     );
   }
 }
