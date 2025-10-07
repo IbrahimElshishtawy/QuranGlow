@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:quranglow/core/model/aya.dart';
+import 'package:quranglow/core/model/aya/aya.dart';
 
 class AyaText extends StatelessWidget {
   final Aya aya;

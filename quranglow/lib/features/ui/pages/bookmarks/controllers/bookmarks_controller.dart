@@ -1,4 +1,4 @@
-import 'package:quranglow/core/model/bookmark.dart';
+import 'package:quranglow/core/model/book/bookmark.dart';
 import 'package:state_notifier/state_notifier.dart';
 
 class BookmarksController extends StateNotifier<List<Bookmark>> {

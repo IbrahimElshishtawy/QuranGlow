@@ -3,8 +3,8 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:quranglow/core/model/aya.dart';
-import 'package:quranglow/core/model/surah.dart';
+import 'package:quranglow/core/model/aya/aya.dart';
+import 'package:quranglow/core/model/book/surah.dart';
 
 import 'package:quranglow/features/ui/pages/ayah/ayah_detail_page.dart';
 import 'package:quranglow/features/ui/pages/bookmarks/bookmarks_page.dart';

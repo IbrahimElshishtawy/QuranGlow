@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/model/Play_list_State.dart';
+import 'package:quranglow/core/model/book/Play_list_State.dart';
 
 final editionIdProvider = StateProvider<String>((_) => 'ar.alafasy');
 final chapterProvider = StateProvider<int>((_) => 1);

@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/model/aya.dart';
-import 'package:quranglow/core/model/surah.dart';
+import 'package:quranglow/core/model/aya/aya.dart';
+import 'package:quranglow/core/model/book/surah.dart';
 import 'package:quranglow/features/ui/pages/ayah/widgets/ayah_audio_card.dart';
 import 'package:quranglow/features/ui/pages/player/controller/player_controller_provider.dart';
 import 'package:riverpod/src/framework.dart';

@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
 
-import 'package:quranglow/core/model/aya.dart';
+import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/features/ui/pages/mushaf/page_rich_block.dart';
 import 'package:quranglow/features/ui/pages/mushaf/widget/mushaf_header.dart';
 import 'package:quranglow/features/ui/pages/mushaf/widget/page_indicator.dart';

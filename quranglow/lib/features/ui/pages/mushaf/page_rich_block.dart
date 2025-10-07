@@ -1,7 +1,7 @@
 // ignore_for_file: dead_code, deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:quranglow/core/model/aya.dart';
+import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/features/ui/pages/mushaf/widget/span_builder.dart';
 
 class PageRange {

@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
 
-import 'package:quranglow/core/model/aya.dart';
-import 'package:quranglow/core/model/bookmark.dart';
-import 'package:quranglow/core/model/surah.dart';
+import 'package:quranglow/core/model/aya/aya.dart';
+import 'package:quranglow/core/model/book/bookmark.dart';
+import 'package:quranglow/core/model/book/surah.dart';
 import 'package:quranglow/features/ui/routes/app_router.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
 

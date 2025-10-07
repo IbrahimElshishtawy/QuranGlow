@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/model/search_hit.dart';
+import 'package:quranglow/core/model/setting/search_hit.dart';
 
 final editionIdForSearchProvider = Provider<String>((_) => 'quran-uthmani');
 

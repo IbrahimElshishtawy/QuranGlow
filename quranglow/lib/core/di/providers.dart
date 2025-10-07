@@ -9,11 +9,10 @@ import 'package:http/http.dart' as http;
 
 import 'package:quranglow/core/api/alquran_cloud_source.dart';
 import 'package:quranglow/core/api/fawaz_cdn_source.dart';
-import 'package:quranglow/core/model/App_Settings.dart';
-// استخدم نموذج Goal الصحيح (النسخة التي تحتوي active/target/current/unit)
+import 'package:quranglow/core/model/setting/App_Settings.dart';
 import 'package:quranglow/core/model/Goal.dart';
-import 'package:quranglow/core/model/bookmark.dart';
-import 'package:quranglow/core/model/surah.dart';
+import 'package:quranglow/core/model/book/bookmark.dart';
+import 'package:quranglow/core/model/book/surah.dart';
 import 'package:quranglow/core/service/Settings_Service.dart';
 import 'package:quranglow/core/service/download_service.dart';
 import 'package:quranglow/core/service/goals_service.dart';

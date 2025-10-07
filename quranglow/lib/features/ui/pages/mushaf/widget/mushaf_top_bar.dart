@@ -2,7 +2,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/model/surah.dart';
+import 'package:quranglow/core/model/book/surah.dart';
 
 class MushafTopBar extends StatelessWidget {
   const MushafTopBar({

@@ -7,7 +7,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:quranglow/core/service/notification_service.dart';
 
-import 'core/model/goal.dart';
+import 'core/model/setting/goal.dart';
 import 'core/di/providers.dart';
 import 'core/theme/theme.dart';
 import 'features/ui/pages/spa/splash_screen.dart';

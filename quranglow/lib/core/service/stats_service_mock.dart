@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:quranglow/core/model/stats_models.dart';
+import 'package:quranglow/core/model/book/stats_models.dart';
 import 'package:quranglow/core/service/stats_service.dart';
 
 class StatsServiceMock implements StatsService {

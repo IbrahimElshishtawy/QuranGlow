@@ -1,4 +1,4 @@
-import 'package:quranglow/core/model/stats_models.dart';
+import 'package:quranglow/core/model/book/stats_models.dart';
 
 abstract class StatsService {
   Future<StatsSummary> getSummary();
