@@ -4,13 +4,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
+import 'package:quranglow/core/data/surah_names_ar.dart'; // 👈 استيراد أسماء السور
 import 'package:quranglow/features/ui/pages/downloads/controller/download_controller.dart';
 
 class DownloadDetailPage extends ConsumerStatefulWidget {
   const DownloadDetailPage({
     super.key,
-    required this.surah, // مثال: 18
-    required this.reciterId, // مثال: 'ar.alafasy'
+    required this.surah,
+    required this.reciterId,
   });
 
   final int surah;
@@ -53,7 +54,12 @@ class _DownloadDetailPageState extends ConsumerState<DownloadDetailPage> {
     final cs = Theme.of(context).colorScheme;
     final st = ref.watch(downloadControllerProvider);
 
-    final title = 'سورة ${widget.surah}';
+    // 👇 اسم السورة بدل الرقم (مع fallback آمن)
+    final surahName = (widget.surah >= 1 && widget.surah < kSurahNamesAr.length)
+        ? kSurahNamesAr[widget.surah]
+        : widget.surah.toString();
+
+    final title = 'سورة $surahName';
     final sub = 'القارئ: ${widget.reciterId}';
 
     final statusText = switch (st.status) {
@@ -97,7 +103,7 @@ class _DownloadDetailPageState extends ConsumerState<DownloadDetailPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   OutlinedButton.icon(
-                    onPressed: null, // لاحقًا: إيقاف مؤقت/استئناف
+                    onPressed: null,
                     icon: const Icon(Icons.pause),
                     label: const Text('—'),
                   ),
