@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:quranglow/core/service/notification_service.dart';
 
 import 'core/model/goal.dart';
 import 'core/di/providers.dart';
@@ -16,6 +17,7 @@ Future<void> main() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: binding);
   await Hive.initFlutter();
+  await NotificationService.instance.init();
   Hive.registerAdapter(GoalAdapter());
   runApp(const ProviderScope(child: QuranGlowApp()));
   WidgetsBinding.instance.addPostFrameCallback((_) {
