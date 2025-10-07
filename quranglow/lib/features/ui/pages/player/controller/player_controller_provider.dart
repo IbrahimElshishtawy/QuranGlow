@@ -116,6 +116,20 @@ class PlayerController extends StateNotifier<AsyncValue<PlaylistState>> {
   Future<void> previous() => _player.seekToPrevious();
   Future<void> seekTo(Duration d) => _player.seek(d);
 
+  // سرعة التشغيل
+  Future<void> setSpeed(double value) async {
+    final v = value.clamp(0.5, 2.0);
+    await _player.setSpeed(v);
+
+    state = AsyncValue.data(
+      _makeState(
+        editionId: _currentEdition,
+        chapter: _currentChapter,
+        total: _tracks.length,
+      ),
+    );
+  }
+
   // تغييرات الإعدادات (ستُعيد التحميل تلقائياً عبر listen)
   Future<void> changeEdition(String ed) async {
     if (ed != _currentEdition) {
@@ -136,7 +150,6 @@ class PlayerController extends StateNotifier<AsyncValue<PlaylistState>> {
     await _player.setLoopMode(
       cur == LoopMode.off ? LoopMode.all : LoopMode.off,
     );
-    // الواجهة تعتمد على Streams، لكن نُحدّث الحالة لتفعيل إعادة البناء إن لزم
     state = AsyncValue.data(
       _makeState(
         editionId: _currentEdition,
