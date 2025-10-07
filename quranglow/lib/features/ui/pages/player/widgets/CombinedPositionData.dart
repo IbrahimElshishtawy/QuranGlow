@@ -27,7 +27,6 @@ Stream<CombinedPositionData> combinedPositionStream(AudioPlayer player) {
       final sequence = seqState?.sequence ?? const <IndexedAudioSource>[];
       final idx = seqState?.currentIndex ?? 0;
 
-      // مدد المقاطع (قد تكون null – نعتبرها صفر حتى تُعرف)
       final durations = sequence
           .map((s) => s.duration ?? Duration.zero)
           .toList();
