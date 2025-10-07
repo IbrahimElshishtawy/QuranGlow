@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/features/ui/pages/setting/widgets/settings_providers.dart';
-
 import 'section_header.dart';
 
 class UsageSection extends ConsumerWidget {
@@ -47,7 +46,7 @@ class UsageSection extends ConsumerWidget {
         ),
         SwitchListTile(
           title: const Text('تقليل الحركة والأنيميشن'),
-          subtitle: const Text('مفيد للأجهزة الضعيفة أو لمن لا يفضّل الحركة'),
+          subtitle: const Text('مفيد للأجهزة الضعيفة'),
           value: reduced,
           onChanged: (v) => ref.read(reduceMotionProvider.notifier).state = v,
         ),
