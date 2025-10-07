@@ -7,7 +7,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:quranglow/core/service/setting/notification_service.dart';
 
-import 'core/model/setting/goal.dart';
 import 'core/di/providers.dart';
 import 'core/theme/theme.dart';
 import 'features/ui/pages/spa/splash_screen.dart';
@@ -18,7 +17,7 @@ Future<void> main() async {
   FlutterNativeSplash.preserve(widgetsBinding: binding);
   await Hive.initFlutter();
   await NotificationService.instance.init();
-  Hive.registerAdapter(GoalAdapter());
+
   runApp(const ProviderScope(child: QuranGlowApp()));
   WidgetsBinding.instance.addPostFrameCallback((_) {
     FlutterNativeSplash.remove();
