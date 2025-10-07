@@ -43,7 +43,7 @@ class TrackCard extends ConsumerWidget {
               ],
             ),
             child: const Icon(
-              Icons.auto_awesome_rounded,
+              Icons.menu_book_rounded,
               color: Colors.white,
               size: 44,
             ),
