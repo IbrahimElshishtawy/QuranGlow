@@ -14,7 +14,7 @@ class MushafTopBar extends StatelessWidget {
     this.onPrev,
     this.onNext,
     this.onSave,
-    this.onTafsir, // NEW
+    this.onTafsir,
   });
 
   final bool visible;
@@ -24,11 +24,35 @@ class MushafTopBar extends StatelessWidget {
   final VoidCallback? onPrev;
   final VoidCallback? onNext;
   final VoidCallback? onSave;
-  final VoidCallback? onTafsir; // NEW
+  final VoidCallback? onTafsir;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // ألوان متكيفة مع الثيم
+    final fg = isDark
+        ? cs.onSurface
+        : cs.onSurface; // نفس المصدر، لكن هنقلل/نزود الشفافية تحت
+    final titleColor = fg.withOpacity(isDark ? 0.95 : 0.90);
+    final iconEnabled = fg.withOpacity(isDark ? 0.95 : 0.90);
+    final iconDisabled = fg.withOpacity(0.30);
+
+    final bg = isDark
+        ? Colors.black.withOpacity(0.35)
+        : cs.surface.withOpacity(0.75);
+
+    final border = isDark
+        ? Colors.white.withOpacity(0.06)
+        : cs.outlineVariant.withOpacity(0.5);
+
+    final gradStart = isDark
+        ? Colors.white.withOpacity(0.06)
+        : Colors.white.withOpacity(0.20);
+    final gradEnd = isDark
+        ? Colors.black.withOpacity(0.20)
+        : Colors.black.withOpacity(0.05);
 
     return Positioned(
       top: 0,
@@ -51,15 +75,12 @@ class MushafTopBar extends StatelessWidget {
                     height: 56,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
-                      color: Colors.black.withOpacity(0.35),
-                      border: Border.all(color: Colors.white.withOpacity(0.06)),
+                      color: bg,
+                      border: Border.all(color: border),
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [
-                          Colors.white.withOpacity(0.06),
-                          Colors.black.withOpacity(0.20),
-                        ],
+                        colors: [gradStart, gradEnd],
                       ),
                     ),
                     child: Row(
@@ -69,6 +90,9 @@ class MushafTopBar extends StatelessWidget {
                           icon: Icons.arrow_back,
                           onTap: onBack,
                           tooltip: 'عودة',
+                          enabledColor: iconEnabled,
+                          disabledColor: iconDisabled,
+                          isDark: isDark,
                         ),
                         const SizedBox(width: 6),
                         Expanded(
@@ -83,8 +107,8 @@ class MushafTopBar extends StatelessWidget {
                                 textAlign: TextAlign.center,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: titleColor,
                                   fontWeight: FontWeight.w800,
                                   fontSize: 16,
                                 ),
@@ -95,8 +119,8 @@ class MushafTopBar extends StatelessWidget {
                                 textAlign: TextAlign.center,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: titleColor,
                                   fontWeight: FontWeight.w800,
                                   fontSize: 16,
                                 ),
@@ -106,33 +130,41 @@ class MushafTopBar extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
 
-                        // NEW: زر التفسير
+                        // التفسير
                         _roundButton(
                           icon: Icons.menu_book_outlined,
                           onTap: onTafsir,
                           tooltip: 'التفسير',
-                          disabledColor: cs.onSurface.withOpacity(.28),
+                          enabledColor: iconEnabled,
+                          disabledColor: iconDisabled,
+                          isDark: isDark,
                         ),
 
-                        // زر الحفظ
+                        // الحفظ
                         _roundButton(
                           icon: Icons.bookmark_add_outlined,
                           onTap: onSave,
                           tooltip: 'حفظ الموضع',
-                          disabledColor: cs.onSurface.withOpacity(.28),
+                          enabledColor: iconEnabled,
+                          disabledColor: iconDisabled,
+                          isDark: isDark,
                         ),
 
                         _roundButton(
                           icon: Icons.skip_previous,
                           onTap: onPrev,
                           tooltip: 'السابق',
-                          disabledColor: cs.onSurface.withOpacity(.28),
+                          enabledColor: iconEnabled,
+                          disabledColor: iconDisabled,
+                          isDark: isDark,
                         ),
                         _roundButton(
                           icon: Icons.skip_next,
                           onTap: onNext,
                           tooltip: 'التالي',
-                          disabledColor: cs.onSurface.withOpacity(.28),
+                          enabledColor: iconEnabled,
+                          disabledColor: iconDisabled,
+                          isDark: isDark,
                         ),
                         const SizedBox(width: 4),
                       ],
@@ -151,7 +183,9 @@ class MushafTopBar extends StatelessWidget {
     required IconData icon,
     String? tooltip,
     required VoidCallback? onTap,
-    Color? disabledColor,
+    required Color enabledColor,
+    required Color disabledColor,
+    required bool isDark,
   }) {
     final enabled = onTap != null;
     return Padding(
@@ -160,12 +194,12 @@ class MushafTopBar extends StatelessWidget {
         tooltip: tooltip,
         onPressed: onTap,
         icon: Icon(icon),
-        color: enabled ? Colors.white : (disabledColor ?? Colors.white24),
+        color: enabled ? enabledColor : disabledColor,
         splashRadius: 22,
         style: IconButton.styleFrom(
-          backgroundColor: enabled
-              ? Colors.white.withOpacity(.08)
-              : Colors.white.withOpacity(.02),
+          backgroundColor: (enabled
+              ? enabledColor.withOpacity(isDark ? .12 : .10)
+              : disabledColor.withOpacity(isDark ? .06 : .04)),
           shape: const CircleBorder(),
         ),
       ),
