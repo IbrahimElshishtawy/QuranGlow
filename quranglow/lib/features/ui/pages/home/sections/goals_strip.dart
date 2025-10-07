@@ -106,8 +106,9 @@ class GoalsStrip extends ConsumerWidget {
                           initialAyah: ayahNum,
                         ),
                       );
-                      if (context.mounted)
+                      if (context.mounted) {
                         (context as Element).markNeedsBuild();
+                      }
                     },
                     onIncreaseProgress: () async {
                       final svc = ref.read(di.goalsServiceProvider);
