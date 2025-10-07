@@ -31,13 +31,13 @@ class _DownloadsLibraryPageState extends ConsumerState<DownloadsLibraryPage> {
 
   @override
   void dispose() {
+    _player.stop();
     _player.dispose();
     super.dispose();
   }
 
   Future<Directory> _rootDir() async {
     final docs = await getApplicationDocumentsDirectory();
-    // عدّل المسار لو خدمتك تحفظ في مكان مختلف
     return Directory(p.join(docs.path, 'QuranGlow', 'downloads'));
   }
 
@@ -53,10 +53,9 @@ class _DownloadsLibraryPageState extends ConsumerState<DownloadsLibraryPage> {
       }
 
       final groups = <_SurahGroup>[];
-      // reciterId
+
       for (final reciterDir in root.listSync().whereType<Directory>()) {
         final reciterId = p.basename(reciterDir.path);
-        // surah
         for (final surahDir in reciterDir.listSync().whereType<Directory>()) {
           final surahStr = p.basename(surahDir.path);
           final surah = int.tryParse(surahStr) ?? 0;
@@ -76,6 +75,7 @@ class _DownloadsLibraryPageState extends ConsumerState<DownloadsLibraryPage> {
             0,
             (sum, f) => sum + (f.lengthSync()),
           );
+
           groups.add(
             _SurahGroup(
               reciterId: reciterId,
@@ -87,7 +87,6 @@ class _DownloadsLibraryPageState extends ConsumerState<DownloadsLibraryPage> {
         }
       }
 
-      // ترتيب حسب اسم القارئ ثم رقم السورة
       groups.sort((a, b) {
         final c = a.reciterId.compareTo(b.reciterId);
         return c != 0 ? c : a.surah.compareTo(b.surah);
@@ -110,21 +109,34 @@ class _DownloadsLibraryPageState extends ConsumerState<DownloadsLibraryPage> {
     }
   }
 
-  Future<void> _playFile(File f) async {
+  String _shortReciterName(String id) {
+    if (id.contains('.')) return id.split('.').last;
+    if (id.length <= 12) return id;
+    return '${id.substring(0, 12)}…';
+  }
+
+  Future<void> _playGroupFromIndex(_SurahGroup g, int startIndex) async {
     try {
-      await _player.setFilePath(f.path);
+      await _player.stop();
+
+      final sources = g.files
+          .map((f) => AudioSource.uri(Uri.file(f.path)))
+          .toList();
+
+      final playlist = ConcatenatingAudioSource(children: sources);
+
+      await _player.setAudioSource(playlist, initialIndex: startIndex);
       await _player.play();
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('تعذّر تشغيل الملف')));
+      ).showSnackBar(const SnackBar(content: Text('تعذّر تشغيل الملفات')));
     }
   }
 
   Future<void> _deleteGroup(_SurahGroup g) async {
     try {
-      // حذف مجلد السورة بالكامل
       final d = g.files.first.parent;
       if (await d.exists()) {
         await d.delete(recursive: true);
@@ -170,7 +182,10 @@ class _DownloadsLibraryPageState extends ConsumerState<DownloadsLibraryPage> {
           final g = _groups[i];
           return Card(
             child: ExpansionTile(
-              title: Text('القارئ: ${g.reciterId} — السورة: ${g.surah}'),
+              title: Text(
+                'القارئ: ${_shortReciterName(g.reciterId)} — السورة: ${g.surah}',
+                overflow: TextOverflow.ellipsis,
+              ),
               subtitle: Text(
                 '${g.files.length} ملف • ${_fmtSize(g.totalBytes)}',
               ),
@@ -179,22 +194,21 @@ class _DownloadsLibraryPageState extends ConsumerState<DownloadsLibraryPage> {
                 icon: const Icon(Icons.delete),
                 onPressed: () => _deleteGroup(g),
               ),
-              children: g.files.map((f) {
-                final name = p.basenameWithoutExtension(
-                  f.path,
-                ); // مثلاً 1,2,3...
+              children: List.generate(g.files.length, (idx) {
+                final f = g.files[idx];
+                final name = p.basenameWithoutExtension(f.path);
                 return ListTile(
                   dense: true,
                   leading: const Icon(Icons.audiotrack),
                   title: Text('آية $name'),
-                  subtitle: Text(p.basename(f.parent.path)),
-                  onTap: () => _playFile(f),
+                  subtitle: Text(_shortReciterName(p.basename(f.parent.path))),
+                  onTap: () => _playGroupFromIndex(g, idx),
                   trailing: IconButton(
                     icon: const Icon(Icons.play_arrow),
-                    onPressed: () => _playFile(f),
+                    onPressed: () => _playGroupFromIndex(g, idx),
                   ),
                 );
-              }).toList(),
+              }),
             ),
           );
         },
