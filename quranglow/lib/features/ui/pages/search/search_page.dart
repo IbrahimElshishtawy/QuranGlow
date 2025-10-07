@@ -1,42 +1,8 @@
-// lib/features/ui/pages/search/search_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/features/ui/pages/mushaf/mushaf_page.dart';
-
-class SearchHit {
-  final int surah;
-  final int ayah;
-  final String surahName;
-  final String text;
-  const SearchHit({
-    required this.surah,
-    required this.ayah,
-    required this.surahName,
-    required this.text,
-  });
-  factory SearchHit.fromMap(Map<String, dynamic> m) => SearchHit(
-    surah: (m['surahNumber'] as num).toInt(),
-    ayah: (m['ayahNumber'] as num).toInt(),
-    surahName: (m['surahName'] ?? '').toString(),
-    text: (m['text'] ?? '').toString(),
-  );
-}
-
-final _editionIdProvider = Provider<String>((_) => 'quran-uthmani');
-
-final searchResultsProvider = FutureProvider.autoDispose
-    .family<List<SearchHit>, String>((ref, query) async {
-      final q = query.trim();
-      if (q.length < 2) return const [];
-      final service = ref.read(quranServiceProvider);
-      final editionId = ref.read(_editionIdProvider);
-      final raw = await service.searchAyat(q, editionId: editionId, limit: 100);
-      return (raw as List)
-          .cast<Map<String, dynamic>>()
-          .map(SearchHit.fromMap)
-          .toList();
-    });
+import 'package:quranglow/features/ui/pages/search/providers/search_providers.dart';
+import 'widgets/highlighted.dart';
 
 class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key});
@@ -54,10 +20,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     super.dispose();
   }
 
-  void _submit([String? _]) {
-    setState(() => _q = _c.text.trim());
-  }
-
+  void _submit([String? _]) => setState(() => _q = _c.text.trim());
   void _clear() {
     _c.clear();
     setState(() => _q = '');
@@ -102,7 +65,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   ),
                 ),
                 onChanged: (t) {
-                  // بحث حي بسيط بعد 2 حرف
                   if (t.trim().length >= 2) _submit();
                   setState(() {}); // لتحديث زر المسح
                 },
@@ -113,15 +75,16 @@ class _SearchPageState extends ConsumerState<SearchPage> {
             Expanded(
               child: asyncResults.when(
                 data: (results) {
-                  if (_q.isEmpty) return const _IdleState();
-                  if (results.isEmpty) return const _EmptyState();
+                  if (_q.isEmpty) return const _Idle();
+                  if (results.isEmpty) return const _Empty();
+                  final editionId = ref.read(editionIdForSearchProvider);
                   return ListView.separated(
                     itemCount: results.length,
                     separatorBuilder: (_, __) => const Divider(height: 1),
                     itemBuilder: (_, i) {
                       final r = results[i];
                       return ListTile(
-                        title: _Highlighted(text: r.text, query: _q),
+                        title: Highlighted(text: r.text, query: _q),
                         subtitle: Text('${r.surahName} • ${r.surah}:${r.ayah}'),
                         trailing: const Icon(Icons.chevron_left),
                         onTap: () {
@@ -129,7 +92,9 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                             MaterialPageRoute(
                               builder: (_) => MushafPage(
                                 chapter: r.surah,
-                                editionId: ref.read(_editionIdProvider),
+                                editionId: editionId,
+
+                                initialAyah: r.ayah,
                               ),
                             ),
                           );
@@ -157,49 +122,16 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   }
 }
 
-class _Highlighted extends StatelessWidget {
-  final String text;
-  final String query;
-  const _Highlighted({required this.text, required this.query});
-
+class _Idle extends StatelessWidget {
+  const _Idle();
   @override
-  Widget build(BuildContext context) {
-    final q = query.trim();
-    if (q.isEmpty) return Text(text, textDirection: TextDirection.rtl);
-    final idx = text.indexOf(q);
-    if (idx < 0) return Text(text, textDirection: TextDirection.rtl);
-
-    final pre = text.substring(0, idx);
-    final mid = text.substring(idx, idx + q.length);
-    final post = text.substring(idx + q.length);
-    final hiStyle = const TextStyle(fontWeight: FontWeight.w700);
-
-    return RichText(
-      textDirection: TextDirection.rtl,
-      text: TextSpan(
-        style: DefaultTextStyle.of(context).style,
-        children: [
-          TextSpan(text: pre),
-          TextSpan(text: mid, style: hiStyle),
-          TextSpan(text: post),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      const Center(child: Text('ابدأ الكتابة ثم اضغط بحث'));
 }
 
-class _IdleState extends StatelessWidget {
-  const _IdleState();
+class _Empty extends StatelessWidget {
+  const _Empty();
   @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('ابدأ الكتابة ثم اضغط بحث'));
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('لا توجد نتائج مطابقة'));
-  }
+  Widget build(BuildContext context) =>
+      const Center(child: Text('لا توجد نتائج مطابقة'));
 }
