@@ -6,6 +6,7 @@ class AppRoutes {
   static const surahs = '/surahs';
   static const ayah = '/ayah';
   static const player = '/player';
+  static const downloadsLibrary = '/downloads-library';
   static const search = '/search';
   static const tafsirReader = '/tafsir';
   static const bookmarks = '/bookmarks';
