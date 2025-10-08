@@ -4,7 +4,7 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:quranglow/core/model/aya/aya.dart';
+import 'package:test/core/model/aya/aya.dart';
 
 class AyahSpanBuilder {
   AyahSpanBuilder({required this.onAyahTap});
