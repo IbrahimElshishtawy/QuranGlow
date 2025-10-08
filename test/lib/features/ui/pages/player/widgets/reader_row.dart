@@ -3,7 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/model/book/surah.dart';
+import 'package:test/core/model/book/surah.dart';
 
 class ReaderRow extends StatelessWidget {
   const ReaderRow({

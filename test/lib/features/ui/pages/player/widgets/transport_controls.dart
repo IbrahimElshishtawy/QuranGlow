@@ -4,10 +4,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:quranglow/core/model/book/Play_list_State.dart';
-import 'package:quranglow/features/ui/pages/player/controller/player_controller_provider.dart';
-import 'package:quranglow/features/ui/pages/player/widgets/position_bar.dart';
-import 'package:quranglow/features/ui/pages/player/widgets/speed_menu.dart';
+import 'package:test/core/model/book/Play_list_State.dart';
+import 'package:test/features/ui/pages/player/controller/player_controller.dart';
+import 'package:test/features/ui/pages/player/controller/player_controller_provider.dart';
+import 'package:test/features/ui/pages/player/widgets/speed_menu.dart';
 
 final playbackSpeedProvider = StateProvider<double>((_) => 1.0);
 
@@ -27,6 +27,7 @@ class TransportControls extends ConsumerWidget {
           durationStream: state.durationStream,
           positionStream: state.positionStream,
           onSeek: ref.read(playerControllerProvider.notifier).seekTo,
+          bufferedStream: state.bufferedStream,
         ),
         const SizedBox(height: 10),
         Row(

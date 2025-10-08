@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/features/ui/pages/setting/widgets/settings_providers.dart';
+import 'package:test/features/ui/pages/setting/widgets/settings_providers.dart';
+
 import 'section_header.dart';
 
 class UsageSection extends ConsumerWidget {

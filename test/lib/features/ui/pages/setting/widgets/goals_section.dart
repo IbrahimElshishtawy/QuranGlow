@@ -1,6 +1,8 @@
 // lib/features/ui/pages/setting/widgets/goals_section.dart
+
 import 'package:flutter/material.dart';
-import 'package:quranglow/features/ui/routes/app_routes.dart';
+import 'package:test/features/ui/routes/app_routes.dart';
+
 import 'section_header.dart';
 
 class GoalsSection extends StatelessWidget {

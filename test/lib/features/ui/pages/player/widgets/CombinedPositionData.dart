@@ -2,8 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:quranglow/features/ui/pages/player/controller/player_controller.dart';
+
 import 'package:rxdart/rxdart.dart';
+import 'package:test/features/ui/pages/player/controller/player_controller.dart';
 
 class CombinedPositionData {
   final Duration position;

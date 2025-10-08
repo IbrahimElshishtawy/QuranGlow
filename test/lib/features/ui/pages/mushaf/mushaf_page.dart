@@ -2,15 +2,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/features/ui/pages/mushaf/widget/position_store.dart';
+import 'package:test/core/di/providers.dart';
+import 'package:test/core/model/aya/aya.dart';
+import 'package:test/core/model/book/surah.dart';
+import 'package:test/features/ui/pages/mushaf/paged_mushaf.dart';
+import 'package:test/features/ui/pages/mushaf/widget/mushaf_top_bar.dart';
+import 'package:test/features/ui/pages/mushaf/widget/position_store.dart';
+import 'package:test/features/ui/routes/app_routes.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-
-import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/model/book/surah.dart';
-import 'package:quranglow/core/model/aya/aya.dart';
-import 'package:quranglow/features/ui/routes/app_routes.dart';
-import 'package:quranglow/features/ui/pages/mushaf/paged_mushaf.dart';
-import 'package:quranglow/features/ui/pages/mushaf/widget/mushaf_top_bar.dart';
 
 final surahProvider = FutureProvider.autoDispose
     .family<Surah, (int chapter, String editionId)>((ref, args) async {

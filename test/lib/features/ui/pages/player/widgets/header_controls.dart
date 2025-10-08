@@ -4,8 +4,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/data/surah_names_ar.dart';
-import 'package:quranglow/core/di/providers.dart';
+import 'package:test/core/data/surah_names_ar.dart';
+import 'package:test/core/di/providers.dart';
 
 class HeaderCard extends ConsumerWidget {
   const HeaderCard({
@@ -16,16 +16,10 @@ class HeaderCard extends ConsumerWidget {
     this.readerName,
   });
 
-  /// مثال: ar.alafasy
   final String editionId;
-
-  /// رقم السورة (1..114)
   final int chapter;
-
-  /// لو حابب تمرّر الاسم جاهزًا بدل الاعتماد على القائمة
   final String? surahName;
 
-  /// لو حابب تمرّر اسم الشيخ جاهزًا
   final String? readerName;
 
   @override

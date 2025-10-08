@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart';
+import 'package:test/core/di/providers.dart';
 
 class ReadersSheet extends ConsumerWidget {
   const ReadersSheet({super.key});

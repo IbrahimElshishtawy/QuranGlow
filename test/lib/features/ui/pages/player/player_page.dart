@@ -3,15 +3,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/features/ui/pages/player/controller/player_controller_provider.dart';
-import 'package:quranglow/features/ui/pages/player/widgets/header_controls.dart';
-import 'package:quranglow/features/ui/pages/player/widgets/reader_row.dart';
-import 'package:quranglow/features/ui/pages/player/widgets/transport_controls.dart';
-import 'package:quranglow/features/ui/pages/downloads/controller/download_controller.dart';
-import 'package:quranglow/features/ui/pages/downloads/downloads_library_page.dart';
-import 'package:quranglow/features/ui/routes/app_routes.dart';
+import 'package:test/core/di/providers.dart';
+import 'package:test/features/ui/pages/downloads/controller/download_controller.dart';
+import 'package:test/features/ui/pages/downloads/downloads_library_page.dart';
+import 'package:test/features/ui/pages/player/controller/player_controller_provider.dart';
+import 'package:test/features/ui/pages/player/widgets/header_controls.dart';
+import 'package:test/features/ui/pages/player/widgets/reader_row.dart';
+import 'package:test/features/ui/pages/player/widgets/transport_controls.dart';
+import 'package:test/features/ui/routes/app_routes.dart';
 
 class PlayerPage extends ConsumerWidget {
   const PlayerPage({super.key});

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/features/ui/routes/app_routes.dart';
+import 'package:test/features/ui/routes/app_routes.dart';
 
 // أقسام الصفحة
 import 'widgets/index.dart';
@@ -16,7 +16,7 @@ class SettingsPage extends ConsumerWidget {
         appBar: AppBar(
           centerTitle: true,
           title: const Text('الإعدادات'),
-          automaticallyImplyLeading: false, // عشان نتحكّم إحنا في الـ leading
+          automaticallyImplyLeading: false,
           leading: IconButton(
             icon: Icon(
               Directionality.of(context) == TextDirection.rtl

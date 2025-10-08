@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart';
+import 'package:test/core/di/providers.dart';
 import 'font_scale_dialog.dart';
 import 'readers_sheet.dart';
 import 'section_header.dart';

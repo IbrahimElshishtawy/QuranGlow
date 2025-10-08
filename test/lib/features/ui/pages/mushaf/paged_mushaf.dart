@@ -2,13 +2,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
-
-import 'package:quranglow/core/model/aya/aya.dart';
-import 'package:quranglow/features/ui/pages/mushaf/page_rich_block.dart';
-import 'package:quranglow/features/ui/pages/mushaf/widget/mushaf_header.dart';
-import 'package:quranglow/features/ui/pages/mushaf/widget/page_indicator.dart';
-import 'package:quranglow/features/ui/pages/mushaf/widget/position_store.dart';
-import 'package:quranglow/features/ui/pages/mushaf/widget/saved_position_banner.dart';
+import 'package:test/core/model/aya/aya.dart';
+import 'package:test/features/ui/pages/mushaf/page_rich_block.dart';
+import 'package:test/features/ui/pages/mushaf/widget/mushaf_header.dart';
+import 'package:test/features/ui/pages/mushaf/widget/page_indicator.dart';
+import 'package:test/features/ui/pages/mushaf/widget/position_store.dart';
+import 'package:test/features/ui/pages/mushaf/widget/saved_position_banner.dart';
 
 class PagedMushaf extends StatefulWidget {
   const PagedMushaf({
