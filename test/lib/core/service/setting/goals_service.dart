@@ -2,9 +2,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:quranglow/core/model/setting/goal.dart';
-
-import 'package:quranglow/core/storage/local_storage.dart';
+import 'package:test/core/model/setting/goal.dart';
+import 'package:test/core/storage/local_storage.dart';
 
 class GoalsService {
   static const _kStorageKey = 'goals.v1';

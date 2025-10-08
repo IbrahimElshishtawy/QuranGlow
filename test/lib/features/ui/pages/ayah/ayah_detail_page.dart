@@ -3,13 +3,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/model/aya/aya.dart';
-import 'package:quranglow/core/model/book/surah.dart';
-import 'package:quranglow/features/ui/pages/ayah/widgets/ayah_audio_card.dart';
-import 'package:quranglow/features/ui/pages/player/controller/player_controller_provider.dart';
 import 'package:riverpod/src/framework.dart';
+import 'package:test/core/di/providers.dart';
+import 'package:test/core/model/aya/aya.dart';
+import 'package:test/core/model/book/surah.dart';
+import 'package:test/features/ui/pages/ayah/widgets/ayah_audio_card.dart';
+import 'package:test/features/ui/pages/player/controller/player_controller_provider.dart';
 
 class AyahDetailPage extends ConsumerWidget {
   const AyahDetailPage({
@@ -38,11 +37,8 @@ class AyahDetailPage extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
     final ayahNo = _ayahNumInSurah(aya);
 
-    // ثبّت قيمة القارئ كسلسلة غير null
     final String effectiveReciterId =
         reciterId ?? (ref.watch(editionIdProvider) as String?) ?? 'ar.alafasy';
-
-    // وحّد النوع: AsyncValue<String>
     final AsyncValue<String> tafsirAsync =
         (tafsir != null && tafsir!.trim().isNotEmpty)
         ? AsyncValue<String>.data(tafsir!)
@@ -81,8 +77,8 @@ class AyahDetailPage extends ConsumerWidget {
               AyahAudioCard(
                 surah: surah.number,
                 ayahInSurah: ayahNo,
-                reciterIdLabel: effectiveReciterId, // String غير nullable
-                effectiveReciterId: effectiveReciterId, // String غير nullable
+                reciterIdLabel: effectiveReciterId,
+                effectiveReciterId: effectiveReciterId,
               ),
 
               const SizedBox(height: 16),

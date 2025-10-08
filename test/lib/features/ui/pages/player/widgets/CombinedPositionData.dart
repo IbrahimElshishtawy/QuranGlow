@@ -1,4 +1,4 @@
-// ignore_for_file: dead_code
+// ignore_for_file: dead_code, file_names
 
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';

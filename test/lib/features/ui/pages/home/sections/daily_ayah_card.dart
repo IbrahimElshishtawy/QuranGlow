@@ -3,8 +3,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/daily_ayah_provider.dart';
-import 'package:quranglow/features/ui/pages/home/widgets/section_title.dart';
+import 'package:test/core/di/daily_ayah_provider.dart';
+import 'package:test/features/ui/pages/home/widgets/section_title.dart';
 
 class DailyAyahCard extends ConsumerWidget {
   const DailyAyahCard({super.key});

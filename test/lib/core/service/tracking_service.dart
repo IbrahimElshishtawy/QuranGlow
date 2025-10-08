@@ -1,4 +1,4 @@
-import 'package:quranglow/core/storage/local_storage.dart';
+import 'package:test/core/storage/local_storage.dart';
 
 class TrackingService {
   final LocalStorage storage;

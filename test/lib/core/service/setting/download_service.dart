@@ -1,4 +1,6 @@
 // lib/core/service/download_service.dart
+// ignore_for_file: depend_on_referenced_packages
+
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';

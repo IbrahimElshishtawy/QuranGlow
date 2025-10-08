@@ -1,4 +1,6 @@
 // lib/features/ui/pages/downloads/widgets/reciter_selector.dart
+// ignore_for_file: unnecessary_underscores
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';

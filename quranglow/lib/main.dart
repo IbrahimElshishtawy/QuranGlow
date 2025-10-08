@@ -1,5 +1,5 @@
 // lib/main.dart
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, unnecessary_underscores
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,7 +41,7 @@ class QuranGlowApp extends ConsumerWidget {
           body: Center(child: CircularProgressIndicator()),
         ),
       ),
-      error: (_, __) => MaterialApp(
+      error: (_, \) => MaterialApp(
         title: 'QuranGlow',
         debugShowCheckedModeBanner: false,
         theme: buildLightTheme(fontFamily: 'System', fontScale: 1),

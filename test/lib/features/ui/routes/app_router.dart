@@ -2,28 +2,25 @@
 // ignore_for_file: unused_local_variable
 
 import 'package:flutter/material.dart';
-
-import 'package:quranglow/core/model/aya/aya.dart';
-import 'package:quranglow/core/model/book/surah.dart';
-
-import 'package:quranglow/features/ui/pages/ayah/ayah_detail_page.dart';
-import 'package:quranglow/features/ui/pages/bookmarks/bookmarks_page.dart';
-import 'package:quranglow/features/ui/pages/downloads/download_detail_page.dart'
+import 'package:test/core/model/aya/aya.dart';
+import 'package:test/core/model/book/surah.dart';
+import 'package:test/features/ui/pages/ayah/ayah_detail_page.dart';
+import 'package:test/features/ui/pages/bookmarks/bookmarks_page.dart';
+import 'package:test/features/ui/pages/downloads/download_detail_page.dart'
     as ddp;
-import 'package:quranglow/features/ui/pages/downloads/downloads_page.dart'
-    as dlp;
-import 'package:quranglow/features/ui/pages/goals/goals_page.dart';
-import 'package:quranglow/features/ui/pages/home/home_page.dart';
-import 'package:quranglow/features/ui/pages/mushaf/mushaf_page.dart';
-import 'package:quranglow/features/ui/pages/mushaf/paged_mushaf.dart';
-import 'package:quranglow/features/ui/pages/onboarding/onboarding_page.dart';
-import 'package:quranglow/features/ui/pages/player/player_page.dart';
-import 'package:quranglow/features/ui/pages/search/search_page.dart';
-import 'package:quranglow/features/ui/pages/setting/settings_page.dart';
-import 'package:quranglow/features/ui/pages/spa/splash_screen.dart';
-import 'package:quranglow/features/ui/pages/stats/stats_page.dart';
-import 'package:quranglow/features/ui/pages/surah/surah_list_page.dart';
-import 'package:quranglow/features/ui/pages/tafsir/tafsir_reader_page.dart';
+import 'package:test/features/ui/pages/downloads/downloads_page.dart' as dlp;
+import 'package:test/features/ui/pages/goals/goals_page.dart';
+import 'package:test/features/ui/pages/home/home_page.dart';
+import 'package:test/features/ui/pages/mushaf/mushaf_page.dart';
+import 'package:test/features/ui/pages/mushaf/paged_mushaf.dart';
+import 'package:test/features/ui/pages/onboarding/onboarding_page.dart';
+import 'package:test/features/ui/pages/player/player_page.dart';
+import 'package:test/features/ui/pages/search/search_page.dart';
+import 'package:test/features/ui/pages/setting/settings_page.dart';
+import 'package:test/features/ui/pages/spa/splash_screen.dart';
+import 'package:test/features/ui/pages/stats/stats_page.dart';
+import 'package:test/features/ui/pages/surah/surah_list_page.dart';
+import 'package:test/features/ui/pages/tafsir/tafsir_explorer_page.dart';
 
 import 'app_routes.dart';
 

@@ -2,12 +2,12 @@
 // ignore_for_file: unused_result
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/model/book/surah.dart';
-import 'package:quranglow/core/model/aya/aya.dart';
-import 'package:quranglow/features/ui/pages/tafsir/widget/ayah_card.dart';
-import 'package:quranglow/features/ui/pages/tafsir/widget/selection_card.dart';
-import 'package:quranglow/features/ui/pages/tafsir/widget/tafsir_card.dart';
+import 'package:test/core/di/providers.dart';
+import 'package:test/core/model/aya/aya.dart';
+import 'package:test/core/model/book/surah.dart';
+import 'package:test/features/ui/pages/tafsir/widget/ayah_card.dart';
+import 'package:test/features/ui/pages/tafsir/widget/selection_card.dart';
+import 'package:test/features/ui/pages/tafsir/widget/tafsir_card.dart';
 
 class TafsirReaderPage extends ConsumerStatefulWidget {
   const TafsirReaderPage({

@@ -1,4 +1,4 @@
-import 'package:quranglow/core/model/aya/aya.dart';
+import 'package:test/core/model/aya/aya.dart';
 
 class Surah {
   final int number;

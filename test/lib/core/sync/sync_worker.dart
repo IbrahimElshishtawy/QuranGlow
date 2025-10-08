@@ -1,5 +1,7 @@
 import 'dart:async';
-import 'package:quranglow/core/network/network_info.dart';
+
+import 'package:test/core/network/network_info.dart';
+
 import 'sync_queue.dart';
 import '../utils/logger.dart';
 

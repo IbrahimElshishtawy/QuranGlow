@@ -1,8 +1,8 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:quranglow/core/data/surah_names_ar.dart';
-import 'package:quranglow/features/ui/pages/mushaf/mushaf_page.dart';
+import 'package:test/core/data/surah_names_ar.dart';
+import 'package:test/features/ui/pages/mushaf/mushaf_page.dart';
 
 class SurahListPage extends StatelessWidget {
   const SurahListPage({super.key});

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart';
+import 'package:test/core/di/providers.dart';
 
 class StatsVm {
   final String totalReading; // hh:mm

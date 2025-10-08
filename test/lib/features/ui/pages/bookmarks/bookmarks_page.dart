@@ -1,13 +1,12 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously, no_leading_underscores_for_local_identifiers
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart';
-
-import 'package:quranglow/core/model/aya/aya.dart';
-import 'package:quranglow/core/model/book/bookmark.dart';
-import 'package:quranglow/core/model/book/surah.dart';
-import 'package:quranglow/features/ui/routes/app_router.dart';
-import 'package:quranglow/features/ui/routes/app_routes.dart';
+import 'package:test/core/di/providers.dart';
+import 'package:test/core/model/aya/aya.dart';
+import 'package:test/core/model/book/bookmark.dart';
+import 'package:test/core/model/book/surah.dart';
+import 'package:test/features/ui/routes/app_router.dart';
+import 'package:test/features/ui/routes/app_routes.dart';
 
 class BookmarksPage extends ConsumerWidget {
   const BookmarksPage({super.key});

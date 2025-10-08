@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:quranglow/features/ui/routes/app_routes.dart';
+import 'package:test/features/ui/routes/app_routes.dart';
 
 class TafsirReaderPage extends StatelessWidget {
   const TafsirReaderPage({super.key});

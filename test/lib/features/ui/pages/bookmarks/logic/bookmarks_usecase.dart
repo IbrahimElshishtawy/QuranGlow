@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/model/aya/aya.dart';
-import 'package:quranglow/core/model/book/surah.dart';
+import 'package:test/core/di/providers.dart';
+import 'package:test/core/model/aya/aya.dart';
+import 'package:test/core/model/book/surah.dart';
 
 class BookmarksUseCase {
   final Ref ref;

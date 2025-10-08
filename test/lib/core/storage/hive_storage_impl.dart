@@ -1,14 +1,16 @@
 // lib/core/storage/hive_storage_impl.dart
+// ignore_for_file: depend_on_referenced_packages
+
 import 'dart:convert';
 import 'package:hive/hive.dart';
-import 'package:quranglow/core/constants/constants.dart';
-import 'package:quranglow/core/storage/local_storage.dart';
+import 'package:test/core/constants/constants.dart';
+import 'package:test/core/storage/local_storage.dart';
 
 class HiveStorageImpl implements LocalStorage {
   HiveStorageImpl({this.boxName = CoreConstants.appBoxName});
 
   final String boxName;
-  Box? _box; // قابل للا-null لتجنّب LateInitializationError
+  Box? _box;
 
   Future<void> _ensureBox() async {
     if (Hive.isBoxOpen(boxName)) {
@@ -21,7 +23,6 @@ class HiveStorageImpl implements LocalStorage {
   @override
   Future<void> init() async => _ensureBox();
 
-  // --- واجهة LocalStorage الأساسية ---
   @override
   Future<void> write(String key, Object? value) async {
     await _ensureBox();
@@ -51,7 +52,6 @@ class HiveStorageImpl implements LocalStorage {
   @override
   Future<void> putString(String key, String value) => write(key, value);
 
-  // getString/getMap متزامنتان: أعِد null بأمان إن لم يكن الـBox جاهزًا بعد
   @override
   String? getString(String key) {
     final bx = Hive.isBoxOpen(boxName) ? Hive.box(boxName) : _box;

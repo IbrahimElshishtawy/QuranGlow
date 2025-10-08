@@ -2,19 +2,17 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:quranglow/features/ui/pages/home/sections/daily_ayah_card.dart';
-import 'package:quranglow/features/ui/pages/home/sections/goals_strip.dart';
-import 'package:quranglow/features/ui/pages/home/sections/last_read_card.dart';
-import 'package:quranglow/features/ui/pages/home/sections/quick_actions_grid.dart';
-import 'package:quranglow/features/ui/pages/home/sections/shortcuts_list.dart';
-import 'package:quranglow/features/ui/pages/home/widgets/app_drawer.dart';
-import 'package:quranglow/features/ui/pages/home/widgets/hero_header.dart';
-import 'package:quranglow/features/ui/pages/home/widgets/section_spacing.dart';
-
-// الصفحات الأخرى
-import 'package:quranglow/features/ui/pages/search/search_page.dart';
-import 'package:quranglow/features/ui/pages/player/player_page.dart';
-import 'package:quranglow/features/ui/pages/downloads/downloads_page.dart';
+import 'package:test/features/ui/pages/downloads/downloads_page.dart';
+import 'package:test/features/ui/pages/home/sections/daily_ayah_card.dart';
+import 'package:test/features/ui/pages/home/sections/goals_strip.dart';
+import 'package:test/features/ui/pages/home/sections/last_read_card.dart';
+import 'package:test/features/ui/pages/home/sections/quick_actions_grid.dart';
+import 'package:test/features/ui/pages/home/sections/shortcuts_list.dart';
+import 'package:test/features/ui/pages/home/widgets/app_drawer.dart';
+import 'package:test/features/ui/pages/home/widgets/hero_header.dart';
+import 'package:test/features/ui/pages/home/widgets/section_spacing.dart';
+import 'package:test/features/ui/pages/player/player_page.dart';
+import 'package:test/features/ui/pages/search/search_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -97,7 +95,6 @@ class _HomePageState extends State<HomePage> {
                 child: SearchPage(),
               ),
 
-            // التنزيلات — تمرير البراميتر المطلوبة
             if (_tab == 2)
               SliverFillRemaining(
                 hasScrollBody: true,

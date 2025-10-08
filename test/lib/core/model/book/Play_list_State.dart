@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:just_audio/just_audio.dart';
 
 class PlaylistState {

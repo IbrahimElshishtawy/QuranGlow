@@ -1,9 +1,10 @@
 // lib/features/ui/pages/downloads/widgets/reciter_selector.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/features/ui/pages/downloads/controller/download_controller.dart';
-import 'package:quranglow/features/ui/routes/app_routes.dart';
+import 'package:test/core/di/providers.dart';
+import 'package:test/features/ui/pages/downloads/controller/download_controller.dart'
+    show downloadControllerProvider;
+import 'package:test/features/ui/routes/app_routes.dart';
 
 class ReciterSelector extends ConsumerStatefulWidget {
   final List<Map<String, String>> editions;
@@ -119,18 +120,15 @@ class _ReciterSelectorState extends ConsumerState<ReciterSelector> {
     setState(() => _busy = true);
     final downloader = ref.read(downloadControllerProvider.notifier);
     try {
-      // نحتفظ بترتيب الآيات المختارة
       final selectedUrls = _selectedAyahs.toList()..sort();
       final urls = selectedUrls.map((i) => _ayahUrls[i]).toList();
 
-      // نستخدم نفس method downloadSurah لكن نمرّر فقط روابط الآيات المختارة
       await downloader.downloadSurah(
         surah: widget.surah,
         reciterId: _selected!,
         ayahUrls: urls,
       );
 
-      // اذهب للمكتبة بعد بدء التنزيل
       if (mounted) Navigator.of(context).pushNamed(AppRoutes.downloadsLibrary);
     } catch (e) {
       if (mounted) {
@@ -215,7 +213,6 @@ class _ReciterSelectorState extends ConsumerState<ReciterSelector> {
           ),
           const SizedBox(height: 8),
 
-          // لائحة الآيات القابلة للاختيار
           SizedBox(
             height: 280,
             child: ListView.separated(

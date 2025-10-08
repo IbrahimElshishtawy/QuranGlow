@@ -1,6 +1,7 @@
 // lib/core/storage/local_storage_ext.dart
 import 'dart:convert';
-import 'package:quranglow/core/storage/local_storage.dart';
+
+import 'package:test/core/storage/local_storage.dart';
 
 extension LocalStorageKV on LocalStorage {
   Future<void> setString(String key, String value) => write(key, value);

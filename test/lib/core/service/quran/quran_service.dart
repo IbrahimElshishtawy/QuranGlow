@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show NetworkAssetBundle;
 import 'package:flutter/material.dart';
-import 'package:quranglow/core/api/fawaz_cdn_source.dart';
-import 'package:quranglow/core/api/alquran_cloud_source.dart';
-import 'package:quranglow/core/model/aya/aya.dart';
-import 'package:quranglow/core/model/book/surah.dart';
+import 'package:test/core/api/alquran_cloud_source.dart';
+import 'package:test/core/api/fawaz_cdn_source.dart';
+import 'package:test/core/model/aya/aya.dart';
+import 'package:test/core/model/book/surah.dart';
 
 class QuranService {
   final FawazCdnSource fawaz;

@@ -2,8 +2,8 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:quranglow/features/ui/routes/app_routes.dart';
-import 'package:quranglow/features/ui/pages/downloads/downloads_library_page.dart'; // ✅ تمت إضافتها
+import 'package:test/features/ui/pages/downloads/downloads_library_page.dart';
+import 'package:test/features/ui/routes/app_routes.dart';
 
 class AppDrawer extends StatelessWidget {
   final void Function(String route)? onNavigate;
@@ -147,7 +147,6 @@ class AppDrawer extends StatelessWidget {
                     route: AppRoutes.setting,
                   ),
 
-                  // ✅ زر مكتبة التنزيلات
                   tile(
                     icon: Icons.library_music,
                     title: 'مكتبة التنزيلات',

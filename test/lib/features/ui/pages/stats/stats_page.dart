@@ -1,10 +1,10 @@
 // ignore_for_file: unused_local_variable, deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/features/ui/pages/stats/controller/stats_controller.dart';
-import 'package:quranglow/features/ui/pages/stats/widgets/kpi_card.dart';
-import 'package:quranglow/features/ui/pages/stats/widgets/chart_card.dart';
-import 'package:quranglow/features/ui/pages/stats/widgets/goal_card.dart';
+import 'package:test/features/ui/pages/stats/controller/stats_controller.dart';
+import 'package:test/features/ui/pages/stats/widgets/chart_card.dart';
+import 'package:test/features/ui/pages/stats/widgets/goal_card.dart';
+import 'package:test/features/ui/pages/stats/widgets/kpi_card.dart';
 
 class StatsPage extends ConsumerWidget {
   const StatsPage({super.key});

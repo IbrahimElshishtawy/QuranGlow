@@ -3,8 +3,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart' as di;
-import 'package:quranglow/core/model/setting/goal.dart' as models;
+import 'package:test/core/di/providers.dart' as di;
+import 'package:test/core/model/setting/goal.dart' as models;
 
 class GoalsPage extends ConsumerWidget {
   const GoalsPage({super.key});

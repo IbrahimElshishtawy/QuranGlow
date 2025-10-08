@@ -3,9 +3,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:test/core/model/setting/goal.dart' as models;
 import 'package:quran/quran.dart' as quran;
-import 'package:quranglow/core/model/setting/goal.dart' as models;
-
 import 'goal_pos_store.dart';
 
 typedef FollowCallback = Future<void> Function(int surahNum, int ayahNum);

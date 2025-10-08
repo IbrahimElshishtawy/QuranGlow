@@ -1,10 +1,9 @@
 // lib/features/ui/pages/mushaf/widgets/mushaf_reader_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:quranglow/core/model/book/surah.dart';
-import 'package:quranglow/core/model/aya/aya.dart';
-import 'package:quranglow/features/ui/pages/mushaf/paged_mushaf.dart';
+import 'package:test/core/model/aya/aya.dart';
+import 'package:test/core/model/book/surah.dart';
+import 'package:test/features/ui/pages/mushaf/paged_mushaf.dart';
 
 class MushafReaderView extends StatelessWidget {
   const MushafReaderView({

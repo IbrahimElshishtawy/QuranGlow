@@ -1,5 +1,7 @@
-import 'package:quranglow/core/model/setting/App_Settings.dart';
+// ignore_for_file: file_names
+
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:test/core/model/setting/App_Settings.dart';
 
 class SettingsService {
   static const _kDark = 'settings.dark';

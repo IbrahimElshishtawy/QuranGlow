@@ -3,9 +3,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/data/surah_names_ar.dart'; // 👈 استيراد أسماء السور
-import 'package:quranglow/features/ui/pages/downloads/controller/download_controller.dart';
+import 'package:test/core/data/surah_names_ar.dart';
+import 'package:test/core/di/providers.dart';
+import 'package:test/features/ui/pages/downloads/controller/download_controller.dart';
 
 class DownloadDetailPage extends ConsumerStatefulWidget {
   const DownloadDetailPage({
@@ -53,8 +53,6 @@ class _DownloadDetailPageState extends ConsumerState<DownloadDetailPage> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final st = ref.watch(downloadControllerProvider);
-
-    // 👇 اسم السورة بدل الرقم (مع fallback آمن)
     final surahName = (widget.surah >= 1 && widget.surah < kSurahNamesAr.length)
         ? kSurahNamesAr[widget.surah]
         : widget.surah.toString();

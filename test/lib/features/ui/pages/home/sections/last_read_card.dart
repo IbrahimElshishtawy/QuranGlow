@@ -2,11 +2,12 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:quranglow/features/ui/pages/home/widgets/section_title.dart';
-import 'package:quranglow/features/ui/pages/mushaf/widget/position_store.dart';
-import 'package:quranglow/features/ui/routes/app_router.dart';
-import 'package:quranglow/features/ui/routes/app_routes.dart';
+
 import 'package:quran/quran.dart' as quran;
+import 'package:test/features/ui/pages/home/widgets/section_title.dart';
+import 'package:test/features/ui/pages/mushaf/widget/position_store.dart';
+import 'package:test/features/ui/routes/app_router.dart';
+import 'package:test/features/ui/routes/app_routes.dart';
 
 class LastReadCard extends StatefulWidget {
   const LastReadCard({super.key});

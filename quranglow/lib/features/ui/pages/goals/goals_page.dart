@@ -1,5 +1,5 @@
 // lib/features/ui/pages/goals/goals_page.dart
-// ignore_for_file: deprecated_member_use, unnecessary_cast
+// ignore_for_file: deprecated_member_use, unnecessary_cast, unnecessary_underscores
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

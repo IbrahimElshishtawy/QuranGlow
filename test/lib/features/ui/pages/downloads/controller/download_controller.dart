@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:quranglow/core/di/providers.dart';
+import 'package:test/core/di/providers.dart';
 
 enum DownloadStatus { idle, running, paused, done, error, cancelled }
 
@@ -45,8 +45,8 @@ class DownloadController extends StateNotifier<DownloadState> {
 
   Future<void> downloadSurah({
     required int surah,
-    required String reciterId, // مثل 'ar.alafasy'
-    required List<String> ayahUrls, // روابط صوت الآيات
+    required String reciterId,
+    required List<String> ayahUrls,
   }) async {
     if (ayahUrls.isEmpty) {
       state = state.copyWith(

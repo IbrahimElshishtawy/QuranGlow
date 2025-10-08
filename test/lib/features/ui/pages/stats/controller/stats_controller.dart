@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/model/book/stats_models.dart';
+import 'package:test/core/di/providers.dart';
+import 'package:test/core/model/book/stats_models.dart';
 
 class StatsState {
   final StatsSummary summary;

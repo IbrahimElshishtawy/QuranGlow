@@ -1,6 +1,5 @@
-import 'dart:async';
-import 'package:quranglow/core/model/book/stats_models.dart';
-import 'package:quranglow/core/service/quran/stats_service.dart';
+import 'package:test/core/model/book/stats_models.dart';
+import 'package:test/core/service/quran/stats_service.dart';
 
 class StatsServiceMock implements StatsService {
   @override

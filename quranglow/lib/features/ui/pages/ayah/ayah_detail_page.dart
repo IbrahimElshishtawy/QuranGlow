@@ -1,5 +1,5 @@
 // lib/features/ui/pages/ayah/ayah_detail_page.dart
-// ignore_for_file: deprecated_member_use, implementation_imports
+// ignore_for_file: deprecated_member_use, implementation_imports, unnecessary_underscores
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

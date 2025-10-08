@@ -4,13 +4,13 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart' as di;
-import 'package:quranglow/core/model/setting/goal.dart' as models;
-import 'package:quranglow/features/ui/pages/home/sections/goal_pill.dart';
-import 'package:quranglow/features/ui/pages/home/sections/goal_pos_store.dart';
-import 'package:quranglow/features/ui/pages/home/widgets/section_title.dart';
-import 'package:quranglow/features/ui/routes/app_router.dart';
-import 'package:quranglow/features/ui/routes/app_routes.dart';
+import 'package:test/core/di/providers.dart' as di;
+import 'package:test/core/model/setting/goal.dart' as models;
+import 'package:test/features/ui/pages/home/sections/goal_pill.dart';
+import 'package:test/features/ui/pages/home/sections/goal_pos_store.dart';
+import 'package:test/features/ui/pages/home/widgets/section_title.dart';
+import 'package:test/features/ui/routes/app_router.dart';
+import 'package:test/features/ui/routes/app_routes.dart';
 
 final homeGoalsCountProvider = Provider<int>((ref) => 3);
 

@@ -1,5 +1,5 @@
 // lib/features/ui/pages/downloads/downloads_page.dart
-// ignore_for_file: deprecated_member_use, unused_element_parameter
+// ignore_for_file: deprecated_member_use, unused_element_parameter, unnecessary_underscores
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

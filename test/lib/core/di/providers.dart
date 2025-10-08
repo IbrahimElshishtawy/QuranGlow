@@ -6,25 +6,23 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
-
-import 'package:quranglow/core/api/alquran_cloud_source.dart';
-import 'package:quranglow/core/api/fawaz_cdn_source.dart';
-import 'package:quranglow/core/model/setting/App_Settings.dart';
-
-import 'package:quranglow/core/model/book/bookmark.dart';
-import 'package:quranglow/core/model/book/surah.dart';
-import 'package:quranglow/core/model/setting/goal.dart';
-import 'package:quranglow/core/service/quran/Settings_Service.dart';
-import 'package:quranglow/core/service/setting/download_service.dart';
-import 'package:quranglow/core/service/setting/goals_service.dart';
-import 'package:quranglow/core/service/quran/quran_service.dart';
-import 'package:quranglow/core/service/quran/stats_service.dart';
-import 'package:quranglow/core/service/setting/stats_service_mock.dart';
-import 'package:quranglow/core/service/tracking_service.dart';
-import 'package:quranglow/core/storage/hive_storage_impl.dart';
-import 'package:quranglow/core/storage/local_storage.dart';
-import 'package:quranglow/features/ui/pages/bookmarks/controllers/bookmarks_controller.dart';
-import 'package:quranglow/features/ui/pages/bookmarks/logic/bookmarks_usecase.dart';
+import 'package:test/core/api/alquran_cloud_source.dart';
+import 'package:test/core/api/fawaz_cdn_source.dart';
+import 'package:test/core/model/book/bookmark.dart';
+import 'package:test/core/model/book/surah.dart';
+import 'package:test/core/model/setting/App_Settings.dart';
+import 'package:test/core/model/setting/goal.dart';
+import 'package:test/core/service/quran/Settings_Service.dart';
+import 'package:test/core/service/quran/quran_service.dart';
+import 'package:test/core/service/quran/stats_service.dart';
+import 'package:test/core/service/setting/download_service.dart';
+import 'package:test/core/service/setting/goals_service.dart';
+import 'package:test/core/service/setting/stats_service_mock.dart';
+import 'package:test/core/service/tracking_service.dart';
+import 'package:test/core/storage/hive_storage_impl.dart';
+import 'package:test/core/storage/local_storage.dart';
+import 'package:test/features/ui/pages/bookmarks/controllers/bookmarks_controller.dart';
+import 'package:test/features/ui/pages/bookmarks/logic/bookmarks_usecase.dart';
 
 // --- HTTP & Dio --------------------------------------------------------------
 

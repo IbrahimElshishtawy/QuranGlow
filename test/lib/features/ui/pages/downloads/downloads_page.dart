@@ -3,10 +3,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/features/ui/pages/downloads/controller/download_controller.dart';
-import 'package:quranglow/features/ui/pages/downloads/widgets/reciter_selector.dart';
-import 'package:quranglow/features/ui/routes/app_routes.dart';
+import 'package:test/core/di/providers.dart';
+import 'package:test/features/ui/pages/downloads/controller/download_controller.dart';
+import 'package:test/features/ui/pages/downloads/widgets/reciter_selector.dart';
+import 'package:test/features/ui/routes/app_routes.dart';
 
 class DownloadsPage extends ConsumerStatefulWidget {
   final bool embedded;
@@ -125,7 +125,6 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
                       ),
                       onChanged: (v) {
                         setState(() => _surah = v ?? 1);
-                        // هنا: لا ننتقل لصفحة أخرى. نعرض bottom sheet لآيات السورة.
                         _showAyahPicker(v ?? 1);
                       },
                     ),
@@ -192,7 +191,6 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
   }
 }
 
-/// Bottom sheet widget: يجلب روابط الآيات ويعرضها مع اختيار وتنزيل.
 class _AyahPickerSheet extends ConsumerStatefulWidget {
   final String reciterId;
   final int surah;
@@ -287,7 +285,6 @@ class _AyahPickerSheetState extends ConsumerState<_AyahPickerSheet> {
         ayahUrls: urls,
       );
 
-      // إغلاق الـ sheet ثم الانتقال للمكتبة
       if (mounted) {
         Navigator.of(context).pop();
         Navigator.of(context).pushNamed(AppRoutes.downloadsLibrary);

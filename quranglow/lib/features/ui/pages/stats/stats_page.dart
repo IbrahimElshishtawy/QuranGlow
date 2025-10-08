@@ -1,4 +1,4 @@
-// ignore_for_file: unused_local_variable, deprecated_member_use
+// ignore_for_file: unused_local_variable, deprecated_member_use, unnecessary_underscores
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/features/ui/pages/stats/controller/stats_controller.dart';

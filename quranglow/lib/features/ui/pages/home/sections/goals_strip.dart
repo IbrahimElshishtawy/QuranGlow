@@ -1,5 +1,5 @@
 // lib/features/ui/pages/home/sections/goals_strip.dart
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, unnecessary_underscores
 
 import 'dart:math';
 import 'package:flutter/material.dart';

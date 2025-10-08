@@ -4,15 +4,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:quranglow/core/di/providers.dart';
+import 'package:test/core/di/providers.dart';
 
 class AyahAudioCard extends ConsumerStatefulWidget {
   const AyahAudioCard({
     super.key,
     required this.surah,
-    required this.ayahInSurah, // 1-based
-    required this.reciterIdLabel, // للعرض
-    required this.effectiveReciterId, // للاستخدام الفعلي في الجلب
+    required this.ayahInSurah,
+    required this.reciterIdLabel,
+    required this.effectiveReciterId,
   });
 
   final int surah;
