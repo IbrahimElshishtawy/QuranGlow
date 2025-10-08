@@ -137,13 +137,7 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
     if (a is Map<String, dynamic> &&
         a['surah'] is int &&
         a['reciterId'] is String) {
-      return _mat(
-        dlp.DownloadsPage(
-          // surah: a['surah'] as int,
-          // reciterId: a['reciterId'] as String,
-        ),
-        s,
-      );
+      return _mat(dlp.DownloadsPage(), s);
     }
     return _mat(
       const Scaffold(

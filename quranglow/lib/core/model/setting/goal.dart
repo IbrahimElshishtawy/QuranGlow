@@ -20,6 +20,7 @@ class Goal {
     this.current = 0,
     this.active = true,
     this.createdAt,
+    required String unit,
   });
 
   double get progress => target == 0 ? 0 : (current / target).clamp(0, 1);
@@ -42,6 +43,7 @@ class Goal {
       current: current ?? this.current,
       active: active ?? this.active,
       createdAt: createdAt ?? this.createdAt,
+      unit: '',
     );
   }
 
@@ -66,6 +68,7 @@ class Goal {
         (map['createdAt'] is String && (map['createdAt'] as String).isNotEmpty)
         ? DateTime.tryParse(map['createdAt'] as String)
         : null,
+    unit: '',
   );
 
   static GoalType _typeFrom(dynamic v) {

@@ -4,7 +4,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quran/quran.dart' as quran;
-import 'package:quranglow/core/model/Goal.dart' as models;
+import 'package:quranglow/core/model/setting/goal.dart' as models;
+
 import 'goal_pos_store.dart';
 
 typedef FollowCallback = Future<void> Function(int surahNum, int ayahNum);
@@ -86,7 +87,9 @@ class GoalPill extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        hasPos ? '$surahName • آية ${_toArabicDigits(ayahNum)}' : 'ابدأ القراءة لهذا الهدف',
+                        hasPos
+                            ? '$surahName • آية ${_toArabicDigits(ayahNum)}'
+                            : 'ابدأ القراءة لهذا الهدف',
                         style: TextStyle(color: cs.outline, fontSize: 12),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -94,9 +97,14 @@ class GoalPill extends ConsumerWidget {
                     ),
                     const SizedBox(width: 6),
                     FilledButton.tonal(
-                      style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8)),
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
                       onPressed: () async => await onFollow(surahNum, ayahNum),
-                      child: Text(hasPos ? 'تابِع' : 'ابدأ', style: const TextStyle(fontSize: 12)),
+                      child: Text(
+                        hasPos ? 'تابِع' : 'ابدأ',
+                        style: const TextStyle(fontSize: 12),
+                      ),
                     ),
                     const SizedBox(width: 6),
                     IconButton.filledTonal(

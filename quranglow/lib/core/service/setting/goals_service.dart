@@ -2,7 +2,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:quranglow/core/model/Goal.dart';
+import 'package:quranglow/core/model/setting/goal.dart';
+
 import 'package:quranglow/core/storage/local_storage.dart';
 
 class GoalsService {
