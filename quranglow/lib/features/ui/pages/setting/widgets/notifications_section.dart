@@ -79,7 +79,6 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
 
   @override
   Widget build(BuildContext context) {
-    // لا تُرجِع NotificationsSection هنا لتجنب recursion
     return const Scaffold(
       appBar: null,
       body: SingleChildScrollView(
