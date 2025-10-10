@@ -41,7 +41,7 @@ class QuranGlowApp extends ConsumerWidget {
           body: Center(child: CircularProgressIndicator()),
         ),
       ),
-      error: (_, \) => MaterialApp(
+      error: (_, _) => MaterialApp(
         title: 'QuranGlow',
         debugShowCheckedModeBanner: false,
         theme: buildLightTheme(fontFamily: 'System', fontScale: 1),
