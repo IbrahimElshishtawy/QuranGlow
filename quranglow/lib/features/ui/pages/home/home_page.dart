@@ -2,7 +2,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:quranglow/features/ui/pages/home/sections/daily_ayah_card.dart';
+mport 'package:quranglow/features/ui/pages/home/sections/daily_ayah_card.dart';
 import 'package:quranglow/features/ui/pages/home/sections/goals_strip.dart';
 import 'package:quranglow/features/ui/pages/home/sections/last_read_card.dart';
 import 'package:quranglow/features/ui/pages/home/sections/quick_actions_grid.dart';
@@ -14,7 +14,7 @@ import 'package:quranglow/features/ui/pages/home/widgets/section_spacing.dart';
 // صفحات أخرى
 import 'package:quranglow/features/ui/pages/search/search_page.dart';
 import 'package:quranglow/features/ui/pages/player/player_page.dart';
-// أبقي التنزيلات في الـDrawer فقط إن لزم
+
 // import 'package:quranglow/features/ui/pages/downloads/downloads_page.dart';
 
 // صفحات جديدة
