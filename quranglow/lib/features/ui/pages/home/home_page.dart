@@ -2,24 +2,27 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-mport 'package:quranglow/features/ui/pages/home/sections/daily_ayah_card.dart';
-import 'package:quranglow/features/ui/pages/home/sections/goals_strip.dart';
-import 'package:quranglow/features/ui/pages/home/sections/last_read_card.dart';
-import 'package:quranglow/features/ui/pages/home/sections/quick_actions_grid.dart';
-import 'package:quranglow/features/ui/pages/home/sections/shortcuts_list.dart';
+
+// Drawer + هيدر بصري
 import 'package:quranglow/features/ui/pages/home/widgets/app_drawer.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/hero_header.dart';
+
+// أقسام الرئيسية (سلايفرز)
+import 'package:quranglow/features/ui/pages/home/sections/last_read_card.dart';
+import 'package:quranglow/features/ui/pages/home/sections/daily_ayah_card.dart';
+import 'package:quranglow/features/ui/pages/home/sections/goals_strip.dart';
+import 'package:quranglow/features/ui/pages/home/sections/quick_actions_grid.dart';
+import 'package:quranglow/features/ui/pages/home/sections/shortcuts_list.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/section_spacing.dart';
 
-// صفحات أخرى
-import 'package:quranglow/features/ui/pages/search/search_page.dart';
-import 'package:quranglow/features/ui/pages/player/player_page.dart';
+// صفحات التبويبات الأخرى
+import '../mushaf/mushaf_page.dart';
+import '../azkar/azkar_tasbih_page.dart';
+import '../player/player_page.dart';
+import '../search/search_page.dart';
 
-// import 'package:quranglow/features/ui/pages/downloads/downloads_page.dart';
-
-// صفحات جديدة
-import 'package:quranglow/features/ui/pages/mushaf/mushaf_page.dart';
-import 'package:quranglow/features/ui/pages/azkar/azkar_tasbih_page.dart';
+// راوت للإعدادات
+import '../../routes/app_routes.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -41,10 +44,28 @@ class _HomePageState extends State<HomePage> {
             Navigator.pushNamed(context, r);
           },
         ),
+        appBar: AppBar(
+          title: Text(_titleForTab(_tab)),
+          flexibleSpace: const HeroHeader(),
+          toolbarHeight: 120,
+          centerTitle: true,
+          actions: [
+            IconButton(
+              tooltip: 'الإعدادات',
+              onPressed: () => Navigator.pushNamed(context, AppRoutes.setting),
+              icon: const Icon(Icons.settings),
+            ),
+          ],
+        ),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _tab,
           onDestinationSelected: (i) => setState(() => _tab = i),
           destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home),
+              label: 'الرئيسية',
+            ),
             NavigationDestination(
               icon: Icon(Icons.menu_book_outlined),
               selectedIcon: Icon(Icons.menu_book),
@@ -67,47 +88,15 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        body: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              pinned: true,
-              expandedHeight: 150,
-              centerTitle: true,
-              title: Text(_titleForTab(_tab)),
-              flexibleSpace: const FlexibleSpaceBar(background: HeroHeader()),
-            ),
-
-            // تبويب 0: المصحف
-            if (_tab == 0) ...[
-              const SliverFillRemaining(
-                hasScrollBody: true,
-                child: MushafPage(),
-              ),
-            ],
-
-            // تبويب 1: الأذكار والتسبيح
-            if (_tab == 1) ...[
-              const SliverFillRemaining(
-                hasScrollBody: true,
-                child: AzkarTasbihPage(),
-              ),
-            ],
-
-            // تبويب 2: المشغّل
-            if (_tab == 2) ...[
-              const SliverFillRemaining(
-                hasScrollBody: true,
-                child: PlayerPage(),
-              ),
-            ],
-
-            // تبويب 3: البحث
-            if (_tab == 3) ...[
-              const SliverFillRemaining(
-                hasScrollBody: true,
-                child: SearchPage(),
-              ),
-            ],
+        // تبويب 0 فقط يستخدم Slivers. الباقي صفحات كاملة.
+        body: IndexedStack(
+          index: _tab,
+          children: const [
+            _HomeSections(),   // الرئيسية بسلايفرز
+            MushafPage(),      // المصحف
+            AzkarTasbihPage(), // الأذكار والتسبيح
+            PlayerPage(),      // المشغّل
+            SearchPage(),      // البحث
           ],
         ),
       ),
@@ -115,10 +104,45 @@ class _HomePageState extends State<HomePage> {
   }
 
   String _titleForTab(int i) => switch (i) {
-    0 => 'المصحف',
-    1 => 'الأذكار والتسبيح',
-    2 => 'المشغّل',
-    3 => 'بحث',
+    0 => 'QuranGlow',
+    1 => 'المصحف',
+    2 => 'الأذكار والتسبيح',
+    3 => 'المشغّل',
+    4 => 'بحث',
     _ => 'QuranGlow',
   };
+}
+
+/// تبويب "الرئيسية": نفس تصميمك السابق بسلايفرز
+class _HomeSections extends StatelessWidget {
+  const _HomeSections();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      slivers: [
+        // لا نكرر AppBar هنا لأنه موجود في Scaffold الأعلى
+        const SliverToBoxAdapter(
+          child: SectionSpacing(child: LastReadCard()),
+        ),
+        const SliverToBoxAdapter(
+          child: SectionSpacing(child: DailyAyahCard()),
+        ),
+        const SliverToBoxAdapter(
+          child: SectionSpacing(child: GoalsStrip()),
+        ),
+        const SliverToBoxAdapter(
+          child: SectionSpacing(child: QuickActionsGrid()),
+        ),
+        const SliverToBoxAdapter(
+          child: SectionSpacing(child: ShortcutsList()),
+        ),
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: MediaQuery.of(context).padding.bottom + 16,
+          ),
+        ),
+      ],
+    );
+  }
 }
