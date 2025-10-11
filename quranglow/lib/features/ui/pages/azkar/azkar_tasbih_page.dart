@@ -3,6 +3,9 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:quranglow/features/ui/pages/azkar/widgets/duas_list.dart';
+import 'package:quranglow/features/ui/pages/azkar/widgets/reminder_list.dart';
+import 'package:quranglow/features/ui/pages/azkar/widgets/tasbih_counter.dart';
 class AzkarTasbihPage extends StatefulWidget {
   const AzkarTasbihPage({super.key});
 
