@@ -18,6 +18,8 @@ class AppRoutes {
   static const onboarding = '/onboarding';
   static const tafsir = '/tafsir';
   static const String azkar = '/azkar';
+  static const qibla    = '/qibla';
+
 }
 
 class TafsirArgs {
