@@ -37,7 +37,6 @@ class SettingsPage extends ConsumerWidget {
             AppearanceSection(),
             GoalsSection(),
             NotificationsSection(),
-            UsageSection(),
             AyahOfDaySection(),
             SizedBox(height: 16),
           ],
