@@ -11,10 +11,15 @@ import 'package:quranglow/features/ui/pages/home/widgets/app_drawer.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/hero_header.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/section_spacing.dart';
 
-// الصفحات الأخرى
+// صفحات أخرى
 import 'package:quranglow/features/ui/pages/search/search_page.dart';
 import 'package:quranglow/features/ui/pages/player/player_page.dart';
-import 'package:quranglow/features/ui/pages/downloads/downloads_page.dart';
+// أبقي التنزيلات في الـDrawer فقط إن لزم
+// import 'package:quranglow/features/ui/pages/downloads/downloads_page.dart';
+
+// صفحات جديدة
+import 'package:quranglow/features/ui/pages/mushaf/mushaf_page.dart';
+import 'package:quranglow/features/ui/pages/azkar/azkar_tasbih_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,9 +29,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _tab = 0;
-
-  // final int _defaultSurah = 18;
-  // final String _defaultReciterId = 'ar.alafasy';
 
   @override
   Widget build(BuildContext context) {
@@ -44,15 +46,24 @@ class _HomePageState extends State<HomePage> {
           onDestinationSelected: (i) => setState(() => _tab = i),
           destinations: const [
             NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
-              label: 'الرئيسية',
+              icon: Icon(Icons.menu_book_outlined),
+              selectedIcon: Icon(Icons.menu_book),
+              label: 'المصحف',
             ),
-            NavigationDestination(icon: Icon(Icons.search), label: 'بحث'),
-            NavigationDestination(icon: Icon(Icons.download), label: 'تنزيلات'),
             NavigationDestination(
-              icon: Icon(Icons.play_circle),
-              label: 'مشغّل',
+              icon: Icon(Icons.favorite_border),
+              selectedIcon: Icon(Icons.favorite),
+              label: 'أذكار وتسبيح',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.play_circle_outline),
+              selectedIcon: Icon(Icons.play_circle),
+              label: 'المشغّل',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.search),
+              selectedIcon: Icon(Icons.search),
+              label: 'بحث',
             ),
           ],
         ),
@@ -66,53 +77,37 @@ class _HomePageState extends State<HomePage> {
               flexibleSpace: const FlexibleSpaceBar(background: HeroHeader()),
             ),
 
-            // الرئيسية
+            // تبويب 0: المصحف
             if (_tab == 0) ...[
-              const SliverToBoxAdapter(
-                child: SectionSpacing(child: LastReadCard()),
-              ),
-              const SliverToBoxAdapter(
-                child: SectionSpacing(child: DailyAyahCard()),
-              ),
-              const SliverToBoxAdapter(
-                child: SectionSpacing(child: GoalsStrip()),
-              ),
-              const SliverToBoxAdapter(
-                child: SectionSpacing(child: QuickActionsGrid()),
-              ),
-              const SliverToBoxAdapter(
-                child: SectionSpacing(child: ShortcutsList()),
-              ),
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: MediaQuery.of(context).padding.bottom + 16,
-                ),
+              const SliverFillRemaining(
+                hasScrollBody: true,
+                child: MushafPage(),
               ),
             ],
 
-            // البحث
-            if (_tab == 1)
+            // تبويب 1: الأذكار والتسبيح
+            if (_tab == 1) ...[
               const SliverFillRemaining(
                 hasScrollBody: true,
-                child: SearchPage(),
+                child: AzkarTasbihPage(),
               ),
+            ],
 
-            // التنزيلات — تمرير البراميتر المطلوبة
-            if (_tab == 2)
-              SliverFillRemaining(
-                hasScrollBody: true,
-                child: DownloadsPage(
-                  // surah: _defaultSurah,
-                  // reciterId: _defaultReciterId,
-                ),
-              ),
-
-            // المشغّل
-            if (_tab == 3)
+            // تبويب 2: المشغّل
+            if (_tab == 2) ...[
               const SliverFillRemaining(
                 hasScrollBody: true,
                 child: PlayerPage(),
               ),
+            ],
+
+            // تبويب 3: البحث
+            if (_tab == 3) ...[
+              const SliverFillRemaining(
+                hasScrollBody: true,
+                child: SearchPage(),
+              ),
+            ],
           ],
         ),
       ),
@@ -120,10 +115,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   String _titleForTab(int i) => switch (i) {
-    0 => 'QuranGlow',
-    1 => 'بحث',
-    2 => 'التنزيلات',
-    3 => 'المشغّل',
+    0 => 'المصحف',
+    1 => 'الأذكار والتسبيح',
+    2 => 'المشغّل',
+    3 => 'بحث',
     _ => 'QuranGlow',
   };
 }
