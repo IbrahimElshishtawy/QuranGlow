@@ -27,6 +27,7 @@ import 'package:quranglow/features/ui/pages/surah/surah_list_page.dart';
 import 'package:quranglow/features/ui/pages/tafsir/tafsir_reader_page.dart';
 import 'package:quranglow/features/ui/pages/azkar/azkar_tasbih_page.dart'; // ✅ تمت إضافتها
 
+import '../pages/qibla/qibla_page.dart';
 import 'app_routes.dart';
 
 class MushafArgs {
@@ -180,7 +181,9 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
   } else if (name == AppRoutes.tafsir || name == AppRoutes.tafsirReader) {
     return _mat(const TafsirReaderPage(), s);
   }
-
+  else if (name == AppRoutes.qibla) {
+    return _mat(const QiblaPage(), s);
+  }
   else if (name == AppRoutes.azkar) {
     return _mat(const AzkarTasbihPage(), s);
   }
