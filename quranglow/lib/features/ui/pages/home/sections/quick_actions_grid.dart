@@ -9,7 +9,7 @@ class QuickActionsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final items = _actions(context);
+    final items = _actions(context, cs);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -37,48 +37,93 @@ class QuickActionsGrid extends StatelessWidget {
     );
   }
 
-  List<_ActionItem> _actions(BuildContext context) => [
-    _ActionItem(
-      'المصحف',
-      Icons.menu_book,
-      () => Navigator.pushNamed(context, AppRoutes.mushaf),
-    ),
+
+  List<_ActionItem> _actions(BuildContext context, ColorScheme cs) => [
     _ActionItem(
       'السور',
       Icons.list_alt,
-      () => Navigator.pushNamed(context, AppRoutes.surahs),
-    ),
-    _ActionItem(
-      'بحث',
-      Icons.search,
-      () => Navigator.pushNamed(context, AppRoutes.search),
+          () => Navigator.pushNamed(context, AppRoutes.surahs),
     ),
     _ActionItem(
       'المحفوظات',
       Icons.bookmark,
-      () => Navigator.pushNamed(context, AppRoutes.bookmarks),
-    ),
-    _ActionItem(
-      'المشغّل',
-      Icons.play_circle,
-      () => Navigator.pushNamed(context, AppRoutes.player),
+          () => Navigator.pushNamed(context, AppRoutes.bookmarks),
     ),
     _ActionItem(
       'التنزيلات',
       Icons.download,
-      () => Navigator.pushNamed(context, AppRoutes.downloads),
+          () => Navigator.pushNamed(context, AppRoutes.downloads),
     ),
     _ActionItem(
       'الإحصائيات',
       Icons.insights,
-      () => Navigator.pushNamed(context, AppRoutes.stats),
+          () => Navigator.pushNamed(context, AppRoutes.stats),
     ),
     _ActionItem(
       'التفسير',
       Icons.menu_book_outlined,
-      () => Navigator.pushNamed(context, AppRoutes.tafsir),
+          () => Navigator.pushNamed(context, AppRoutes.tafsir),
+    ),
+
+
+    _ActionItem(
+      'الصلاة',
+      Icons.explore, // بوصلة
+          () => showModalBottomSheet(
+        context: context,
+        showDragHandle: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        builder: (_) => _PrayerSheet(cs: cs),
+      ),
     ),
   ];
+}
+
+class _PrayerSheet extends StatelessWidget {
+  final ColorScheme cs;
+  const _PrayerSheet({required this.cs});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.explore, color: cs.primary),
+              title: const Text('اتجاه القبلة'),
+              subtitle: const Text('استخدم البوصلة لمعرفة الاتجاه الصحيح'),
+              onTap: () {
+                Navigator.pop(context);
+                // TODO: غيّر إلى الراوت الصحيح عند تجهيز صفحة القبلة
+                // Navigator.pushNamed(context, AppRoutes.qibla);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('صفحة القبلة ستُضاف لاحقًا')),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.access_time, color: cs.primary),
+              title: const Text('مواقيت الصلاة'),
+              subtitle: const Text('عرض أوقات الفجر إلى العشاء'),
+              onTap: () {
+                Navigator.pop(context);
+                // TODO: غيّر إلى الراوت الصحيح عند تجهيز صفحة المواقيت
+                // Navigator.pushNamed(context, AppRoutes.prayerTimes);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('صفحة المواقيت ستُضاف لاحقًا')),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _ActionItem {
