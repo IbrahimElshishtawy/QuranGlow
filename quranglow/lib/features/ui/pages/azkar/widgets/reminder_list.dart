@@ -31,7 +31,7 @@ class _ReminderListState extends State<ReminderList> {
           : ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: _items.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 8),
+        separatorBuilder: (_, _) => const SizedBox(height: 8),
         itemBuilder: (_, i) => ReminderTile(
           r: _items[i],
           onEdit: () => _openEditor(edit: _items[i]),
