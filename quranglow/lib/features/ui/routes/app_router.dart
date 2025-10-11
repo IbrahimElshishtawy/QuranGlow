@@ -6,12 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/core/model/book/surah.dart';
 
+// الصفحات
 import 'package:quranglow/features/ui/pages/ayah/ayah_detail_page.dart';
 import 'package:quranglow/features/ui/pages/bookmarks/bookmarks_page.dart';
 import 'package:quranglow/features/ui/pages/downloads/download_detail_page.dart'
-    as ddp;
+as ddp;
 import 'package:quranglow/features/ui/pages/downloads/downloads_page.dart'
-    as dlp;
+as dlp;
 import 'package:quranglow/features/ui/pages/goals/goals_page.dart';
 import 'package:quranglow/features/ui/pages/home/home_page.dart';
 import 'package:quranglow/features/ui/pages/mushaf/mushaf_page.dart';
@@ -24,6 +25,7 @@ import 'package:quranglow/features/ui/pages/spa/splash_screen.dart';
 import 'package:quranglow/features/ui/pages/stats/stats_page.dart';
 import 'package:quranglow/features/ui/pages/surah/surah_list_page.dart';
 import 'package:quranglow/features/ui/pages/tafsir/tafsir_reader_page.dart';
+import 'package:quranglow/features/ui/pages/azkar/azkar_tasbih_page.dart'; // ✅ تمت إضافتها
 
 import 'app_routes.dart';
 
@@ -132,7 +134,6 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
   } else if (name == AppRoutes.bookmarks) {
     return _mat(const BookmarksPage(), s);
   } else if (name == AppRoutes.downloads) {
-    // DownloadsPage تتطلب surah و reciterId
     final a = s.arguments;
     if (a is Map<String, dynamic> &&
         a['surah'] is int &&
@@ -178,6 +179,10 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
     return _mat(const OnboardingPage(), s);
   } else if (name == AppRoutes.tafsir || name == AppRoutes.tafsirReader) {
     return _mat(const TafsirReaderPage(), s);
+  }
+
+  else if (name == AppRoutes.azkar) {
+    return _mat(const AzkarTasbihPage(), s);
   }
 
   return _mat(const Scaffold(body: Center(child: Text('Route not found'))), s);
