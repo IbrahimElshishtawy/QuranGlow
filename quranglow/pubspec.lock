@@ -310,6 +310,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_compass:
+    dependency: "direct main"
+    description:
+      name: flutter_compass
+      sha256: "1a0121bff32df95193812b4e0f69e95f45fdec042ebd7a326ba087c0f6ec8304"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.0"
   flutter_launcher_icons:
     dependency: "direct main"
     description:
@@ -370,10 +378,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_riverpod
-      sha256: a3daec8924eefa4fd6e4614ac4e247e9045f7fab727d3b9924b7e343e51914d5
+      sha256: "9e2d6907f12cc7d23a846847615941bddee8709bf2bfd274acdf5e80bcf22fde"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.2"
+    version: "3.0.3"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -392,6 +400,54 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  geolocator:
+    dependency: "direct main"
+    description:
+      name: geolocator
+      sha256: f4efb8d3c4cdcad2e226af9661eb1a0dd38c71a9494b22526f9da80ab79520e5
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.1.1"
+  geolocator_android:
+    dependency: transitive
+    description:
+      name: geolocator_android
+      sha256: fcb1760a50d7500deca37c9a666785c047139b5f9ee15aa5469fae7dbbe3170d
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.6.2"
+  geolocator_apple:
+    dependency: transitive
+    description:
+      name: geolocator_apple
+      sha256: dbdd8789d5aaf14cf69f74d4925ad1336b4433a6efdf2fce91e8955dc921bf22
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.13"
+  geolocator_platform_interface:
+    dependency: transitive
+    description:
+      name: geolocator_platform_interface
+      sha256: "30cb64f0b9adcc0fb36f628b4ebf4f731a2961a0ebd849f4b56200205056fe67"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2.6"
+  geolocator_web:
+    dependency: transitive
+    description:
+      name: geolocator_web
+      sha256: "102e7da05b48ca6bf0a5bda0010f886b171d1a08059f01bfe02addd0175ebece"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.1"
+  geolocator_windows:
+    dependency: transitive
+    description:
+      name: geolocator_windows
+      sha256: "175435404d20278ffd220de83c2ca293b73db95eafbdc8131fe8609be1421eb6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.5"
   glob:
     dependency: transitive
     description:
@@ -796,10 +852,10 @@ packages:
     dependency: "direct main"
     description:
       name: riverpod
-      sha256: f51e4fb82861ca363af59d8c33380deccf8a8b3225594c2147a1acd4a381f564
+      sha256: c406de02bff19d920b832bddfb8283548bfa05ce41c59afba57ce643e116aa59
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.2"
+    version: "3.0.3"
   rxdart:
     dependency: "direct main"
     description:
