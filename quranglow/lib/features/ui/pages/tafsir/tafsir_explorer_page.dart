@@ -85,12 +85,10 @@ class _TafsirReaderPageState extends ConsumerState<TafsirReaderPage> {
           padding: const EdgeInsets.all(16),
           children: [
             SelectionCard(
-              // مرّر AsyncValue للسور لاختيار السورة والآية
               editions: editions,
-              // بدّل: لم نعد نحتاج كل السور، نحتاج عدد الآيات فقط من surahAsync
               quranAll: surahAsync.whenData(
                 (s) => [s],
-              ), // توافق بسيط مع الـWidget الحالي
+              ),
               editionId: _editionId,
               surah: _surah,
               ayah: _ayah,
