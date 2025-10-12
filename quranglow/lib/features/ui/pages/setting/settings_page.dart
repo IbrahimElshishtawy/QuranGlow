@@ -16,7 +16,7 @@ class SettingsPage extends ConsumerWidget {
         appBar: AppBar(
           centerTitle: true,
           title: const Text('الإعدادات'),
-          automaticallyImplyLeading: false, // عشان نتحكّم إحنا في الـ leading
+          automaticallyImplyLeading: false,
           leading: IconButton(
             icon: Icon(
               Directionality.of(context) == TextDirection.rtl
