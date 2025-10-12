@@ -13,13 +13,11 @@ class TafsirReaderPage extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(title: Text('تفسير: سورة $surah آية $ayah')),
-        body: Center(
-          child: Text(
-            'هنا حمّل التفسير الفعلي حسب السورة والآية',
-            style: const TextStyle(fontSize: 16),
-          ),
+        appBar: AppBar(
+          title: Text('تفسير: سورة $surah آية $ayah') ,
+          automaticallyImplyActions: true,
         ),
+        body: TafsirReaderPage(),
       ),
     );
   }
