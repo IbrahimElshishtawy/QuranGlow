@@ -69,14 +69,7 @@ class QuickActionsGrid extends StatelessWidget {
     _ActionItem(
       'الصلاة',
       Icons.explore, // بوصلة
-          () => showModalBottomSheet(
-        context: context,
-        showDragHandle: true,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        ),
-        builder: (_) => _PrayerSheet(cs: cs),
-      ),
+          () => Navigator.pushNamed(context, AppRoutes.qibla),
     ),
   ];
 }
