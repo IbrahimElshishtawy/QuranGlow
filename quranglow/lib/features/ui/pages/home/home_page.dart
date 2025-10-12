@@ -21,8 +21,8 @@ import '../azkar/azkar_tasbih_page.dart';
 import '../player/player_page.dart';
 import '../search/search_page.dart';
 
-// راوت للإعدادات
-import '../../routes/app_routes.dart';
+// ر
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -45,18 +45,10 @@ class _HomePageState extends State<HomePage> {
           },
         ),
         appBar: AppBar(
-          title: Text(_titleForTab(_tab)),
           flexibleSpace: const HeroHeader(),
           toolbarHeight: 120,
           centerTitle: true,
-          actions: [
-            IconButton(
-              tooltip: 'الإعدادات',
-              onPressed: () => Navigator.pushNamed(context, AppRoutes.setting),
-              icon: const Icon(Icons.settings),
-            ),
-          ],
-        ),
+      ),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _tab,
           onDestinationSelected: (i) => setState(() => _tab = i),
@@ -113,7 +105,7 @@ class _HomePageState extends State<HomePage> {
   };
 }
 
-/// تبويب "الرئيسية": نفس تصميمك السابق بسلايفرز
+
 class _HomeSections extends StatelessWidget {
   const _HomeSections();
 
