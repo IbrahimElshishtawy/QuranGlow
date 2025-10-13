@@ -1,6 +1,8 @@
 // lib/features/ui/pages/qibla/qibla_page.dart
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
-import 'widgets/qibla_compass.dart';
+import 'package:quranglow/features/ui/pages/qibla/widgets/qibla_compass.dart';
 
 class QiblaPage extends StatelessWidget {
   const QiblaPage({super.key});
@@ -17,11 +19,12 @@ class QiblaPage extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topCenter, end: Alignment.bottomCenter,
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
               colors: [cs.surface, cs.surfaceContainerHighest],
             ),
           ),
-          child: const QiblaCompass(),
+          child: Column(children: [QiblaCompass()]),
         ),
       ),
     );
