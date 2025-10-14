@@ -1,4 +1,6 @@
 // lib/features/ui/pages/qibla/painters/rings_painter.dart
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 class RingsPainter extends CustomPainter {
