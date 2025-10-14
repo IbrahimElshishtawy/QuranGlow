@@ -23,7 +23,6 @@ import '../search/search_page.dart';
 
 // ر
 
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
   @override
@@ -48,7 +47,7 @@ class _HomePageState extends State<HomePage> {
           flexibleSpace: const HeroHeader(),
           toolbarHeight: 120,
           centerTitle: true,
-      ),
+        ),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _tab,
           onDestinationSelected: (i) => setState(() => _tab = i),
@@ -84,27 +83,17 @@ class _HomePageState extends State<HomePage> {
         body: IndexedStack(
           index: _tab,
           children: const [
-            _HomeSections(),   // الرئيسية بسلايفرز
-            MushafPage(),      // المصحف
+            _HomeSections(), // الرئيسية بسلايفرز
+            MushafPage(), // المصحف
             AzkarTasbihPage(), // الأذكار والتسبيح
-            PlayerPage(),      // المشغّل
-            SearchPage(),      // البحث
+            PlayerPage(), // المشغّل
+            SearchPage(), // البحث
           ],
         ),
       ),
     );
   }
-
-  String _titleForTab(int i) => switch (i) {
-    0 => 'QuranGlow',
-    1 => 'المصحف',
-    2 => 'الأذكار والتسبيح',
-    3 => 'المشغّل',
-    4 => 'بحث',
-    _ => 'QuranGlow',
-  };
 }
-
 
 class _HomeSections extends StatelessWidget {
   const _HomeSections();
@@ -114,25 +103,15 @@ class _HomeSections extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         // لا نكرر AppBar هنا لأنه موجود في Scaffold الأعلى
-        const SliverToBoxAdapter(
-          child: SectionSpacing(child: LastReadCard()),
-        ),
-        const SliverToBoxAdapter(
-          child: SectionSpacing(child: DailyAyahCard()),
-        ),
-        const SliverToBoxAdapter(
-          child: SectionSpacing(child: GoalsStrip()),
-        ),
+        const SliverToBoxAdapter(child: SectionSpacing(child: LastReadCard())),
+        const SliverToBoxAdapter(child: SectionSpacing(child: DailyAyahCard())),
+        const SliverToBoxAdapter(child: SectionSpacing(child: GoalsStrip())),
         const SliverToBoxAdapter(
           child: SectionSpacing(child: QuickActionsGrid()),
         ),
-        const SliverToBoxAdapter(
-          child: SectionSpacing(child: ShortcutsList()),
-        ),
+        const SliverToBoxAdapter(child: SectionSpacing(child: ShortcutsList())),
         SliverToBoxAdapter(
-          child: SizedBox(
-            height: MediaQuery.of(context).padding.bottom + 16,
-          ),
+          child: SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
         ),
       ],
     );
