@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, unused_element
 
 import 'package:flutter/material.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
@@ -37,39 +37,37 @@ class QuickActionsGrid extends StatelessWidget {
     );
   }
 
-
   List<_ActionItem> _actions(BuildContext context, ColorScheme cs) => [
     _ActionItem(
       'السور',
       Icons.list_alt,
-          () => Navigator.pushNamed(context, AppRoutes.surahs),
+      () => Navigator.pushNamed(context, AppRoutes.surahs),
     ),
     _ActionItem(
       'المحفوظات',
       Icons.bookmark,
-          () => Navigator.pushNamed(context, AppRoutes.bookmarks),
+      () => Navigator.pushNamed(context, AppRoutes.bookmarks),
     ),
     _ActionItem(
       'التنزيلات',
       Icons.download,
-          () => Navigator.pushNamed(context, AppRoutes.downloads),
+      () => Navigator.pushNamed(context, AppRoutes.downloads),
     ),
     _ActionItem(
       'الإحصائيات',
       Icons.insights,
-          () => Navigator.pushNamed(context, AppRoutes.stats),
+      () => Navigator.pushNamed(context, AppRoutes.stats),
     ),
     _ActionItem(
       'التفسير',
       Icons.menu_book_outlined,
-          () => Navigator.pushNamed(context, AppRoutes.tafsir),
+      () => Navigator.pushNamed(context, AppRoutes.tafsir),
     ),
-
 
     _ActionItem(
       'الصلاة',
       Icons.explore, // بوصلة
-          () => Navigator.pushNamed(context, AppRoutes.qibla),
+      () => Navigator.pushNamed(context, AppRoutes.qibla),
     ),
   ];
 }
@@ -92,8 +90,7 @@ class _PrayerSheet extends StatelessWidget {
               subtitle: const Text('استخدم البوصلة لمعرفة الاتجاه الصحيح'),
               onTap: () {
                 Navigator.pop(context);
-                // TODO: غيّر إلى الراوت الصحيح عند تجهيز صفحة القبلة
-                // Navigator.pushNamed(context, AppRoutes.qibla);
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('صفحة القبلة ستُضاف لاحقًا')),
                 );
@@ -105,8 +102,7 @@ class _PrayerSheet extends StatelessWidget {
               subtitle: const Text('عرض أوقات الفجر إلى العشاء'),
               onTap: () {
                 Navigator.pop(context);
-                // TODO: غيّر إلى الراوت الصحيح عند تجهيز صفحة المواقيت
-                // Navigator.pushNamed(context, AppRoutes.prayerTimes);
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('صفحة المواقيت ستُضاف لاحقًا')),
                 );
