@@ -33,10 +33,7 @@ class QuranGlowApp extends ConsumerWidget {
     GlobalWidgetsLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
   ];
-  static const _locales = <Locale>[
-    Locale('en'),
-    Locale('ar'),
-  ];
+  static const _locales = <Locale>[Locale('en'), Locale('ar')];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -47,8 +44,8 @@ class QuranGlowApp extends ConsumerWidget {
         debugShowCheckedModeBanner: false,
         theme: buildLightTheme(fontFamily: 'System', fontScale: 1),
         darkTheme: buildDarkTheme(fontFamily: 'System', fontScale: 1),
-        localizationsDelegates: _delegates,       // ← add
-        supportedLocales: _locales,               // ← add
+        localizationsDelegates: _delegates, // ← add
+        supportedLocales: _locales, // ← add
         home: const Scaffold(
           backgroundColor: Colors.white,
           body: Center(child: CircularProgressIndicator()),
@@ -59,8 +56,8 @@ class QuranGlowApp extends ConsumerWidget {
         debugShowCheckedModeBanner: false,
         theme: buildLightTheme(fontFamily: 'System', fontScale: 1),
         darkTheme: buildDarkTheme(fontFamily: 'System', fontScale: 1),
-        localizationsDelegates: _delegates,       // ← add
-        supportedLocales: _locales,               // ← add
+        localizationsDelegates: _delegates,
+        supportedLocales: _locales,
         home: const Scaffold(
           backgroundColor: Colors.white,
           body: Center(child: Text('خطأ في تحميل الإعدادات')),
@@ -72,8 +69,8 @@ class QuranGlowApp extends ConsumerWidget {
         theme: buildLightTheme(fontFamily: 'System', fontScale: s.fontScale),
         darkTheme: buildDarkTheme(fontFamily: 'System', fontScale: s.fontScale),
         themeMode: s.darkMode ? ThemeMode.dark : ThemeMode.light,
-        localizationsDelegates: _delegates,       // ← add
-        supportedLocales: _locales,               // ← add
+        localizationsDelegates: _delegates,
+        supportedLocales: _locales,
         home: const SplashScreen(),
         onGenerateRoute: onGenerateRoute,
       ),
