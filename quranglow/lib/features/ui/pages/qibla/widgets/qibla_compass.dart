@@ -1,5 +1,5 @@
 // lib/features/ui/pages/qibla/widgets/qibla_compass.dart
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, deprecated_member_use
 
 import 'dart:async';
 import 'dart:math' as math;
