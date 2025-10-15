@@ -6,6 +6,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:quranglow/features/ui/pages/qibla/widgets/qibla_arrow.dart';
 
 class QiblaCompass extends StatefulWidget {
   const QiblaCompass({super.key});
@@ -150,7 +151,7 @@ class _QiblaCompassState extends State<QiblaCompass> {
                   // قرص البوصلة
                   _CompassDial(rotationDeg: heading ?? 0),
                   // سهم القبلة: ندوره بفرق الزاوية
-                  _QiblaArrow(rotationDeg: delta ?? 0, color: cs.primary),
+                  QiblaArrow(rotationDeg: delta ?? 0, color: cs.primary),
                   // مركز
                   Container(
                     width: 10,
@@ -212,23 +213,6 @@ class _CompassDial extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _QiblaArrow extends StatelessWidget {
-  final double rotationDeg; // فرق الزاوية نحو القبلة
-  final Color color;
-  const _QiblaArrow({required this.rotationDeg, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Transform.rotate(
-      angle: rotationDeg * math.pi / 180,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [Icon(Icons.navigation, size: 56, color: color)],
       ),
     );
   }
