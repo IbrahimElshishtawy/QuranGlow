@@ -1,4 +1,5 @@
-// lib/core/notifications/notification_service.dart
+// lib/core/service/setting/notification_service.dart
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -17,79 +18,132 @@ class NotificationService {
   static const _salawatId = 1002;
 
   Future<void> init() async {
+    if (kIsWeb) return;
+
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('Africa/Cairo'));
 
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iosInit = DarwinInitializationSettings(
+
+    const darwinInit = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
 
-    await _plugin.initialize(
-      const InitializationSettings(android: androidInit, iOS: iosInit),
+    // آمن عبر الإصدارات: لا تستخدم shortcutPolicy
+    const windowsInit = WindowsInitializationSettings(
+      appName: 'QuranGlow',
+      appUserModelId: '',
+      guid: '',
     );
 
-    // Android 13+
-    if (!kIsWeb) {
+    // استخدم ما هو مدعوم فقط
+    final settings = InitializationSettings(
+      android: androidInit,
+      iOS: darwinInit,
+      macOS: darwinInit,
+      windows: windowsInit,
+    );
+
+    await _plugin.initialize(settings);
+
+    if (Platform.isAndroid) {
       await _plugin
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.requestNotificationsPermission();
     }
-
-    // iOS 10+
-    await _plugin
-        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(alert: true, badge: true, sound: true);
+    if (Platform.isIOS || Platform.isMacOS) {
+      await _plugin
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >()
+          ?.requestPermissions(alert: true, badge: true, sound: true);
+    }
   }
 
   tz.TZDateTime _nextInstanceOf(TimeOfDay t) {
     final now = tz.TZDateTime.now(tz.local);
-    var scheduled = tz.TZDateTime(tz.local, now.year, now.month, now.day, t.hour, t.minute);
-    if (scheduled.isBefore(now)) scheduled = scheduled.add(const Duration(days: 1));
+    var scheduled = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      t.hour,
+      t.minute,
+    );
+    if (scheduled.isBefore(now)) {
+      scheduled = scheduled.add(const Duration(days: 1));
+    }
     return scheduled;
   }
 
-  Future<void> scheduleDailyReminder({required bool enabled, required TimeOfDay time}) async {
+  Future<void> scheduleDailyReminder({
+    required bool enabled,
+    required TimeOfDay time,
+  }) async {
     await _plugin.cancel(_dailyId);
     if (!enabled || kIsWeb) return;
 
     const android = AndroidNotificationDetails(
-      _dailyChannelId, 'التذكير اليومي',
+      _dailyChannelId,
+      'التذكير اليومي',
       channelDescription: 'تذكير يومي لقراءة الورد',
-      importance: Importance.high, priority: Priority.high,
+      importance: Importance.high,
+      priority: Priority.high,
     );
     const ios = DarwinNotificationDetails();
+    const mac = DarwinNotificationDetails();
+    const win = WindowsNotificationDetails();
 
     await _plugin.zonedSchedule(
       _dailyId,
       'ورد اليوم',
       'حان وقت تلاوة وردك اليومي',
       _nextInstanceOf(time),
-      const NotificationDetails(android: android, iOS: ios),
+      const NotificationDetails(
+        android: android,
+        iOS: ios,
+        macOS: mac,
+        windows: win,
+      ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
+      // لا تمرر uiLocalNotificationDateInterpretation لإصدارك
     );
   }
 
-  Future<void> scheduleSalawat({required bool enabled, required TimeOfDay time}) async {
+  Future<void> scheduleSalawat({
+    required bool enabled,
+    required TimeOfDay time,
+  }) async {
     await _plugin.cancel(_salawatId);
     if (!enabled || kIsWeb) return;
 
     const android = AndroidNotificationDetails(
-      _salawatChannelId, 'تذكير الصلاة على النبي ﷺ',
+      _salawatChannelId,
+      'تذكير الصلاة على النبي ﷺ',
       channelDescription: 'تذكير يومي للصلاة على النبي ﷺ',
-      importance: Importance.high, priority: Priority.high,
+      importance: Importance.high,
+      priority: Priority.high,
     );
     const ios = DarwinNotificationDetails();
+    const mac = DarwinNotificationDetails();
+    const win = WindowsNotificationDetails();
 
     await _plugin.zonedSchedule(
       _salawatId,
       'الصلاة على النبي ﷺ',
       'صَلِّ على النبي ﷺ الآن',
       _nextInstanceOf(time),
-      const NotificationDetails(android: android, iOS: ios),
+      const NotificationDetails(
+        android: android,
+        iOS: ios,
+        macOS: mac,
+        windows: win,
+      ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
     );
