@@ -1,4 +1,3 @@
-// lib/core/service/setting/notification_service.dart
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -31,14 +30,12 @@ class NotificationService {
       requestSoundPermission: true,
     );
 
-    // آمن عبر الإصدارات: لا تستخدم shortcutPolicy
     const windowsInit = WindowsInitializationSettings(
       appName: 'QuranGlow',
       appUserModelId: '',
       guid: '',
     );
 
-    // استخدم ما هو مدعوم فقط
     final settings = InitializationSettings(
       android: androidInit,
       iOS: darwinInit,
@@ -74,9 +71,8 @@ class NotificationService {
       t.hour,
       t.minute,
     );
-    if (scheduled.isBefore(now)) {
+    if (scheduled.isBefore(now))
       scheduled = scheduled.add(const Duration(days: 1));
-    }
     return scheduled;
   }
 
@@ -111,7 +107,6 @@ class NotificationService {
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
-      // لا تمرر uiLocalNotificationDateInterpretation لإصدارك
     );
   }
 
