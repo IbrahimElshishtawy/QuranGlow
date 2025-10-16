@@ -1,6 +1,10 @@
+// ignore_for_file: camel_case_types
+
 import 'package:flutter/material.dart';
 
 class HeaderCard_D extends StatelessWidget {
+  const HeaderCard_D({super.key});
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
