@@ -2,6 +2,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:quranglow/features/ui/pages/home/sections/daily_ayah_card.dart';
 
 // Drawer + هيدر بصري
 import 'package:quranglow/features/ui/pages/home/widgets/app_drawer.dart';
@@ -9,7 +10,6 @@ import 'package:quranglow/features/ui/pages/home/widgets/hero_header.dart';
 
 // أقسام الرئيسية (سلايفرز)
 import 'package:quranglow/features/ui/pages/home/sections/last_read_card.dart';
-import 'package:quranglow/features/ui/pages/home/sections/daily_ayah_card.dart';
 import 'package:quranglow/features/ui/pages/home/sections/goals_strip.dart';
 import 'package:quranglow/features/ui/pages/home/sections/quick_actions_grid.dart';
 import 'package:quranglow/features/ui/pages/home/sections/shortcuts_list.dart';
@@ -102,7 +102,6 @@ class _HomeSections extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        // لا نكرر AppBar هنا لأنه موجود في Scaffold الأعلى
         const SliverToBoxAdapter(child: SectionSpacing(child: LastReadCard())),
         const SliverToBoxAdapter(child: SectionSpacing(child: DailyAyahCard())),
         const SliverToBoxAdapter(child: SectionSpacing(child: GoalsStrip())),
