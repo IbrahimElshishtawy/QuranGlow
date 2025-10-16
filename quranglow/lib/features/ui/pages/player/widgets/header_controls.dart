@@ -1,5 +1,5 @@
 // lib/features/ui/pages/player/widgets/header_card.dart
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, unused_element
 
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -17,32 +17,34 @@ class HeaderCard extends ConsumerWidget {
   });
 
   final String editionId;
-
   final int chapter;
-
   final String? surahName;
-
   final String? readerName;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
-    final displaySurah = _safeSurahName(chapter, fallback: surahName);
 
-    final editions = ref.watch(audioEditionsProvider);
+    // اسم السورة الآمن
+    final String safeSurahName = (surahName?.trim().isNotEmpty == true)
+        ? surahName!.trim()
+        : (chapter >= 1 && chapter < kSurahNamesAr.length
+              ? kSurahNamesAr[chapter]
+              : 'سورة $chapter');
 
+    // سطر القارئ
     Widget readerLine;
     if (readerName != null && readerName!.trim().isNotEmpty) {
       readerLine = Text('القارئ: $readerName', style: t.bodyMedium);
     } else {
+      final editions = ref.watch(audioEditionsProvider);
       readerLine = editions.when(
         loading: () => Text('القارئ: …', style: t.bodyMedium),
         error: (e, _) => Text('القارئ: $editionId', style: t.bodyMedium),
         data: (list) {
           String name = editionId;
           try {
-            // العناصر عادةً خرائط: {identifier, name, englishName, ...}
             final m = list.cast<Map>().firstWhere(
               (e) => (e['identifier'] ?? e['id'] ?? '').toString() == editionId,
               orElse: () => const {},
@@ -55,6 +57,12 @@ class HeaderCard extends ConsumerWidget {
         },
       );
     }
+
+    // سطر اسم السورة (المطلوب تحت القارئ)
+    final Widget surahLine = Opacity(
+      opacity: .85,
+      child: Text('السورة: $safeSurahName', style: t.bodyMedium),
+    );
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
@@ -98,23 +106,12 @@ class HeaderCard extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      displaySurah,
-                      style: t.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
                     const SizedBox(height: 6),
                     readerLine,
+                    const SizedBox(height: 6),
+                    surahLine, // ← هنا يظهر اسم السورة تحت القارئ
                     const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: -6,
-                      children: const [
-                        _Pill(text: 'تشغيل متصل'),
-                        _Pill(text: 'جودة عادية'),
-                      ],
-                    ),
+                    Wrap(spacing: 8, runSpacing: -6),
                   ],
                 ),
               ),
@@ -123,14 +120,6 @@ class HeaderCard extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  String _safeSurahName(int n, {String? fallback}) {
-    if (fallback != null && fallback.trim().isNotEmpty) return 'سورة $fallback';
-    if (n >= 1 && n <= kSurahNamesAr.length) {
-      return 'سورة ${kSurahNamesAr[n - 1]}';
-    }
-    return 'سورة $n';
   }
 }
 
