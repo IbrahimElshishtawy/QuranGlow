@@ -1,37 +1,23 @@
+// lib/features/ui/routes/app_routes.dart
 class AppRoutes {
   static const splash = '/';
   static const home = '/home';
   static const mushaf = '/mushaf';
-  static const mushafPaged = '/mushaf-paged';
+  static const mushafPaged = '/mushafPaged';
   static const surahs = '/surahs';
   static const ayah = '/ayah';
   static const player = '/player';
-  static const downloadsLibrary = '/downloads-library';
   static const search = '/search';
-  static const tafsirReader = '/tafsir';
   static const bookmarks = '/bookmarks';
   static const downloads = '/downloads';
-  static const downloadDetail = '/downloads/detail';
+  static const downloadDetail = '/downloadDetail';
+  static const downloadsLibrary = '/downloadsLibrary';
   static const setting = '/setting';
   static const goals = '/goals';
   static const stats = '/stats';
   static const onboarding = '/onboarding';
   static const tafsir = '/tafsir';
-  static const String azkar = '/azkar';
-  static const qibla    = '/qibla';
-
-}
-
-class TafsirArgs {
-  final int surah;
-  final int ayah;
-  final String? editionId;
-  final String? editionName;
-
-  const TafsirArgs({
-    required this.surah,
-    required this.ayah,
-    this.editionId,
-    this.editionName,
-  });
+  static const tafsirReader = '/tafsirReader';
+  static const qibla = '/qibla';
+  static const azkar = '/azkar';
 }
