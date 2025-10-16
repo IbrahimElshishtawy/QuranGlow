@@ -86,9 +86,7 @@ class _TafsirReaderPageState extends ConsumerState<TafsirReaderPage> {
           children: [
             SelectionCard(
               editions: editions,
-              quranAll: surahAsync.whenData(
-                (s) => [s],
-              ),
+              quranAll: surahAsync.whenData((s) => [s]),
               editionId: _editionId,
               surah: _surah,
               ayah: _ayah,
