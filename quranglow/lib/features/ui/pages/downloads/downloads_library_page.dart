@@ -1,6 +1,6 @@
 // lib/features/ui/pages/downloads/downloads_library_page.dart
 
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, deprecated_member_use
 
 import 'dart:io';
 import 'package:flutter/material.dart';

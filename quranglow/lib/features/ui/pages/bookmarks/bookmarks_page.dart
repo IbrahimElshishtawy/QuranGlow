@@ -1,8 +1,7 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, unnecessary_underscores
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/model/book/bookmark.dart';
 import 'package:quranglow/features/ui/pages/bookmarks/widgets/add_bookmark_dialog.dart';
 import 'package:quranglow/features/ui/pages/bookmarks/widgets/bookmark_list_tile.dart';
 import 'package:quranglow/features/ui/pages/bookmarks/widgets/empty_bookmarks_view.dart';
