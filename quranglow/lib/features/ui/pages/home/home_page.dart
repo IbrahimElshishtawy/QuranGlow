@@ -96,15 +96,15 @@ class _HomeSections extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        const SliverToBoxAdapter(child: SectionSpacing(child: LastReadCard())),
         const SliverToBoxAdapter(child: SectionSpacing(child: DailyAyahCard())),
         const SliverToBoxAdapter(child: SectionSpacing(child: GoalsStrip())),
+        const SliverToBoxAdapter(child: SectionSpacing(child: LastReadCard())),
         const SliverToBoxAdapter(
           child: SectionSpacing(child: QuickActionsGrid()),
         ),
         const SliverToBoxAdapter(child: SectionSpacing(child: ShortcutsList())),
         SliverToBoxAdapter(
-          child: SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+          child: SizedBox(height: MediaQuery.of(context).padding.bottom + 14),
         ),
       ],
     );
