@@ -30,3 +30,17 @@ class PositionStore {
     await sp.remove(_kAyah);
   }
 }
+
+class TafsirArgs {
+  final int surah;
+  final int ayah;
+  final String? editionId;
+  final String? editionName;
+
+  const TafsirArgs({
+    required this.surah,
+    required this.ayah,
+    this.editionId,
+    this.editionName,
+  });
+}
