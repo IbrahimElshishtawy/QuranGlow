@@ -4,24 +4,19 @@
 import 'package:flutter/material.dart';
 import 'package:quranglow/features/ui/pages/home/sections/daily_ayah_card.dart';
 
-// Drawer + هيدر بصري
 import 'package:quranglow/features/ui/pages/home/widgets/app_drawer.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/hero_header.dart';
 
-// أقسام الرئيسية (سلايفرز)
 import 'package:quranglow/features/ui/pages/home/sections/last_read_card.dart';
 import 'package:quranglow/features/ui/pages/home/sections/goals_strip.dart';
 import 'package:quranglow/features/ui/pages/home/sections/quick_actions_grid.dart';
 import 'package:quranglow/features/ui/pages/home/sections/shortcuts_list.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/section_spacing.dart';
 
-// صفحات التبويبات الأخرى
 import '../mushaf/mushaf_page.dart';
 import '../azkar/azkar_tasbih_page.dart';
 import '../player/player_page.dart';
 import '../search/search_page.dart';
-
-// ر
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -79,15 +74,14 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        // تبويب 0 فقط يستخدم Slivers. الباقي صفحات كاملة.
         body: IndexedStack(
           index: _tab,
           children: const [
-            _HomeSections(), // الرئيسية بسلايفرز
-            MushafPage(), // المصحف
-            AzkarTasbihPage(), // الأذكار والتسبيح
-            PlayerPage(), // المشغّل
-            SearchPage(), // البحث
+            _HomeSections(),
+            MushafPage(),
+            AzkarTasbihPage(),
+            PlayerPage(),
+            SearchPage(),
           ],
         ),
       ),
