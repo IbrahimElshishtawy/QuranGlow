@@ -9,12 +9,12 @@ class TrackingService {
   Future<Map<String, dynamic>> _load() async =>
       storage.getMap(_kStats) ??
       {
-        'totalSeconds': 0, // مجموع وقت التلاوة
-        'ayatCount': 0, // عدد الآيات المقروءة
-        'sessions': 0, // عدد الجلسات
-        'streakDays': 0, // أيام المواظبة المتتالية
-        'lastDay': '', // YYYY-MM-DD
-        'weekly': List<int>.filled(7, 0), // نسبة إنجاز لكل يوم
+        'totalSeconds': 0,
+        'ayatCount': 0,
+        'sessions': 0,
+        'streakDays': 0,
+        'lastDay': '',
+        'weekly': List<int>.filled(7, 0),
         'activeStart': null, // ISO string
       };
 
