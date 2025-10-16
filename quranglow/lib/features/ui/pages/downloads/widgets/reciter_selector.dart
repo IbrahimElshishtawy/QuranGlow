@@ -4,7 +4,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/features/ui/pages/downloads/controller/download_controller.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
 
 class ReciterSelector extends ConsumerStatefulWidget {
@@ -121,11 +120,8 @@ class _ReciterSelectorState extends ConsumerState<ReciterSelector> {
     setState(() => _busy = true);
     final downloader = ref.read(downloadControllerProvider.notifier);
     try {
-      // نحتفظ بترتيب الآيات المختارة
       final selectedUrls = _selectedAyahs.toList()..sort();
       final urls = selectedUrls.map((i) => _ayahUrls[i]).toList();
-
-      // نستخدم نفس method downloadSurah لكن نمرّر فقط روابط الآيات المختارة
       await downloader.downloadSurah(
         surah: widget.surah,
         reciterId: _selected!,
