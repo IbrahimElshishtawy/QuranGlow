@@ -51,3 +51,39 @@ class ErrorCard extends StatelessWidget {
     );
   }
 }
+
+class CalibrationCard extends StatelessWidget {
+  final String status;
+  const CalibrationCard({super.key, required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final warn = status != 'OK';
+    return Card(
+      color: warn ? cs.errorContainer : cs.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Icon(
+              warn ? Icons.tune : Icons.check_circle,
+              color: warn ? cs.onErrorContainer : cs.primary,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                warn
+                    ? 'المستشعر يحتاج معايرة: حرّك الهاتف شكل 8 وأبعده عن المعادن/المغناطيس.'
+                    : 'حالة المستشعر: ممتاز',
+                style: TextStyle(
+                  color: warn ? cs.onErrorContainer : cs.onSurface,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
