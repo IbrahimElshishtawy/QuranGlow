@@ -10,9 +10,9 @@ import 'package:quranglow/core/model/book/surah.dart';
 import 'package:quranglow/features/ui/pages/ayah/ayah_detail_page.dart';
 import 'package:quranglow/features/ui/pages/bookmarks/bookmarks_page.dart';
 import 'package:quranglow/features/ui/pages/downloads/download_detail_page.dart'
-as ddp;
+    as ddp;
 import 'package:quranglow/features/ui/pages/downloads/downloads_page.dart'
-as dlp;
+    as dlp;
 import 'package:quranglow/features/ui/pages/goals/goals_page.dart';
 import 'package:quranglow/features/ui/pages/home/home_page.dart';
 import 'package:quranglow/features/ui/pages/mushaf/mushaf_page.dart';
@@ -25,7 +25,7 @@ import 'package:quranglow/features/ui/pages/spa/splash_screen.dart';
 import 'package:quranglow/features/ui/pages/stats/stats_page.dart';
 import 'package:quranglow/features/ui/pages/surah/surah_list_page.dart';
 import 'package:quranglow/features/ui/pages/tafsir/tafsir_reader_page.dart';
-import 'package:quranglow/features/ui/pages/azkar/azkar_tasbih_page.dart'; // ✅ تمت إضافتها
+import 'package:quranglow/features/ui/pages/azkar/azkar_tasbih_page.dart';
 
 import '../pages/qibla/qibla_page.dart';
 import 'app_routes.dart';
@@ -135,32 +135,18 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
   } else if (name == AppRoutes.bookmarks) {
     return _mat(const BookmarksPage(), s);
   } else if (name == AppRoutes.downloads) {
-    final a = s.arguments;
-    if (a is Map<String, dynamic> &&
-        a['surah'] is int &&
-        a['reciterId'] is String) {
-      return _mat(dlp.DownloadsPage(), s);
-    }
-    return _mat(
-      const Scaffold(
-        body: Center(
-          child: Text('downloads يحتاج {surah:int, reciterId:String}'),
-        ),
-      ),
-      s,
-    );
+    // ← لا نحتاج أي Arguments هنا
+    return _mat(const dlp.DownloadsPage(embedded: false), s);
   } else if (name == AppRoutes.downloadDetail) {
     final a = s.arguments;
-    if (a is Map<String, dynamic> &&
-        a['surah'] is int &&
-        a['reciterId'] is String) {
-      return _mat(
-        ddp.DownloadDetailPage(
-          surah: a['surah'] as int,
-          reciterId: a['reciterId'] as String,
-        ),
-        s,
-      );
+    if (a is Map<String, dynamic>) {
+      final surah = a['surah'];
+      final reciterId = a['reciterId'];
+      final sNum = surah is int ? surah : int.tryParse('$surah');
+      final rId = reciterId?.toString();
+      if (sNum != null && rId != null && rId.isNotEmpty) {
+        return _mat(ddp.DownloadDetailPage(surah: sNum, reciterId: rId), s);
+      }
     }
     return _mat(
       const Scaffold(
@@ -180,12 +166,12 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
     return _mat(const OnboardingPage(), s);
   } else if (name == AppRoutes.tafsir || name == AppRoutes.tafsirReader) {
     return _mat(const TafsirReaderPage(), s);
-  }
-  else if (name == AppRoutes.qibla) {
+  } else if (name == AppRoutes.qibla) {
     return _mat(const QiblaPage(), s);
-  }
-  else if (name == AppRoutes.azkar) {
+  } else if (name == AppRoutes.azkar) {
     return _mat(const AzkarTasbihPage(), s);
+  } else if (name == AppRoutes.downloadsLibrary) {
+    return _mat(const dlp.DownloadsPage(embedded: true), s);
   }
 
   return _mat(const Scaffold(body: Center(child: Text('Route not found'))), s);
