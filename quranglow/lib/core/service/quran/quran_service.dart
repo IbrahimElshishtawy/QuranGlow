@@ -1,6 +1,9 @@
+// ignore_for_file: implementation_imports, avoid_print
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show NetworkAssetBundle;
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:quranglow/core/api/fawaz_cdn_source.dart';
 import 'package:quranglow/core/api/alquran_cloud_source.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
@@ -24,13 +27,37 @@ class QuranService {
     final cached = cache[chapter];
     if (cached != null) return cached;
 
-    debugPrint('[SRV] fetch surah=$chapter ed=$editionId');
+    final box = await Hive.openBox('quran_cache');
+    final key = '$editionId-$chapter';
+
+    if (box.containsKey(key)) {
+      final localJson = Map<String, dynamic>.from(box.get(key));
+      final localSurah = _parseSurahJson(localJson, editionId, chapter);
+      cache[chapter] = localSurah;
+      debugPrint('[SRV][OFFLINE] loaded surah $chapter from local Hive');
+      return localSurah;
+    }
+
+    // تحميلها من الإنترنت
+    debugPrint('[SRV][ONLINE] fetch surah=$chapter ed=$editionId');
     Map<String, dynamic> json;
     if (editionId == 'quran-uthmani') {
       json = await cloud.getSurahText(editionId, chapter);
     } else {
       json = await fawaz.getSurah(editionId, chapter);
     }
+
+    await box.put(key, json);
+    final surah = _parseSurahJson(json, editionId, chapter);
+    cache[chapter] = surah;
+    return surah;
+  }
+
+  Surah _parseSurahJson(
+    Map<String, dynamic> json,
+    String editionId,
+    int chapter,
+  ) {
     final root = json['chapter'] ?? json['data'] ?? json;
     final name =
         (root['name_ar'] ??
@@ -41,6 +68,7 @@ class QuranService {
     final dynamic versesAny =
         root['verses'] ?? root['ayahs'] ?? root['aya'] ?? root['list'] ?? [];
     final List list = versesAny is List ? versesAny : [];
+
     final ayat = list.map((e) {
       final m = Map<String, dynamic>.from(e as Map);
       return Aya.fromMap({
@@ -56,15 +84,11 @@ class QuranService {
         'text': m['text'] ?? m['arabic'] ?? m['quran'] ?? '',
       });
     }).toList();
-    if (ayat.isEmpty) {
-      throw Exception('لم يتم استخراج آيات للسورة $chapter ($editionId).');
-    }
-    final s = Surah(number: chapter, name: name, ayat: ayat.cast<Aya>());
-    cache[chapter] = s;
-    debugPrint('[SRV] loaded ${ayat.length} ayat for $name');
-    return s;
+
+    return Surah(number: chapter, name: name, ayat: ayat.cast<Aya>());
   }
 
+  // تحميل كل السور
   Future<List<Surah>> getQuranAllText(String editionId) async {
     final out = <Surah>[];
     for (var i = 1; i <= 114; i++) {
@@ -74,9 +98,6 @@ class QuranService {
       } catch (e) {
         debugPrint('[SRV][ALL] skip $i: $e');
       }
-    }
-    if (out.isEmpty) {
-      throw Exception('تعذر جلب أي سورة للمصحف كاملًا ($editionId).');
     }
     return out;
   }
@@ -114,17 +135,13 @@ class QuranService {
 
   Future<Uint8List> getImageBytes(String url) async {
     final u = url.trim();
-    if (u.isEmpty) {
-      throw ArgumentError('empty url');
-    }
+    if (u.isEmpty) throw ArgumentError('empty url');
     final cached = _imageCache[u];
     if (cached != null) return cached;
     final uri = Uri.parse(u);
     final byteData = await NetworkAssetBundle(uri).load(uri.toString());
     final bytes = byteData.buffer.asUint8List();
-    if (bytes.isEmpty) {
-      throw Exception('failed to load image: $u');
-    }
+    if (bytes.isEmpty) throw Exception('failed to load image: $u');
     if (_imageCache.length >= _imageCacheMax) {
       _imageCache.remove(_imageCache.keys.first);
     }
@@ -140,6 +157,7 @@ class QuranService {
 
   void clearImageCache() => _imageCache.clear();
 
+  // إزالة التشكيل والرموز للبحث
   String _normalizeArabic(String input) {
     var s = input.trim();
     const diacritics = r'[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]';
