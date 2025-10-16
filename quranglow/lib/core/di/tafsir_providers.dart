@@ -1,9 +1,18 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/api/alquran_cloud_source.dart';
+import 'package:quranglow/core/di/providers.dart';
+import 'package:quranglow/core/model/book/surah.dart';
 import 'package:quranglow/core/repo/tafsir_repo.dart';
 
 final dioProvider = Provider<Dio>((ref) => Dio());
+
+final quranAllProvider = FutureProvider.autoDispose.family<List<Surah>, String>(
+  (ref, editionId) async {
+    final service = ref.read(quranServiceProvider);
+    return service.getQuranAllText(editionId);
+  },
+);
 
 final tafsirCloudProvider = Provider<AlQuranCloudSource>((ref) {
   final dio = ref.watch(dioProvider);
