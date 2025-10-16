@@ -25,6 +25,7 @@ import 'package:quranglow/core/storage/hive_storage_impl.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
 import 'package:quranglow/features/ui/pages/bookmarks/controllers/bookmarks_controller.dart';
 import 'package:quranglow/features/ui/pages/bookmarks/logic/bookmarks_usecase.dart';
+import 'package:quranglow/features/ui/pages/downloads/controller/download_controller.dart';
 
 // --- HTTP & Dio --------------------------------------------------------------
 
@@ -215,7 +216,10 @@ final surahAudioUrlsProvider = FutureProvider.autoDispose
       return svc.getSurahAudioUrls(p.reciterId, p.surah);
     });
 // --- download service ---------------------------------------------------------
-
+final downloadControllerProvider =
+    StateNotifierProvider<DownloadController, DownloadState>((ref) {
+      return DownloadController(ref);
+    });
 final downloadServiceProvider = Provider<DownloadService>((ref) {
   return DownloadService(dio: ref.read(dioProvider));
 });
