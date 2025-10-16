@@ -25,8 +25,8 @@ class TrackCard extends ConsumerWidget {
       child: Row(
         children: [
           Container(
-            width: 88,
-            height: 88,
+            width: 80,
+            height: 80,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [cs.primary, cs.secondary],
@@ -61,10 +61,10 @@ class TrackCard extends ConsumerWidget {
                 Text('القارئ: $ed', style: t.bodyMedium),
                 const SizedBox(height: 10),
                 Row(
-                  children: const [
-                    _Pill(text: 'تشغيل متصل'),
-                    SizedBox(width: 8),
-                    _Pill(text: 'جودة عادية'),
+                  children: [
+                    const _Pill(text: 'تلاوة'),
+                    const SizedBox(width: 8),
+                    _Pill(text: 'سورة $chapter'),
                   ],
                 ),
               ],
