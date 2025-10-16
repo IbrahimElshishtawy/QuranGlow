@@ -35,11 +35,13 @@ class _QiblaHeadingState extends State<QiblaHeading> {
     }
 
     _compassSub = FlutterCompass.events?.listen((e) {
-      if (e.accuracy?.index == 0) {
-        // SensorAccuracy.low/unreliable حسب الإصدار
-        _status = 'Calibration needed';
+      final acc = e.accuracy; // double? not enum
+      if (acc == null) {
+        _status = 'Unknown';
       } else {
-        _status = 'OK';
+        // Android: 0=unreliable,1=low. iOS: <0 invalid, >15° poor.
+        final needsCalib = (acc <= 1) || (acc < 0) || (acc > 15);
+        _status = needsCalib ? 'Calibration needed' : 'OK';
       }
 
       final h = e.heading;
