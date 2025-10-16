@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/model/book/surah.dart';
-
 import 'ayah_picker.dart';
 
 class SelectionCard extends StatelessWidget {
