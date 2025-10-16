@@ -39,9 +39,19 @@ class QuickActionsGrid extends StatelessWidget {
 
   List<_ActionItem> _actions(BuildContext context, ColorScheme cs) => [
     _ActionItem(
+      'التفسير',
+      Icons.menu_book_outlined,
+      () => Navigator.pushNamed(context, AppRoutes.tafsir),
+    ),
+    _ActionItem(
       'السور',
       Icons.list_alt,
       () => Navigator.pushNamed(context, AppRoutes.surahs),
+    ),
+    _ActionItem(
+      'الصلاة',
+      Icons.explore, // بوصلة
+      () => Navigator.pushNamed(context, AppRoutes.qibla),
     ),
     _ActionItem(
       'المحفوظات',
@@ -57,17 +67,6 @@ class QuickActionsGrid extends StatelessWidget {
       'الإحصائيات',
       Icons.insights,
       () => Navigator.pushNamed(context, AppRoutes.stats),
-    ),
-    _ActionItem(
-      'التفسير',
-      Icons.menu_book_outlined,
-      () => Navigator.pushNamed(context, AppRoutes.tafsir),
-    ),
-
-    _ActionItem(
-      'الصلاة',
-      Icons.explore, // بوصلة
-      () => Navigator.pushNamed(context, AppRoutes.qibla),
     ),
   ];
 }
