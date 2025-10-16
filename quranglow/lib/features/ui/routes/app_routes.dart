@@ -1,4 +1,3 @@
-// lib/features/ui/routes/app_routes.dart
 class AppRoutes {
   static const splash = '/';
   static const home = '/home';
