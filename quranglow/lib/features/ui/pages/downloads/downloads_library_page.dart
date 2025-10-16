@@ -1,5 +1,6 @@
 // lib/features/ui/pages/downloads/downloads_library_page.dart
-// ignore_for_file: deprecated_member_use, depend_on_referenced_packages, unintended_html_in_doc_comment
+
+// ignore_for_file: depend_on_referenced_packages
 
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -10,7 +11,7 @@ import 'package:path_provider/path_provider.dart';
 
 class DownloadsLibraryPage extends ConsumerStatefulWidget {
   final bool embedded;
-  const DownloadsLibraryPage({super.key, this.embedded = true});
+  const DownloadsLibraryPage({super.key, this.embedded = false});
 
   @override
   ConsumerState<DownloadsLibraryPage> createState() =>
@@ -31,7 +32,6 @@ class _DownloadsLibraryPageState extends ConsumerState<DownloadsLibraryPage> {
 
   @override
   void dispose() {
-    _player.stop();
     _player.dispose();
     super.dispose();
   }
@@ -42,115 +42,49 @@ class _DownloadsLibraryPageState extends ConsumerState<DownloadsLibraryPage> {
   }
 
   Future<void> _scan() async {
-    try {
-      final root = await _rootDir();
-      if (!await root.exists()) {
-        setState(() {
-          _groups = [];
-          _loading = false;
-        });
-        return;
-      }
-
-      final groups = <_SurahGroup>[];
-
-      for (final reciterDir in root.listSync().whereType<Directory>()) {
-        final reciterId = p.basename(reciterDir.path);
-        for (final surahDir in reciterDir.listSync().whereType<Directory>()) {
-          final surahStr = p.basename(surahDir.path);
-          final surah = int.tryParse(surahStr) ?? 0;
-          if (surah <= 0) continue;
-
+    setState(() => _loading = true);
+    final root = await _rootDir();
+    final groups = <_SurahGroup>[];
+    if (await root.exists()) {
+      for (final reciter in root.listSync().whereType<Directory>()) {
+        final reciterId = p.basename(reciter.path);
+        for (final sdir in reciter.listSync().whereType<Directory>()) {
+          final sNum = int.tryParse(p.basename(sdir.path)) ?? 0;
+          if (sNum == 0) continue;
           final files =
-              surahDir
+              sdir
                   .listSync()
                   .whereType<File>()
                   .where((f) => f.path.toLowerCase().endsWith('.mp3'))
                   .toList()
                 ..sort((a, b) => a.path.compareTo(b.path));
-
-          if (files.isEmpty) continue;
-
-          final totalBytes = files.fold<int>(
-            0,
-            (sum, f) => sum + (f.lengthSync()),
-          );
-
-          groups.add(
-            _SurahGroup(
-              reciterId: reciterId,
-              surah: surah,
-              files: files,
-              totalBytes: totalBytes,
-            ),
-          );
+          if (files.isNotEmpty) {
+            final bytes = files.fold<int>(0, (s, f) => s + f.lengthSync());
+            groups.add(
+              _SurahGroup(
+                reciterId: reciterId,
+                surah: sNum,
+                files: files,
+                totalBytes: bytes,
+              ),
+            );
+          }
         }
       }
-
-      groups.sort((a, b) {
-        final c = a.reciterId.compareTo(b.reciterId);
-        return c != 0 ? c : a.surah.compareTo(b.surah);
-      });
-
-      setState(() {
-        _groups = groups;
-        _loading = false;
-      });
-    } catch (_) {
-      setState(() {
-        _groups = [];
-        _loading = false;
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تعذّر قراءة مجلد التنزيلات')),
-        );
-      }
+      groups.sort(
+        (a, b) => a.reciterId == b.reciterId
+            ? a.surah.compareTo(b.surah)
+            : a.reciterId.compareTo(b.reciterId),
+      );
     }
+    if (!mounted) return;
+    setState(() {
+      _groups = groups;
+      _loading = false;
+    });
   }
 
-  String _shortReciterName(String id) {
-    if (id.contains('.')) return id.split('.').last;
-    if (id.length <= 12) return id;
-    return '${id.substring(0, 12)}…';
-  }
-
-  Future<void> _playGroupFromIndex(_SurahGroup g, int startIndex) async {
-    try {
-      await _player.stop();
-
-      final sources = g.files
-          .map((f) => AudioSource.uri(Uri.file(f.path)))
-          .toList();
-
-      final playlist = ConcatenatingAudioSource(children: sources);
-
-      await _player.setAudioSource(playlist, initialIndex: startIndex);
-      await _player.play();
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('تعذّر تشغيل الملفات')));
-    }
-  }
-
-  Future<void> _deleteGroup(_SurahGroup g) async {
-    try {
-      final d = g.files.first.parent;
-      if (await d.exists()) {
-        await d.delete(recursive: true);
-      }
-      await _scan();
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('تعذّر الحذف')));
-    }
-  }
-
-  String _fmtSize(int bytes) {
+  String _fmt(int bytes) {
     if (bytes < 1024) return '$bytes B';
     final kb = bytes / 1024;
     if (kb < 1024) return '${kb.toStringAsFixed(1)} KB';
@@ -160,81 +94,85 @@ class _DownloadsLibraryPageState extends ConsumerState<DownloadsLibraryPage> {
     return '${gb.toStringAsFixed(1)} GB';
   }
 
+  Future<void> _play(_SurahGroup g, int i) async {
+    await _player.stop();
+    await _player.setAudioSource(
+      ConcatenatingAudioSource(
+        children: g.files
+            .map((f) => AudioSource.uri(Uri.file(f.path)))
+            .toList(),
+      ),
+      initialIndex: i,
+    );
+    await _player.play();
+  }
+
+  Future<void> _delete(_SurahGroup g) async {
+    try {
+      await g.files.first.parent.delete(recursive: true);
+      await _scan();
+    } catch (_) {}
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    Widget body;
-    if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
-    } else if (_groups.isEmpty) {
-      body = Center(
-        child: Text(
-          'لا توجد تنزيلات محفوظة',
-          style: TextStyle(color: cs.onSurfaceVariant),
-        ),
-      );
-    } else {
-      body = ListView.builder(
-        padding: const EdgeInsets.all(12),
-        itemCount: _groups.length,
-        itemBuilder: (_, i) {
-          final g = _groups[i];
-          return Card(
-            child: ExpansionTile(
-              title: Text(
-                'القارئ: ${_shortReciterName(g.reciterId)} — السورة: ${g.surah}',
-                overflow: TextOverflow.ellipsis,
-              ),
-              subtitle: Text(
-                '${g.files.length} ملف • ${_fmtSize(g.totalBytes)}',
-              ),
-              trailing: IconButton(
-                tooltip: 'حذف السورة',
-                icon: const Icon(Icons.delete),
-                onPressed: () => _deleteGroup(g),
-              ),
-              children: List.generate(g.files.length, (idx) {
-                final f = g.files[idx];
-                final name = p.basenameWithoutExtension(f.path);
-                return ListTile(
-                  dense: true,
-                  leading: const Icon(Icons.audiotrack),
-                  title: Text('آية $name'),
-                  subtitle: Text(_shortReciterName(p.basename(f.parent.path))),
-                  onTap: () => _playGroupFromIndex(g, idx),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.play_arrow),
-                    onPressed: () => _playGroupFromIndex(g, idx),
-                  ),
-                );
-              }),
+    final body = _loading
+        ? const Center(child: CircularProgressIndicator())
+        : _groups.isEmpty
+        ? Center(
+            child: Text(
+              'لا توجد تنزيلات محفوظة',
+              style: TextStyle(color: cs.onSurfaceVariant),
             ),
+          )
+        : ListView.builder(
+            padding: const EdgeInsets.all(12),
+            itemCount: _groups.length,
+            itemBuilder: (_, i) {
+              final g = _groups[i];
+              return Card(
+                child: ExpansionTile(
+                  title: Text(
+                    'القارئ: ${g.reciterId} — السورة: ${g.surah}',
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text(
+                    '${g.files.length} ملف • ${_fmt(g.totalBytes)}',
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () => _delete(g),
+                  ),
+                  children: List.generate(g.files.length, (idx) {
+                    final f = g.files[idx];
+                    return ListTile(
+                      dense: true,
+                      leading: const Icon(Icons.audiotrack),
+                      title: Text('آية ${p.basenameWithoutExtension(f.path)}'),
+                      onTap: () => _play(g, idx),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.play_arrow),
+                        onPressed: () => _play(g, idx),
+                      ),
+                    );
+                  }),
+                ),
+              );
+            },
           );
-        },
-      );
-    }
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: widget.embedded
-            ? null
-            : AppBar(
-                title: const Text('التنزيلات المحفوظة'),
-                centerTitle: true,
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                actions: [
-                  IconButton(
-                    tooltip: 'تحديث',
-                    icon: const Icon(Icons.refresh),
-                    onPressed: _scan,
-                  ),
-                ],
-              ),
+        appBar: AppBar(
+          title: const Text('المكتبة الصوتية'),
+          centerTitle: true,
+          actions: [
+            IconButton(onPressed: _scan, icon: const Icon(Icons.refresh)),
+          ],
+        ),
         body: body,
       ),
     );
@@ -246,7 +184,6 @@ class _SurahGroup {
   final int surah;
   final List<File> files;
   final int totalBytes;
-
   _SurahGroup({
     required this.reciterId,
     required this.surah,
