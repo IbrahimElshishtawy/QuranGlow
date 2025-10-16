@@ -80,7 +80,6 @@ class PlayerPage extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                // اختيار القارئ والسورة
                 Card(
                   elevation: 0,
                   color: cs.surfaceContainerHigh,
