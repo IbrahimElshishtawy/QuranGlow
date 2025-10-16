@@ -11,7 +11,7 @@ class QiblaArrow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Transform.rotate(
       angle: rotationDeg * math.pi / 180,
-      child: const Icon(Icons.navigation, size: 56),
+      child: Icon(Icons.navigation, size: 56, color: color),
     );
   }
 }
