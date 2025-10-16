@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:quranglow/core/di/providers.dart';
 
 enum DownloadStatus { idle, running, paused, done, error, cancelled }
@@ -120,6 +122,30 @@ class DownloadController extends StateNotifier<DownloadState> {
   void cancel() {
     _token?.cancel('user_cancel');
   }
+}
+
+Future<File> saveAudioFile(
+  String url,
+  String reciterId,
+  int surah,
+  int index,
+) async {
+  final docs = await getApplicationDocumentsDirectory();
+  final dir = Directory('${docs.path}/QuranGlow/downloads/$reciterId/$surah');
+  if (!await dir.exists()) {
+    await dir.create(recursive: true);
+  }
+
+  final file = File('${dir.path}/$index.mp3');
+  final response = await http.get(Uri.parse(url));
+
+  if (response.statusCode == 200) {
+    await file.writeAsBytes(response.bodyBytes);
+  } else {
+    throw Exception('فشل تحميل الآية رقم $index');
+  }
+
+  return file;
 }
 
 final downloadControllerProvider =
