@@ -1,3 +1,4 @@
+// lib/core/service/setting/notification_service.dart
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -13,6 +14,8 @@ class NotificationService {
 
   static const _dailyChannelId = 'daily_reminder_ch';
   static const _salawatChannelId = 'salawat_ch';
+  static const _remindersChannelId = 'reminders_ch';
+
   static const _dailyId = 1001;
   static const _salawatId = 1002;
 
@@ -77,6 +80,7 @@ class NotificationService {
     return scheduled;
   }
 
+  // --- التذكير اليومي ---
   Future<void> scheduleDailyReminder({
     required bool enabled,
     required TimeOfDay time,
@@ -111,6 +115,7 @@ class NotificationService {
     );
   }
 
+  // --- تذكير الصلاة على النبي ﷺ ---
   Future<void> scheduleSalawat({
     required bool enabled,
     required TimeOfDay time,
@@ -144,6 +149,69 @@ class NotificationService {
       matchDateTimeComponents: DateTimeComponents.time,
     );
   }
+
+  // --- تذكيرات الأذكار المخصّصة ---
+  Future<void> scheduleReminder({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime when,
+    required bool daily,
+  }) async {
+    await _plugin.cancel(id);
+    if (kIsWeb) return;
+
+    const android = AndroidNotificationDetails(
+      _remindersChannelId,
+      'تذكيرات الأذكار',
+      channelDescription: 'تذكيرات الأذكار والمواعيد التي يحددها المستخدم',
+      importance: Importance.high,
+      priority: Priority.high,
+      category: AndroidNotificationCategory.reminder,
+    );
+    const ios = DarwinNotificationDetails();
+    const mac = DarwinNotificationDetails();
+    const win = WindowsNotificationDetails();
+
+    final now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduled;
+
+    if (daily) {
+      scheduled = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        when.hour,
+        when.minute,
+      );
+      if (scheduled.isBefore(now)) {
+        scheduled = scheduled.add(const Duration(days: 1));
+      }
+    } else {
+      scheduled = tz.TZDateTime.from(when, tz.local);
+      if (scheduled.isBefore(now)) {
+        scheduled = now.add(const Duration(seconds: 5));
+      }
+    }
+
+    await _plugin.zonedSchedule(
+      id,
+      title,
+      body,
+      scheduled,
+      const NotificationDetails(
+        android: android,
+        iOS: ios,
+        macOS: mac,
+        windows: win,
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      matchDateTimeComponents: daily ? DateTimeComponents.time : null,
+    );
+  }
+
+  Future<void> cancel(int id) async => _plugin.cancel(id);
 
   Future<void> cancelAll() => _plugin.cancelAll();
 }
