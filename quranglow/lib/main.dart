@@ -1,34 +1,59 @@
-// ignore_for_file: depend_on_referenced_packages, unnecessary_underscores
+// ignore_for_file: depend_on_referenced_packages
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:dio/dio.dart';
-import 'package:http/http.dart' as http;
 import 'package:quranglow/Quran_Glow_App.dart';
-import 'package:quranglow/core/service/quran/quran_service.dart';
 import 'package:quranglow/core/service/setting/notification_service.dart';
-import 'package:quranglow/core/api/alquran_cloud_source.dart';
-import 'package:quranglow/core/api/fawaz_cdn_source.dart';
 
 Future<void> main() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: binding);
   await Hive.initFlutter();
-  await NotificationService.instance.init();
-  try {
-    final dio = Dio();
-    final cloud = AlQuranCloudSource(dio: dio);
-    final fawaz = FawazCdnSource(http.Client(), dio);
-    final service = QuranService(fawaz: fawaz, cloud: cloud, audio: cloud);
+  await NotificationService.instance.init(); // بدون طلب صلاحية هنا
+  runApp(const ProviderScope(child: _Bootstrap(child: QuranGlowApp())));
+  WidgetsBinding.instance.addPostFrameCallback(
+    (_) => FlutterNativeSplash.remove(),
+  );
+}
 
-    await service.getQuranAllText('quran-uthmani');
-  } catch (e) {
-    debugPrint('⚠️ فشل تحميل بعض السور: $e');
+class _Bootstrap extends StatefulWidget {
+  const _Bootstrap({required this.child});
+  final Widget child;
+  @override
+  State<_Bootstrap> createState() => _BootstrapState();
+}
+
+class _BootstrapState extends State<_Bootstrap> with WidgetsBindingObserver {
+  bool _asked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _tryAsk());
   }
-  runApp(const ProviderScope(child: QuranGlowApp()));
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    FlutterNativeSplash.remove();
-  });
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _tryAsk();
+  }
+
+  Future<void> _tryAsk() async {
+    if (!mounted || _asked) return;
+    _asked = true;
+    await NotificationService.instance.requestPermissionsIfNeededFromUI(
+      context,
+    );
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
