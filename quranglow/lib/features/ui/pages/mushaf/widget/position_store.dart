@@ -1,46 +1,29 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LastPosition {
-  const LastPosition(this.surah, this.ayahIndex);
-  final int surah;
+  final int surah; //
   final int ayahIndex;
+  const LastPosition({required this.surah, required this.ayahIndex});
 }
 
 class PositionStore {
-  static const _kSurah = 'last_surah';
-  static const _kAyah = 'last_ayah';
-
   Future<void> save(int surah, int ayahIndex) async {
-    final sp = await SharedPreferences.getInstance();
-    await sp.setInt(_kSurah, surah);
-    await sp.setInt(_kAyah, ayahIndex);
+    final p = await SharedPreferences.getInstance();
+    await p.setInt('pos.$surah', ayahIndex);
+    await p.setInt('last.surah', surah);
+    await p.setInt('last.ayahIndex', ayahIndex);
   }
 
-  Future<LastPosition?> load() async {
-    final sp = await SharedPreferences.getInstance();
-    final s = sp.getInt(_kSurah);
-    final a = sp.getInt(_kAyah);
-    if (s == null || a == null) return null;
-    return LastPosition(s, a);
+  Future<int?> load(int surah) async {
+    final p = await SharedPreferences.getInstance();
+    return p.getInt('pos.$surah');
   }
 
-  Future<void> clear() async {
-    final sp = await SharedPreferences.getInstance();
-    await sp.remove(_kSurah);
-    await sp.remove(_kAyah);
+  Future<LastPosition?> loadLast() async {
+    final p = await SharedPreferences.getInstance();
+    final surah = p.getInt('last.surah');
+    final ayahIndex = p.getInt('last.ayahIndex');
+    if (surah == null || ayahIndex == null) return null;
+    return LastPosition(surah: surah, ayahIndex: ayahIndex);
   }
-}
-
-class TafsirArgs {
-  final int surah;
-  final int ayah;
-  final String? editionId;
-  final String? editionName;
-
-  const TafsirArgs({
-    required this.surah,
-    required this.ayah,
-    this.editionId,
-    this.editionName,
-  });
 }
