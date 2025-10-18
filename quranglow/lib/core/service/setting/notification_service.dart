@@ -28,9 +28,9 @@ class NotificationService {
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
 
     const darwinInit = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
     );
 
     const windowsInit = WindowsInitializationSettings(
@@ -39,7 +39,7 @@ class NotificationService {
       guid: '',
     );
 
-    final settings = InitializationSettings(
+    const settings = InitializationSettings(
       android: androidInit,
       iOS: darwinInit,
       macOS: darwinInit,
@@ -49,18 +49,77 @@ class NotificationService {
     await _plugin.initialize(settings);
 
     if (Platform.isAndroid) {
-      await _plugin
+      final android = _plugin
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
-          >()
-          ?.requestNotificationsPermission();
+          >();
+      try {
+        await android?.requestExactAlarmsPermission();
+      } catch (_) {}
     }
-    if (Platform.isIOS || Platform.isMacOS) {
-      await _plugin
+  }
+
+  Future<void> requestPermissionsIfNeededFromUI(BuildContext context) async {
+    if (kIsWeb || !context.mounted) return;
+
+    final hasUiView =
+        WidgetsBinding.instance.platformDispatcher.implicitView != null;
+    final isResumed =
+        WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
+    if (!hasUiView || !isResumed) return;
+
+    try {
+      if (Platform.isAndroid) {
+        final android = _plugin
+            .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin
+            >();
+
+        final enabled = await android?.areNotificationsEnabled();
+        if (enabled != true) {
+          await android?.requestNotificationsPermission();
+        }
+        try {
+          await android?.requestExactAlarmsPermission();
+        } catch (_) {}
+        return;
+      }
+
+      if (Platform.isIOS) {
+        final ios = _plugin
+            .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin
+            >();
+        await ios?.requestPermissions(alert: true, badge: true, sound: true);
+        return;
+      }
+
+      if (Platform.isMacOS) {
+        final mac = _plugin
+            .resolvePlatformSpecificImplementation<
+              MacOSFlutterLocalNotificationsPlugin
+            >();
+        await mac?.requestPermissions(alert: true, badge: true, sound: true);
+        return;
+      }
+    } catch (e) {
+      debugPrint('[NOTIF] permission request skipped: $e');
+    }
+  }
+
+  // تم الاستبدال هنا
+  Future<AndroidScheduleMode> _androidScheduleMode() async {
+    if (!Platform.isAndroid) return AndroidScheduleMode.exactAllowWhileIdle;
+    try {
+      final android = _plugin
           .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin
-          >()
-          ?.requestPermissions(alert: true, badge: true, sound: true);
+            AndroidFlutterLocalNotificationsPlugin
+          >();
+      await android?.requestExactAlarmsPermission();
+      return AndroidScheduleMode.exactAllowWhileIdle;
+    } catch (e) {
+      debugPrint('[NOTIF] exact alarm request failed: $e');
+      return AndroidScheduleMode.inexactAllowWhileIdle;
     }
   }
 
@@ -80,13 +139,14 @@ class NotificationService {
     return scheduled;
   }
 
-  // --- التذكير اليومي ---
   Future<void> scheduleDailyReminder({
     required bool enabled,
     required TimeOfDay time,
   }) async {
     await _plugin.cancel(_dailyId);
     if (!enabled || kIsWeb) return;
+
+    final mode = await _androidScheduleMode();
 
     const android = AndroidNotificationDetails(
       _dailyChannelId,
@@ -110,18 +170,19 @@ class NotificationService {
         macOS: mac,
         windows: win,
       ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: mode,
       matchDateTimeComponents: DateTimeComponents.time,
     );
   }
 
-  // --- تذكير الصلاة على النبي ﷺ ---
   Future<void> scheduleSalawat({
     required bool enabled,
     required TimeOfDay time,
   }) async {
     await _plugin.cancel(_salawatId);
     if (!enabled || kIsWeb) return;
+
+    final mode = await _androidScheduleMode();
 
     const android = AndroidNotificationDetails(
       _salawatChannelId,
@@ -145,12 +206,11 @@ class NotificationService {
         macOS: mac,
         windows: win,
       ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: mode,
       matchDateTimeComponents: DateTimeComponents.time,
     );
   }
 
-  // --- تذكيرات الأذكار المخصّصة ---
   Future<void> scheduleReminder({
     required int id,
     required String title,
@@ -160,6 +220,8 @@ class NotificationService {
   }) async {
     await _plugin.cancel(id);
     if (kIsWeb) return;
+
+    final mode = await _androidScheduleMode();
 
     const android = AndroidNotificationDetails(
       _remindersChannelId,
@@ -206,12 +268,11 @@ class NotificationService {
         macOS: mac,
         windows: win,
       ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: mode,
       matchDateTimeComponents: daily ? DateTimeComponents.time : null,
     );
   }
 
   Future<void> cancel(int id) async => _plugin.cancel(id);
-
   Future<void> cancelAll() => _plugin.cancelAll();
 }
