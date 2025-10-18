@@ -18,7 +18,13 @@ class LastReadCard extends StatefulWidget {
 class _LastReadCardState extends State<LastReadCard> {
   String _toArabicDigits(int n) {
     const map = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    return n.toString().split('').map((c) => map[int.parse(c)]).join();
+    final s = n.toString();
+    final b = StringBuffer();
+    for (final ch in s.split('')) {
+      final i = int.tryParse(ch);
+      b.write(i == null ? ch : map[i]);
+    }
+    return b.toString();
   }
 
   Future<void> _openMushaf(BuildContext context, int surah, int ayah) async {
@@ -27,7 +33,7 @@ class _LastReadCardState extends State<LastReadCard> {
       AppRoutes.mushaf,
       arguments: MushafArgs(chapter: surah, initialAyah: ayah),
     );
-    if (mounted) setState(() {}); // refresh FutureBuilder بعد الرجوع
+    if (mounted) setState(() {});
   }
 
   @override
@@ -36,15 +42,14 @@ class _LastReadCardState extends State<LastReadCard> {
 
     return FutureBuilder<LastPosition?>(
       key: ValueKey(DateTime.now().millisecondsSinceEpoch ~/ 3000),
-      future: PositionStore().load(),
+      future: PositionStore().loadLast(),
       builder: (context, snap) {
         final pos = snap.data;
         final hasPos = pos != null;
 
-        final surahNum = hasPos ? pos.surah : 2;
-        final ayahIdx0 = hasPos ? pos.ayahIndex : 254; // 0-based fallback
+        final surahNum = hasPos ? pos!.surah : 2;
+        final ayahIdx0 = hasPos ? pos!.ayahIndex : 254; // 0-based
         final ayahNum = ayahIdx0 + 1; // 1-based
-
         final surahName = quran.getSurahNameArabic(surahNum);
 
         return Column(
