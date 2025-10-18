@@ -47,8 +47,8 @@ class _LastReadCardState extends State<LastReadCard> {
         final pos = snap.data;
         final hasPos = pos != null;
 
-        final surahNum = hasPos ? pos!.surah : 2;
-        final ayahIdx0 = hasPos ? pos!.ayahIndex : 254; // 0-based
+        final surahNum = hasPos ? pos.surah : 2;
+        final ayahIdx0 = hasPos ? pos.ayahIndex : 254; // 0-based
         final ayahNum = ayahIdx0 + 1; // 1-based
         final surahName = quran.getSurahNameArabic(surahNum);
 
