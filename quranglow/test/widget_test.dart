@@ -7,8 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:quranglow/main.dart';
+import 'package:quranglow/Quran_Glow_App.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
