@@ -1,5 +1,5 @@
 // lib/features/ui/pages/azkar/widgets/reminder_list.dart
-// ignore_for_file: prefer_const_constructors, dead_code
+// ignore_for_file: prefer_const_constructors, dead_code, unnecessary_underscores
 
 import 'package:flutter/material.dart';
 import 'package:quranglow/core/service/setting/notification_service.dart';
