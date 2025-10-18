@@ -1,5 +1,7 @@
-// ignore_for_file: implementation_imports, avoid_print
+// ignore_for_file: implementation_imports, avoid_print, unnecessary_import
 
+import 'dart:async';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show NetworkAssetBundle;
 import 'package:flutter/material.dart';
@@ -15,45 +17,95 @@ class QuranService {
   QuranService({
     required this.fawaz,
     required this.cloud,
-    required AlQuranCloudSource audio,
+    required AlQuranCloudSource audio, // kept for ctor compatibility
   });
 
   final Map<String, Map<int, Surah>> _surahCacheByEdition = {};
   final Map<String, Uint8List> _imageCache = {};
   final int _imageCacheMax = 32;
 
+  // de-dupe in-flight requests
+  final Map<String, Future<Surah>> _inflight = {};
+
+  // open Hive box once
+  final Future<Box> _boxFuture = Hive.openBox('quran_cache');
+
+  Duration _backoff(int attempt) =>
+      Duration(milliseconds: (400 * (1 << attempt)).clamp(400, 8000));
+
   Future<Surah> getSurahText(String editionId, int chapter) async {
-    final cache = _surahCacheByEdition.putIfAbsent(editionId, () => {});
-    final cached = cache[chapter];
+    final editionCache = _surahCacheByEdition.putIfAbsent(editionId, () => {});
+    final cached = editionCache[chapter];
     if (cached != null) return cached;
 
-    final box = await Hive.openBox('quran_cache');
     final key = '$editionId-$chapter';
+    if (_inflight.containsKey(key)) return _inflight[key]!;
 
-    if (box.containsKey(key)) {
-      final localJson = Map<String, dynamic>.from(box.get(key));
-      final localSurah = _parseSurahJson(localJson, editionId, chapter);
-      cache[chapter] = localSurah;
-      debugPrint('[SRV][OFFLINE] loaded surah $chapter from local Hive');
-      return localSurah;
+    final completer = Completer<Surah>();
+    _inflight[key] = completer.future;
+
+    try {
+      final box = await _boxFuture;
+
+      if (box.containsKey(key)) {
+        final localJson = Map<String, dynamic>.from(box.get(key));
+        final localSurah = await compute(_parseSurahJsonIsolate, {
+          'json': localJson,
+          'editionId': editionId,
+          'chapter': chapter,
+        });
+        editionCache[chapter] = localSurah;
+        debugPrint('[SRV][OFFLINE] loaded surah $chapter from local Hive');
+        completer.complete(localSurah);
+        return localSurah;
+      }
+
+      debugPrint('[SRV][ONLINE] fetch surah=$chapter ed=$editionId');
+
+      // retry/backoff for 429/5xx/timeouts
+      int attempt = 0;
+      late Map<String, dynamic> json;
+      while (true) {
+        try {
+          json = editionId == 'quran-uthmani'
+              ? await cloud.getSurahText(editionId, chapter)
+              : await fawaz.getSurah(editionId, chapter);
+          break;
+        } catch (e) {
+          final msg = e.toString();
+          final retryable =
+              msg.contains('429') ||
+              msg.contains(' 5') ||
+              msg.contains('Timeout');
+          if (!retryable || attempt >= 5) rethrow;
+          await Future.delayed(_backoff(attempt++));
+        }
+      }
+
+      await (await _boxFuture).put(key, json);
+      final surah = await compute(_parseSurahJsonIsolate, {
+        'json': json,
+        'editionId': editionId,
+        'chapter': chapter,
+      });
+      editionCache[chapter] = surah;
+      completer.complete(surah);
+      return surah;
+    } finally {
+      _inflight.remove(key);
     }
-
-    // تحميلها من الإنترنت
-    debugPrint('[SRV][ONLINE] fetch surah=$chapter ed=$editionId');
-    Map<String, dynamic> json;
-    if (editionId == 'quran-uthmani') {
-      json = await cloud.getSurahText(editionId, chapter);
-    } else {
-      json = await fawaz.getSurah(editionId, chapter);
-    }
-
-    await box.put(key, json);
-    final surah = _parseSurahJson(json, editionId, chapter);
-    cache[chapter] = surah;
-    return surah;
   }
 
-  Surah _parseSurahJson(
+  // parse on background isolate
+  static Surah _parseSurahJsonIsolate(Map args) {
+    return _parseSurahJson(
+      Map<String, dynamic>.from(args['json']),
+      args['editionId'] as String,
+      args['chapter'] as int,
+    );
+  }
+
+  static Surah _parseSurahJson(
     Map<String, dynamic> json,
     String editionId,
     int chapter,
@@ -65,6 +117,7 @@ class QuranService {
                 root['name'] ??
                 'سورة $chapter')
             as String;
+
     final dynamic versesAny =
         root['verses'] ?? root['ayahs'] ?? root['aya'] ?? root['list'] ?? [];
     final List list = versesAny is List ? versesAny : [];
@@ -88,13 +141,14 @@ class QuranService {
     return Surah(number: chapter, name: name, ayat: ayat.cast<Aya>());
   }
 
-  // تحميل كل السور
+  /// Avoid calling this at startup. Prefer on-demand loading.
   Future<List<Surah>> getQuranAllText(String editionId) async {
     final out = <Surah>[];
     for (var i = 1; i <= 114; i++) {
       try {
         final s = await getSurahText(editionId, i);
         out.add(s);
+        await Future.delayed(const Duration(milliseconds: 50)); // throttle
       } catch (e) {
         debugPrint('[SRV][ALL] skip $i: $e');
       }
@@ -106,6 +160,7 @@ class QuranService {
   Future<Map<String, dynamic>> getSurahAudio(String ed, int s) =>
       cloud.getSurahAudio(ed, s);
 
+  // search without hitting network; only cache/Hive
   Future<List<Map<String, dynamic>>> searchAyat(
     String query, {
     required String editionId,
@@ -114,12 +169,24 @@ class QuranService {
     final q = _normalizeArabic(query);
     if (q.isEmpty) return const [];
     final cache = _surahCacheByEdition.putIfAbsent(editionId, () => {});
+    final box = await _boxFuture;
+
     final hits = <Map<String, dynamic>>[];
     for (var s = 1; s <= 114; s++) {
-      final surah = cache[s] ??= await getSurahText(editionId, s);
+      Surah? surah = cache[s];
+      if (surah == null) {
+        final key = '$editionId-$s';
+        if (!box.containsKey(key)) continue;
+        final json = Map<String, dynamic>.from(box.get(key));
+        surah = await compute(_parseSurahJsonIsolate, {
+          'json': json,
+          'editionId': editionId,
+          'chapter': s,
+        });
+        cache[s] = surah!;
+      }
       for (final aya in surah.ayat) {
-        final textN = _normalizeArabic(aya.text);
-        if (textN.contains(q)) {
+        if (_normalizeArabic(aya.text).contains(q)) {
           hits.add({
             'surahNumber': surah.number,
             'ayahNumber': aya.number,
@@ -157,7 +224,6 @@ class QuranService {
 
   void clearImageCache() => _imageCache.clear();
 
-  // إزالة التشكيل والرموز للبحث
   String _normalizeArabic(String input) {
     var s = input.trim();
     const diacritics = r'[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]';
