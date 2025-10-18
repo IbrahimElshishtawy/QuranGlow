@@ -19,6 +19,7 @@ class PageRichBlock extends StatefulWidget {
     required this.basmalaText,
     required this.currentAyahIndex,
     required this.onTapIndex,
+    Color? ayahNumberColor,
   });
 
   final List<Aya> ayat;
