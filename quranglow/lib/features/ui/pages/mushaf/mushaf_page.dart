@@ -2,15 +2,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/features/ui/pages/mushaf/widget/position_store.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/model/book/surah.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
-import 'package:quranglow/features/ui/routes/app_routes.dart';
+
 import 'package:quranglow/features/ui/pages/mushaf/paged_mushaf.dart';
 import 'package:quranglow/features/ui/pages/mushaf/widget/mushaf_top_bar.dart';
+import 'package:quranglow/features/ui/pages/mushaf/widget/position_store.dart';
+
+import 'package:quranglow/features/ui/routes/app_routes.dart';
+import 'package:quranglow/features/ui/pages/tafsir/widget/tafsir_args.dart';
 
 final surahProvider = FutureProvider.autoDispose
     .family<Surah, (int chapter, String editionId)>((ref, args) async {
@@ -23,7 +26,7 @@ class MushafPage extends ConsumerStatefulWidget {
     super.key,
     this.chapter = 1,
     this.editionId = 'quran-uthmani',
-    int? initialAyah,
+    int? initialAyah, // احتفاظ للتوافق إن احتجته لاحقاً
   });
 
   final int chapter;
@@ -38,7 +41,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   late int _chapter;
 
   int? _lastAyahNumber;
-  final _pos = PositionStore(); // ← NEW
+  final _pos = PositionStore();
 
   @override
   void initState() {
@@ -93,7 +96,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
     Navigator.pushNamed(
       context,
       AppRoutes.tafsirReader,
-      arguments: TafsirArgs(surah: _chapter, ayah: ayahNum),
+      arguments: TafsirArgs(chapter: _chapter, ayah: ayahNum),
     );
   }
 
@@ -140,11 +143,10 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                 initialSelectedAyah: null,
                 onAyahTap: (int ayahNumber, Aya aya) {
                   _lastAyahNumber = ayahNumber;
-
                   Navigator.pushNamed(
                     context,
                     AppRoutes.tafsirReader,
-                    arguments: TafsirArgs(surah: _chapter, ayah: ayahNumber),
+                    arguments: TafsirArgs(chapter: _chapter, ayah: ayahNumber),
                   );
                 },
               ),
