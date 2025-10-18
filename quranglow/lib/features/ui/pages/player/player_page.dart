@@ -1,16 +1,61 @@
 // lib/features/ui/pages/player/player_page.dart
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:quranglow/core/di/providers.dart';
+import 'package:quranglow/core/service/audio/audio_locator.dart';
 import 'package:quranglow/features/ui/pages/player/controller/player_controller_provider.dart';
 import 'package:quranglow/features/ui/pages/player/widgets/header_controls.dart';
 import 'package:quranglow/features/ui/pages/player/widgets/reader_row.dart';
 import 'package:quranglow/features/ui/pages/player/widgets/transport_controls.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
 
-class PlayerPage extends ConsumerWidget {
+class PlayerPage extends ConsumerStatefulWidget {
   const PlayerPage({super.key});
+
+  @override
+  ConsumerState<PlayerPage> createState() => _PlayerPageState();
+}
+
+class _PlayerPageState extends ConsumerState<PlayerPage> {
+  ProviderSubscription? _playbackSub;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _playbackSub = ref.listenManual(playerControllerProvider, (
+      prev,
+      next,
+    ) async {
+      next.whenOrNull(
+        data: (s) async {
+          final bool isPlaying = (s.isPlaying ?? false);
+          final String? url = s.currentUrl;
+          final String title =
+              (s.surahName ?? 'سورة') +
+              (s.reciterName != null ? ' - ${s.reciterName}' : '');
+
+          if (isPlaying && url != null && url.isNotEmpty) {
+            await audioHandler.playUri(Uri.parse(url), title: title);
+          } else if (!isPlaying) {
+            await audioHandler.pause();
+          }
+        },
+        error: (e, st) async {
+          await audioHandler.stop();
+        },
+      );
+    }, fireImmediately: false);
+  }
+
+  @override
+  void dispose() {
+    _playbackSub?.close();
+    super.dispose();
+  }
 
   Future<void> _downloadCurrent(BuildContext context, WidgetRef ref) async {
     final cs = Theme.of(context).colorScheme;
@@ -56,7 +101,7 @@ class PlayerPage extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final ctrl = ref.watch(playerControllerProvider);
     final ed = ref.watch(editionIdProvider);
@@ -108,7 +153,6 @@ class PlayerPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
 
-                // بطاقة العنوان
                 Card(
                   elevation: 0,
                   color: cs.surfaceContainer,
@@ -123,7 +167,6 @@ class PlayerPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
 
-                // أزرار
                 Row(
                   children: [
                     Expanded(
@@ -148,7 +191,6 @@ class PlayerPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
 
-                // واجهة تحكم احترافية
                 ctrl.when(
                   loading: () => const Center(
                     child: Padding(
@@ -156,7 +198,7 @@ class PlayerPage extends ConsumerWidget {
                       child: CircularProgressIndicator(),
                     ),
                   ),
-                  error: (e, _) => Card(
+                  error: (e, st) => Card(
                     color: cs.errorContainer,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -178,7 +220,7 @@ class PlayerPage extends ConsumerWidget {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
-                      child: TransportControls(state: s), // مظهره أصلاً أنيق
+                      child: TransportControls(state: s),
                     ),
                   ),
                 ),
