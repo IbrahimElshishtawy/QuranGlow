@@ -12,6 +12,8 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final containerHigh =
+        cs.surfaceContainerHigh; // fallback آمن للثيمات القديمة
     final currentRoute = ModalRoute.of(context)?.settings.name;
 
     void go(String route) {
@@ -64,7 +66,7 @@ class AppDrawer extends StatelessWidget {
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: cs.surfaceContainerHigh,
+                color: containerHigh,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: cs.outlineVariant),
               ),
@@ -146,19 +148,18 @@ class AppDrawer extends StatelessWidget {
                     title: 'الإعدادات',
                     route: AppRoutes.setting,
                   ),
-
-                  // ✅ زر مكتبة التنزيلات
                   tile(
                     icon: Icons.library_music,
                     title: 'مكتبة التنزيلات',
                     onTap: () {
-                      Scaffold.of(context).closeDrawer();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const DownloadsLibraryPage(),
-                        ),
-                      );
+                      Scaffold.maybeOf(context)?.closeDrawer();
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const DownloadsLibraryPage(),
+                          ),
+                        );
+                      });
                     },
                   ),
 
