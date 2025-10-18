@@ -1,14 +1,12 @@
 // lib/features/ui/pages/mushaf/paged_mushaf.dart
 // أهم شيء: التقسيم حسب صفحات مصحف المدينة + تلوين رقم الآية + حفظ الموضع
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
 
 import 'package:quranglow/core/model/aya/aya.dart';
-// استورد PageRange من نفس ملف الـ Block لتفادي تعارض الأنواع
-import 'package:quranglow/features/ui/pages/mushaf/page_rich_block.dart'
-    show PageRange, PageRichBlock;
-
+import 'package:quranglow/features/ui/pages/mushaf/page_rich_block.dart';
 import 'package:quranglow/features/ui/pages/mushaf/widget/mushaf_header.dart';
 import 'package:quranglow/features/ui/pages/mushaf/widget/page_indicator.dart';
 import 'package:quranglow/features/ui/pages/mushaf/widget/position_store.dart';
@@ -44,7 +42,7 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
   final _pos = PositionStore();
   final _controller = PageController(keepPage: true);
 
-  int? _currentAyahIdx0; // 0-based
+  int? _currentAyahIdx0;
   late final List<PageRange> _pages;
   bool _justSaved = false;
 
@@ -58,17 +56,11 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
 
   Future<void> _restoreInitial() async {
     int? idx0;
-
     if (widget.initialSelectedAyah != null) {
       idx0 = (widget.initialSelectedAyah! - 1).clamp(0, widget.ayat.length - 1);
     } else {
-      // load() تُرجع LastPosition? وليس int?
-      final last = await _pos.load(widget.surahNumber); // LastPosition?
-      // غيّر اسم الحقل حسب كائنك: ayahIndex أو index
-      idx0 = last?.ayahIndex ?? last?.index;
-      if (idx0 != null) {
-        idx0 = (idx0!).clamp(0, widget.ayat.length - 1);
-      }
+      final loaded = await _pos.load(widget.surahNumber); //  int? (0-based)
+      if (loaded is int) idx0 = loaded.clamp(0, widget.ayat.length - 1);
     }
 
     if (!mounted) return;
@@ -97,9 +89,7 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
 
   void _saveCurrentIfAny() {
     final i = _currentAyahIdx0;
-    if (i != null) {
-      _pos.save(widget.surahNumber, i);
-    }
+    if (i != null) _pos.save(widget.surahNumber, i);
   }
 
   void _onAyahTap(int index0) async {
@@ -149,8 +139,7 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
                       Expanded(
                         child: PageRichBlock(
                           ayat: widget.ayat,
-                          range:
-                              r, // نفس النوع PageRange من page_rich_block.dart
+                          range: r,
                           showBasmala: widget.showBasmala && pageIndex == 0,
                           basmalaText: widget.basmalaText,
                           currentAyahIndex: _currentAyahIdx0,
@@ -177,13 +166,16 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
           ),
         );
       },
-      onPageChanged: (_) => _saveCurrentIfAny(),
+      onPageChanged: (newPageIndex) {
+        final pr = _pages[newPageIndex];
+        setState(() => _currentAyahIdx0 = pr.start); // أول آية في الصفحة
+        _saveCurrentIfAny();
+      },
     );
   }
 
-  // تقسيم حسب صفحات مصحف المدينة (اعتبر end حصريًا كما هو معرّف في PageRange المستورَد)
   List<PageRange> _buildPages(List<Aya> ayat) {
-    if (ayat.isEmpty) return [const PageRange(start: 0, end: 0)];
+    if (ayat.isEmpty) return const [PageRange(start: 0, end: 0)];
 
     final res = <PageRange>[];
     int start = 0;
@@ -197,6 +189,7 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
         currentPage = page;
       }
     }
+    // أضف آخر مقطع حتى نهاية السورة
     if (res.isEmpty || res.last.end != ayat.length) {
       res.add(PageRange(start: start, end: ayat.length));
     }
@@ -216,8 +209,8 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
     final s = number.toString();
     final buf = StringBuffer();
     for (final ch in s.split('')) {
-      final idx = western.indexOf(ch);
-      buf.write(idx >= 0 ? eastern[idx] : ch);
+      final i = western.indexOf(ch);
+      buf.write(i == -1 ? ch : eastern[i]);
     }
     return buf.toString();
   }
