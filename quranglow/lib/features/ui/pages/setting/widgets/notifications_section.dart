@@ -59,8 +59,9 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
           enabled: en,
           time: time,
         );
-        if (en)
+        if (en) {
           _snack('تم تحديث وقت التذكير اليومي إلى ${time.format(context)}');
+        }
       } catch (e) {
         _snack(
           'فشل تحديث وقت التذكير اليومي: $e',
@@ -102,10 +103,11 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
           enabled: en,
           time: time,
         );
-        if (en)
+        if (en) {
           _snack(
             'تم تحديث وقت تذكير الصلاة على النبي ﷺ إلى ${time.format(context)}',
           );
+        }
       } catch (e) {
         _snack('فشل تحديث الوقت: $e', bg: Theme.of(context).colorScheme.error);
       }
@@ -155,8 +157,9 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
                   context: context,
                   initialTime: dailyTime,
                 );
-                if (t != null)
+                if (t != null) {
                   ref.read(reminderTimeProvider.notifier).state = t;
+                }
               },
             ),
 
