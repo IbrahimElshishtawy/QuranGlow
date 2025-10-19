@@ -1,4 +1,4 @@
-// speed_menu.dart
+// lib/features/ui/pages/player/widgets/speed_menu.dart
 import 'package:flutter/material.dart';
 
 class SpeedMenu extends StatefulWidget {
@@ -34,23 +34,24 @@ class _SpeedMenuState extends State<SpeedMenu> {
         setState(() => _speed = v);
         widget.onSelect(v);
       },
-      itemBuilder: (context) => _options.map((v) {
-        final selected = v == _speed;
-        return PopupMenuItem<double>(
-          value: v,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (selected)
-                const Icon(Icons.check, size: 18)
-              else
-                const SizedBox(width: 18),
-              const SizedBox(width: 8),
-              Text('${v}x'),
-            ],
-          ),
-        );
-      }).toList(),
+      itemBuilder: (context) => _options
+          .map(
+            (v) => PopupMenuItem<double>(
+              value: v,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (v == _speed)
+                    const Icon(Icons.check, size: 18)
+                  else
+                    const SizedBox(width: 18),
+                  const SizedBox(width: 8),
+                  Text('${v}x'),
+                ],
+              ),
+            ),
+          )
+          .toList(),
       child: Chip(
         avatar: const Icon(Icons.speed_rounded, size: 18),
         label: Text('السرعة ${_speed}x'),

@@ -1,6 +1,4 @@
-// transport_controls.dart
-// ignore_for_file: unused_field
-
+// lib/features/ui/pages/player/widgets/transport_controls.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -27,6 +25,7 @@ class TransportControls extends ConsumerWidget {
           durationStream: state.durationStream,
           positionStream: state.positionStream,
           onSeek: ref.read(playerControllerProvider.notifier).seekTo,
+          bufferedStream: state.bufferedStream,
         ),
         const SizedBox(height: 10),
         Row(

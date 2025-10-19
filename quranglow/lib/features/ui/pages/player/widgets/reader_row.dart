@@ -1,6 +1,4 @@
 // lib/features/ui/pages/player/widgets/reader_row.dart
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/model/book/surah.dart';
@@ -13,7 +11,7 @@ class ReaderRow extends StatelessWidget {
     required this.selectedEditionId,
     required this.selectedSurah,
     required this.onEditionChanged,
-    required this.onChapterSubmitted,
+    required this.onChapterChanged,
   });
 
   final AsyncValue<List<dynamic>> editions;
@@ -21,7 +19,7 @@ class ReaderRow extends StatelessWidget {
   final String selectedEditionId;
   final int selectedSurah;
   final ValueChanged<String> onEditionChanged;
-  final ValueChanged<String> onChapterSubmitted;
+  final ValueChanged<int> onChapterChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +34,8 @@ class ReaderRow extends StatelessWidget {
                   .whereType<Map>()
                   .map((m) => Map<String, dynamic>.from(m))
                   .toList();
-              if (items.isEmpty) {
+              if (items.isEmpty)
                 return const Text('لا توجد إصدارات صوتية متاحة');
-              }
-
               return DropdownButtonFormField<String>(
                 value: selectedEditionId,
                 decoration: const InputDecoration(
@@ -60,9 +56,7 @@ class ReaderRow extends StatelessWidget {
             },
           ),
         ),
-
         const SizedBox(width: 12),
-
         Expanded(
           child: surahs.when(
             loading: () => const LinearProgressIndicator(),
@@ -77,16 +71,16 @@ class ReaderRow extends StatelessWidget {
                   isDense: true,
                 ),
                 isExpanded: true,
-                items: list.map((s) {
-                  return DropdownMenuItem<int>(
-                    value: s.number,
-                    child: Text(s.name),
-                  );
-                }).toList(),
+                items: list
+                    .map(
+                      (s) => DropdownMenuItem<int>(
+                        value: s.number,
+                        child: Text(s.name),
+                      ),
+                    )
+                    .toList(),
                 onChanged: (v) {
-                  if (v != null) {
-                    onChapterSubmitted(v.toString());
-                  }
+                  if (v != null) onChapterChanged(v);
                 },
               );
             },

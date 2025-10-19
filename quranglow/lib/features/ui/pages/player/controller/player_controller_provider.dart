@@ -1,6 +1,4 @@
 // lib/features/ui/pages/player/controller/player_controller_provider.dart
-// ignore_for_file: unnecessary_this
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:just_audio/just_audio.dart';
@@ -31,13 +29,9 @@ class PlayerController extends StateNotifier<AsyncValue<PlaylistState>> {
 
   void _init() {
     _ref.onDispose(() => _player.dispose());
-
-    // أول تحميل
     _currentEdition = _ref.read(editionIdProvider);
     _currentChapter = _ref.read(chapterProvider);
     _reload();
-
-    // لو تغيّر أيٌّ منهما، أعد التحميل
     _ref.listen<String>(editionIdProvider, (_, next) {
       _currentEdition = next;
       _reload();
@@ -49,10 +43,10 @@ class PlayerController extends StateNotifier<AsyncValue<PlaylistState>> {
   }
 
   Future<void> _reload() async {
-    this.state = const AsyncValue.loading();
+    state = const AsyncValue.loading();
     try {
       await _load(_currentEdition, _currentChapter);
-      this.state = AsyncValue.data(
+      state = AsyncValue.data(
         _makeState(
           editionId: _currentEdition,
           chapter: _currentChapter,
@@ -86,8 +80,7 @@ class PlayerController extends StateNotifier<AsyncValue<PlaylistState>> {
       throw Exception('لا توجد روابط صوت في هذه النسخة ($editionId)');
     }
 
-    // للإصدارات الحديثة من just_audio
-    await _player.setAudioSources(_tracks);
+    await _player.setAudioSource(ConcatenatingAudioSource(children: _tracks));
   }
 
   PlaylistState _makeState({
@@ -109,18 +102,15 @@ class PlayerController extends StateNotifier<AsyncValue<PlaylistState>> {
     );
   }
 
-  // تحكّم التشغيل
   Future<void> play() => _player.play();
   Future<void> pause() => _player.pause();
   Future<void> next() => _player.seekToNext();
   Future<void> previous() => _player.seekToPrevious();
   Future<void> seekTo(Duration d) => _player.seek(d);
 
-  // سرعة التشغيل
   Future<void> setSpeed(double value) async {
     final v = value.clamp(0.5, 2.0);
     await _player.setSpeed(v);
-
     state = AsyncValue.data(
       _makeState(
         editionId: _currentEdition,
@@ -130,7 +120,6 @@ class PlayerController extends StateNotifier<AsyncValue<PlaylistState>> {
     );
   }
 
-  // تغييرات الإعدادات (ستُعيد التحميل تلقائياً عبر listen)
   Future<void> changeEdition(String ed) async {
     if (ed != _currentEdition) {
       _ref.read(editionIdProvider.notifier).state = ed;
@@ -144,7 +133,6 @@ class PlayerController extends StateNotifier<AsyncValue<PlaylistState>> {
     }
   }
 
-  // تكرار / كتم
   Future<void> toggleLoop() async {
     final cur = await _player.loopModeStream.first;
     await _player.setLoopMode(

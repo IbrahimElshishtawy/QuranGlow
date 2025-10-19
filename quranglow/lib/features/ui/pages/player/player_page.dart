@@ -1,20 +1,16 @@
 // lib/features/ui/pages/player/player_page.dart
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/service/audio/audio_locator.dart';
 import 'package:quranglow/features/ui/pages/player/controller/player_controller_provider.dart';
-import 'package:quranglow/features/ui/pages/player/widgets/header_controls.dart';
 import 'package:quranglow/features/ui/pages/player/widgets/reader_row.dart';
+import 'package:quranglow/features/ui/pages/player/widgets/track_card.dart';
 import 'package:quranglow/features/ui/pages/player/widgets/transport_controls.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
 
 class PlayerPage extends ConsumerStatefulWidget {
   const PlayerPage({super.key});
-
   @override
   ConsumerState<PlayerPage> createState() => _PlayerPageState();
 }
@@ -25,7 +21,6 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
   @override
   void initState() {
     super.initState();
-
     _playbackSub = ref.listenManual(playerControllerProvider, (
       prev,
       next,
@@ -37,7 +32,6 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
           final String title =
               (s.surahName ?? 'سورة') +
               (s.reciterName != null ? ' - ${s.reciterName}' : '');
-
           if (isPlaying && url != null && url.isNotEmpty) {
             await audioHandler.playUri(Uri.parse(url), title: title);
           } else if (!isPlaying) {
@@ -72,7 +66,6 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
     try {
       final urls = await service.getSurahAudioUrls(editionId, chapter);
       if (Navigator.of(context).canPop()) Navigator.of(context).pop();
-
       if (urls.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -82,7 +75,6 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
         );
         return;
       }
-
       if (!context.mounted) return;
       Navigator.pushNamed(
         context,
@@ -106,7 +98,6 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
     final ctrl = ref.watch(playerControllerProvider);
     final ed = ref.watch(editionIdProvider);
     final ch = ref.watch(chapterProvider).clamp(1, 114);
-
     final editions = ref.watch(audioEditionsProvider);
     final surahs = ref.watch(quranAllProvider('quran-uthmani'));
 
@@ -142,17 +133,13 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                       onEditionChanged: (v) => ref
                           .read(playerControllerProvider.notifier)
                           .changeEdition(v),
-                      onChapterSubmitted: (v) {
-                        final n = (int.tryParse(v) ?? ch).clamp(1, 114);
-                        ref
-                            .read(playerControllerProvider.notifier)
-                            .changeChapter(n);
-                      },
+                      onChapterChanged: (v) => ref
+                          .read(playerControllerProvider.notifier)
+                          .changeChapter(v),
                     ),
                   ),
                 ),
                 const SizedBox(height: 12),
-
                 Card(
                   elevation: 0,
                   color: cs.surfaceContainer,
@@ -160,13 +147,12 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                     borderRadius: BorderRadius.circular(16),
                     side: BorderSide(color: cs.outlineVariant),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
-                    child: HeaderCard(editionId: ed, chapter: ch),
+                  child: const Padding(
+                    padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
+                    child: TrackCard(),
                   ),
                 ),
                 const SizedBox(height: 12),
-
                 Row(
                   children: [
                     Expanded(
@@ -190,7 +176,6 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                   ],
                 ),
                 const SizedBox(height: 24),
-
                 ctrl.when(
                   loading: () => const Center(
                     child: Padding(
