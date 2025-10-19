@@ -1,4 +1,6 @@
 // lib/features/ui/pages/stats/widgets/mini_bar.dart
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 class MiniBar extends StatelessWidget {

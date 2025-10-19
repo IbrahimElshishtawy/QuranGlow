@@ -1,4 +1,6 @@
 // lib/features/ui/pages/stats/stats_page.dart
+// ignore_for_file: deprecated_member_use, unnecessary_underscores
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/features/ui/pages/stats/controller/stats_controller.dart';
