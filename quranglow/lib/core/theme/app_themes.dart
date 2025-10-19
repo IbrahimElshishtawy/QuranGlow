@@ -16,7 +16,7 @@ ThemeData buildLightTheme({
     textTheme: textTheme,
     scaffoldBackgroundColor: Colors.white,
     colorScheme: base.colorScheme.copyWith(
-      primary: const Color(0xFF3AB749),
+      primary: const Color.fromARGB(255, 51, 96, 56),
       secondary: const Color(0xFF2E7D32),
       surface: Colors.white,
       onPrimary: Colors.white,
@@ -55,15 +55,15 @@ ThemeData buildDarkTheme({
     textTheme: textTheme,
     scaffoldBackgroundColor: const Color(0xFF0B0B0B),
     colorScheme: base.colorScheme.copyWith(
-      primary: const Color(0xFF4DFF77),
-      secondary: const Color(0xFF00C853),
+      primary: const Color.fromARGB(166, 35, 134, 35),
+      secondary: const Color.fromARGB(255, 14, 121, 59),
       surface: const Color(0xFF1A1A1A),
       onPrimary: Colors.black,
       onSecondary: Colors.black,
       brightness: Brightness.dark,
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF00C853),
+      backgroundColor: Color.fromARGB(255, 47, 118, 76),
       foregroundColor: Colors.black,
       centerTitle: true,
       elevation: 0,
