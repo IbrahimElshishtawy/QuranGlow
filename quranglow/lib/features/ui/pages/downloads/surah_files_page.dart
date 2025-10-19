@@ -1,5 +1,5 @@
 // lib/features/ui/pages/downloads/surah_files_page.dart
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, deprecated_member_use, unnecessary_underscores
 
 import 'dart:io';
 import 'package:flutter/material.dart';

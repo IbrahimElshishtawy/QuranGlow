@@ -1,4 +1,6 @@
 // lib/features/ui/pages/home/sections/shortcuts_list.dart
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
 

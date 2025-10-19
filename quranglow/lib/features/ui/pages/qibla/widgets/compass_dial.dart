@@ -3,11 +3,14 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:quranglow/features/ui/pages/qibla/widgets/rings_painter.dart';
 
-
 class CompassDial extends StatelessWidget {
   final double rotationDeg;
   final Color ringsColor;
-  const CompassDial({super.key, required this.rotationDeg, required this.ringsColor});
+  const CompassDial({
+    super.key,
+    required this.rotationDeg,
+    required this.ringsColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +26,10 @@ class CompassDial extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Positioned(top: 8, child: Icon(Icons.arrow_drop_up, size: 36, color: cs.error)),
+            Positioned(
+              top: 8,
+              child: Icon(Icons.arrow_drop_up, size: 36, color: cs.error),
+            ),
             Container(
               padding: const EdgeInsets.all(18),
               child: CustomPaint(painter: RingsPainter(ringsColor)),

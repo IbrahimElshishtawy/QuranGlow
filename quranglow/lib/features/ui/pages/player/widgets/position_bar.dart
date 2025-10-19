@@ -1,4 +1,6 @@
 // lib/features/ui/pages/player/widgets/position_bar.dart
+// ignore_for_file: unnecessary_import
+
 import 'dart:ui' show FontFeature;
 import 'package:flutter/material.dart';
 

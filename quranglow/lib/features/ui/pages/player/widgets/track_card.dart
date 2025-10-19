@@ -1,4 +1,6 @@
 // lib/features/ui/pages/player/widgets/track_card.dart
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/features/ui/pages/player/controller/player_controller_provider.dart';

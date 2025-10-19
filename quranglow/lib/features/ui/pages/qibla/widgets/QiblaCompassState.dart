@@ -1,11 +1,14 @@
+// lib/features/ui/pages/qibla/widgets/QiblaCompassState.dart
 import 'dart:async';
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:quranglow/features/ui/pages/qibla/widgets/compass_dial.dart';
-import 'package:quranglow/features/ui/pages/qibla/widgets/info_row.dart';
+
+import 'package:quranglow/features/ui/pages/qibla/widgets/compass_dial.dart'
+    as dial;
+import 'package:quranglow/features/ui/pages/qibla/widgets/info_row.dart'
+    as info;
 import 'package:quranglow/features/ui/pages/qibla/widgets/loading_error.dart';
 import 'package:quranglow/features/ui/pages/qibla/widgets/qibla_arrow.dart';
 import 'package:quranglow/features/ui/pages/qibla/widgets/qibla_compass.dart';
@@ -121,34 +124,24 @@ class QiblaCompassState extends State<QiblaCompass> {
             _safeSet(() {});
           });
 
-      final firstEvent = await FlutterCompass.events?.first;
-      if (seq != _initSeq || !mounted) return;
+      _compassSub = FlutterCompass.events?.listen((e) {
+        if (!mounted || seq != _initSeq) return;
 
-      if (firstEvent?.heading != null) {
-        _compassSub = FlutterCompass.events?.listen((e) {
-          if (!mounted || seq != _initSeq) return;
+        final acc = e.accuracy;
+        if (acc == null) {
+          _sensorStatus = 'Unknown';
+        } else {
+          final needsCalib = (acc <= 1) || (acc < 0) || (acc > 15);
+          _sensorStatus = needsCalib ? 'Calibration needed' : 'OK';
+        }
 
-          final acc = e.accuracy;
-          if (acc == null) {
-            _sensorStatus = 'Unknown';
-          } else {
-            final needsCalib = (acc <= 1) || (acc < 0) || (acc > 15);
-            _sensorStatus = needsCalib ? 'Calibration needed' : 'OK';
-          }
-
-          if (e.heading != null) {
-            _usingCourse = false;
-            _applyHeading(_normalize(e.heading!));
-          }
-
+        if (e.heading != null) {
+          _usingCourse = false;
+          _applyHeading(_normalize(e.heading!));
           _updateDelta();
           _safeSet(() {});
-        });
-      } else {
-        _usingCourse = true;
-        _sensorStatus = 'GPS-course';
-        _safeSet(() {});
-      }
+        }
+      });
     } catch (e) {
       if (seq != _initSeq || !mounted) return;
       _safeSet(() => _error = 'خطأ: $e');
@@ -217,7 +210,7 @@ class QiblaCompassState extends State<QiblaCompass> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  CompassDial(
+                  dial.CompassDial(
                     rotationDeg: heading,
                     ringsColor: cs.outlineVariant,
                   ),
@@ -236,7 +229,7 @@ class QiblaCompassState extends State<QiblaCompass> {
           ),
         ),
         const SizedBox(height: 8),
-        InfoRow(
+        info.InfoRow(
           heading: _smoothedHeading ?? _heading,
           bearing: _bearingToQibla,
           delta: _delta,

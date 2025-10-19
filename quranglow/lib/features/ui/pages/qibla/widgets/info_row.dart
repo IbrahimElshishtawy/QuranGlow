@@ -17,9 +17,27 @@ class InfoRow extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _Metric(icon: Icons.explore, label: 'البوصلة', value: _fmt(heading), cs: cs, style: style),
-            _Metric(icon: Icons.place, label: 'زاوية القبلة', value: _fmt(bearing), cs: cs, style: style),
-            _Metric(icon: Icons.navigation, label: 'اتّجه', value: _fmt(delta), cs: cs, style: style),
+            _Metric(
+              icon: Icons.explore,
+              label: 'البوصلة',
+              value: _fmt(heading),
+              cs: cs,
+              style: style,
+            ),
+            _Metric(
+              icon: Icons.place,
+              label: 'زاوية القبلة',
+              value: _fmt(bearing),
+              cs: cs,
+              style: style,
+            ),
+            _Metric(
+              icon: Icons.navigation,
+              label: 'اتّجه',
+              value: _fmt(delta),
+              cs: cs,
+              style: style,
+            ),
           ],
         ),
       ),
@@ -32,7 +50,13 @@ class _Metric extends StatelessWidget {
   final String label, value;
   final ColorScheme cs;
   final TextStyle? style;
-  const _Metric({required this.icon, required this.label, required this.value, required this.cs, required this.style});
+  const _Metric({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.cs,
+    required this.style,
+  });
 
   @override
   Widget build(BuildContext context) {

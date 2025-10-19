@@ -1,4 +1,6 @@
 // lib/features/ui/pages/home/widgets/app_drawer.dart
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
 import 'package:quranglow/features/ui/pages/downloads/downloads_library_page.dart';

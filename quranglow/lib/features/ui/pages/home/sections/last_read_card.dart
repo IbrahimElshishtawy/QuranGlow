@@ -1,4 +1,6 @@
 // lib/features/ui/pages/home/sections/last_read_card.dart
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/section_title.dart';
 import 'package:quranglow/features/ui/pages/mushaf/widget/position_store.dart';

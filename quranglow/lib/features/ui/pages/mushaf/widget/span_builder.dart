@@ -1,4 +1,6 @@
 // lib/features/ui/pages/mushaf/span_builder.dart
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
