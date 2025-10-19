@@ -1,4 +1,3 @@
-// lib/core/service/setting/notification_service.dart
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -33,17 +32,10 @@ class NotificationService {
       requestSoundPermission: false,
     );
 
-    const windowsInit = WindowsInitializationSettings(
-      appName: 'QuranGlow',
-      appUserModelId: '',
-      guid: '',
-    );
-
     const settings = InitializationSettings(
       android: androidInit,
       iOS: darwinInit,
       macOS: darwinInit,
-      windows: windowsInit,
     );
 
     await _plugin.initialize(settings);
@@ -53,6 +45,7 @@ class NotificationService {
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
           >();
+      // طلب مرة واحدة يكفي للمهام الدقيقة المتكررة
       try {
         await android?.requestExactAlarmsPermission();
       } catch (_) {}
@@ -74,7 +67,6 @@ class NotificationService {
             .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin
             >();
-
         final enabled = await android?.areNotificationsEnabled();
         if (enabled != true) {
           await android?.requestNotificationsPermission();
@@ -107,21 +99,9 @@ class NotificationService {
     }
   }
 
-  // تم الاستبدال هنا
-  Future<AndroidScheduleMode> _androidScheduleMode() async {
-    if (!Platform.isAndroid) return AndroidScheduleMode.exactAllowWhileIdle;
-    try {
-      final android = _plugin
-          .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin
-          >();
-      await android?.requestExactAlarmsPermission();
-      return AndroidScheduleMode.exactAllowWhileIdle;
-    } catch (e) {
-      debugPrint('[NOTIF] exact alarm request failed: $e');
-      return AndroidScheduleMode.inexactAllowWhileIdle;
-    }
-  }
+  // ثابت لتفادي تغيير السلوك عند الجدولة
+  Future<AndroidScheduleMode> _androidScheduleMode() async =>
+      AndroidScheduleMode.exactAllowWhileIdle;
 
   tz.TZDateTime _nextInstanceOf(TimeOfDay t) {
     final now = tz.TZDateTime.now(tz.local);
