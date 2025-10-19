@@ -3,8 +3,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/features/ui/routes/app_routes.dart';
+import 'package:quranglow/core/di/providers.dart'
+    hide downloadControllerProvider;
+import 'package:quranglow/features/ui/pages/downloads/controller/download_controller.dart';
+import 'package:quranglow/features/ui/pages/downloads/surah_files_page.dart';
 
 class ReciterSelector extends ConsumerStatefulWidget {
   final List<Map<String, String>> editions;
@@ -120,16 +122,23 @@ class _ReciterSelectorState extends ConsumerState<ReciterSelector> {
     setState(() => _busy = true);
     final downloader = ref.read(downloadControllerProvider.notifier);
     try {
-      final selectedUrls = _selectedAyahs.toList()..sort();
-      final urls = selectedUrls.map((i) => _ayahUrls[i]).toList();
-      await downloader.downloadSurah(
+      final selected = _selectedAyahs.toList()..sort();
+      final items = <AyahDownload>[
+        for (final i in selected) AyahDownload(ayah: i + 1, url: _ayahUrls[i]),
+      ];
+      await downloader.downloadAyat(
         surah: widget.surah,
         reciterId: _selected!,
-        ayahUrls: urls,
+        items: items,
       );
 
-      // اذهب للمكتبة بعد بدء التنزيل
-      if (mounted) Navigator.of(context).pushNamed(AppRoutes.downloadsLibrary);
+      if (!mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) =>
+              SurahFilesPage(reciterId: _selected!, surah: widget.surah),
+        ),
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -170,14 +179,12 @@ class _ReciterSelectorState extends ConsumerState<ReciterSelector> {
               _selectedAyahs.clear();
               _selectAllAyahs = false;
             });
-            if (widget.onChanged != null) widget.onChanged!(v);
+            widget.onChanged?.call(v);
             _loadAyahsIfNeeded();
           },
           validator: (v) => (v == null || v.isEmpty) ? 'اختر قارئًا' : null,
         ),
         const SizedBox(height: 8),
-
-        // حالة التحميل أو عدم وجود آيات
         if (_busy) const LinearProgressIndicator(),
         if (!_busy &&
             _selected != null &&
@@ -185,12 +192,8 @@ class _ReciterSelectorState extends ConsumerState<ReciterSelector> {
             _ayahUrls.isEmpty)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
-            child: Text(
-              'لم تُحمّل بعد لائحة الآيات. حاول إلغاء اختيار القارئ ثم اختياره مرة أخرى.',
-            ),
+            child: Text('لم تُحمّل بعد لائحة الآيات. أعد اختيار القارئ.'),
           ),
-
-        // أدوات التحديد والتنزيل
         if (_ayahUrls.isNotEmpty) ...[
           Row(
             children: [
@@ -212,8 +215,6 @@ class _ReciterSelectorState extends ConsumerState<ReciterSelector> {
             ],
           ),
           const SizedBox(height: 8),
-
-          // لائحة الآيات القابلة للاختيار
           SizedBox(
             height: 280,
             child: ListView.separated(
