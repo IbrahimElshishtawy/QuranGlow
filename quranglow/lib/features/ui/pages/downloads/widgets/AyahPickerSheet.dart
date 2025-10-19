@@ -1,9 +1,12 @@
+// lib/features/ui/pages/downloads/widgets/AyahPickerSheet.dart
 // ignore_for_file: unnecessary_underscores
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/features/ui/routes/app_routes.dart';
+import 'package:quranglow/core/di/providers.dart'
+    hide downloadControllerProvider;
+import 'package:quranglow/features/ui/pages/downloads/controller/download_controller.dart';
+import 'package:quranglow/features/ui/pages/downloads/surah_files_page.dart';
 
 class AyahPickerSheet extends ConsumerStatefulWidget {
   final String reciterId;
@@ -89,17 +92,24 @@ class AyahPickerSheetState extends ConsumerState<AyahPickerSheet> {
     try {
       final downloader = ref.read(downloadControllerProvider.notifier);
       final idx = _selected.toList()..sort();
-      final urls = idx.map((i) => _ayahUrls[i]).toList();
+      final items = <AyahDownload>[
+        for (final i in idx) AyahDownload(ayah: i + 1, url: _ayahUrls[i]),
+      ];
 
-      await downloader.downloadSurah(
+      await downloader.downloadAyat(
         surah: widget.surah,
         reciterId: widget.reciterId,
-        ayahUrls: urls,
+        items: items,
       );
 
       if (!mounted) return;
       Navigator.of(context).pop();
-      Navigator.pushNamed(context, AppRoutes.downloadsLibrary);
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) =>
+              SurahFilesPage(reciterId: widget.reciterId, surah: widget.surah),
+        ),
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -118,11 +128,10 @@ class AyahPickerSheetState extends ConsumerState<AyahPickerSheet> {
       height: MediaQuery.of(context).size.height * .78,
       child: Column(
         children: [
-          // رأس ثابت
           Container(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             decoration: BoxDecoration(
-              color: cs.surfaceContainerHigh,
+              color: cs.surface,
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(20),
               ),
@@ -141,8 +150,6 @@ class AyahPickerSheetState extends ConsumerState<AyahPickerSheet> {
             ),
           ),
           const Divider(height: 1),
-
-          // محتوى
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
@@ -170,8 +177,6 @@ class AyahPickerSheetState extends ConsumerState<AyahPickerSheet> {
                     },
                   ),
           ),
-
-          // أزرار
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             child: Row(
