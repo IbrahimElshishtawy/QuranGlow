@@ -11,7 +11,7 @@ Future<void> main() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: binding);
   await Hive.initFlutter();
-  await NotificationService.instance.init(); // بدون طلب صلاحية هنا
+  await NotificationService.instance.init();
   runApp(const ProviderScope(child: _Bootstrap(child: QuranGlowApp())));
   WidgetsBinding.instance.addPostFrameCallback(
     (_) => FlutterNativeSplash.remove(),
