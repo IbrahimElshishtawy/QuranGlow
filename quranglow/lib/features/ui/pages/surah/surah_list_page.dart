@@ -16,32 +16,40 @@ class SurahListPage extends StatelessWidget {
         body: ListView.separated(
           itemCount: kSurahNamesAr.length,
           separatorBuilder: (_, __) => const Divider(height: 1),
-          itemBuilder: (_, i) => ListTile(
-            leading: CircleAvatar(
-              radius: 18,
-              backgroundColor: Theme.of(
-                context,
-              ).colorScheme.primary.withOpacity(.15),
-              child: Text(
-                '${i + 1}',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.bold,
+          itemBuilder: (_, i) {
+            final surahNumber = i + 1; // 1-based
+            return ListTile(
+              leading: CircleAvatar(
+                radius: 18,
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withOpacity(.15),
+                child: Text(
+                  '$surahNumber',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-            title: Text(
-              kSurahNamesAr[i],
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            trailing: const Icon(Icons.chevron_left),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => MushafPage(chapter: i + 1)),
-              );
-            },
-          ),
+              title: Text(
+                kSurahNamesAr[i],
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              trailing: const Icon(Icons.chevron_left),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MushafPage(chapter: surahNumber),
+                  ),
+                );
+              },
+            );
+          },
         ),
       ),
     );
