@@ -1,9 +1,7 @@
 // lib/features/ui/pages/home/widgets/app_drawer.dart
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
-import 'package:quranglow/features/ui/pages/downloads/downloads_library_page.dart'; // ✅ تمت إضافتها
+import 'package:quranglow/features/ui/pages/downloads/downloads_library_page.dart';
 
 class AppDrawer extends StatelessWidget {
   final void Function(String route)? onNavigate;
@@ -12,8 +10,7 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final containerHigh =
-        cs.surfaceContainerHigh; // fallback آمن للثيمات القديمة
+    final containerHigh = cs.surface;
     final currentRoute = ModalRoute.of(context)?.settings.name;
 
     void go(String route) {
@@ -61,7 +58,6 @@ class AppDrawer extends StatelessWidget {
       child: SafeArea(
         child: Column(
           children: [
-            // 🔹 الهيدر
             Container(
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(16),
@@ -79,7 +75,7 @@ class AppDrawer extends StatelessWidget {
                       color: cs.primary.withOpacity(.12),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(Icons.auto_awesome, color: cs.primary),
+                    child: Icon(Icons.home, color: cs.primary),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -104,8 +100,6 @@ class AppDrawer extends StatelessWidget {
                 ],
               ),
             ),
-
-            // 🔹 القوائم
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -140,9 +134,7 @@ class AppDrawer extends StatelessWidget {
                     title: 'الإحصائيات',
                     route: AppRoutes.stats,
                   ),
-
                   const Divider(height: 24),
-
                   tile(
                     icon: Icons.settings,
                     title: 'الإعدادات',
@@ -162,13 +154,10 @@ class AppDrawer extends StatelessWidget {
                       });
                     },
                   ),
-
                   const SizedBox(height: 8),
                 ],
               ),
             ),
-
-            // 🔹 تذييل
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Text(

@@ -1,5 +1,4 @@
-// ignore_for_file: deprecated_member_use, unused_element
-
+// lib/features/ui/pages/home/sections/quick_actions_grid.dart
 import 'package:flutter/material.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
 
@@ -50,7 +49,7 @@ class QuickActionsGrid extends StatelessWidget {
     ),
     _ActionItem(
       'الصلاة',
-      Icons.explore, // بوصلة
+      Icons.explore,
       () => Navigator.pushNamed(context, AppRoutes.qibla),
     ),
     _ActionItem(
@@ -71,49 +70,6 @@ class QuickActionsGrid extends StatelessWidget {
   ];
 }
 
-class _PrayerSheet extends StatelessWidget {
-  final ColorScheme cs;
-  const _PrayerSheet({required this.cs});
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.explore, color: cs.primary),
-              title: const Text('اتجاه القبلة'),
-              subtitle: const Text('استخدم البوصلة لمعرفة الاتجاه الصحيح'),
-              onTap: () {
-                Navigator.pop(context);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('صفحة القبلة ستُضاف لاحقًا')),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.access_time, color: cs.primary),
-              title: const Text('مواقيت الصلاة'),
-              subtitle: const Text('عرض أوقات الفجر إلى العشاء'),
-              onTap: () {
-                Navigator.pop(context);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('صفحة المواقيت ستُضاف لاحقًا')),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _ActionItem {
   final String title;
   final IconData icon;
@@ -128,7 +84,7 @@ class _ActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = cs.surfaceContainerHigh;
+    final bg = cs.surface;
     return Semantics(
       button: true,
       label: item.title,

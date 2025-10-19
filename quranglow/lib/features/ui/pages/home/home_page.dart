@@ -1,18 +1,13 @@
 // lib/features/ui/pages/home/home_page.dart
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:quranglow/features/ui/pages/home/sections/daily_ayah_card.dart';
-
 import 'package:quranglow/features/ui/pages/home/widgets/app_drawer.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/hero_header.dart';
-
 import 'package:quranglow/features/ui/pages/home/sections/last_read_card.dart';
 import 'package:quranglow/features/ui/pages/home/sections/goals_strip.dart';
 import 'package:quranglow/features/ui/pages/home/sections/quick_actions_grid.dart';
 import 'package:quranglow/features/ui/pages/home/sections/shortcuts_list.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/section_spacing.dart';
-
 import '../mushaf/mushaf_page.dart';
 import '../azkar/azkar_tasbih_page.dart';
 import '../player/player_page.dart';

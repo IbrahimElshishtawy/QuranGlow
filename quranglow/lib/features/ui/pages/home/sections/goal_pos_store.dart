@@ -1,11 +1,10 @@
 // lib/features/ui/pages/home/sections/goal_pos_store.dart
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// DTO عام يُستخدم عبر الملفات
 class GoalPos {
   const GoalPos(this.surah, this.ayahIndex);
-  final int surah; // رقم السورة
-  final int ayahIndex; // 0-based
+  final int surah;
+  final int ayahIndex;
 }
 
 class GoalPosStore {

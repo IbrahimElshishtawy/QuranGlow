@@ -1,5 +1,5 @@
 // lib/features/ui/pages/home/sections/goals_strip.dart
-// ignore_for_file: deprecated_member_use, unnecessary_underscores
+// ignore_for_file: deprecated_member_use
 
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -37,7 +37,7 @@ class GoalsStrip extends ConsumerWidget {
             height: 86,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: cs.surfaceContainerHigh,
+              color: cs.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: cs.outlineVariant.withOpacity(.5)),
             ),
@@ -59,7 +59,7 @@ class GoalsStrip extends ConsumerWidget {
               return Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: cs.surfaceContainerHigh,
+                  color: cs.surface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: cs.outlineVariant.withOpacity(.5)),
                 ),
@@ -81,7 +81,7 @@ class GoalsStrip extends ConsumerWidget {
 
             return Container(
               decoration: BoxDecoration(
-                color: cs.surfaceContainerHigh,
+                color: cs.surface,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: cs.outlineVariant.withOpacity(.5)),
               ),

@@ -1,5 +1,4 @@
-// ignore_for_file: deprecated_member_use
-
+// lib/features/ui/pages/home/sections/shortcuts_list.dart
 import 'package:flutter/material.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
 
@@ -52,7 +51,7 @@ class _ShortcutTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Material(
-      color: cs.surfaceContainerHigh,
+      color: cs.surface,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: onTap,

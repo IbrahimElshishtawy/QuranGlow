@@ -1,3 +1,4 @@
+// lib/features/ui/pages/home/widgets/section_spacing.dart
 import 'package:flutter/material.dart';
 
 class SectionSpacing extends StatelessWidget {

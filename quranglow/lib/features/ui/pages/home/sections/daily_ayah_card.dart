@@ -1,9 +1,11 @@
-// ignore_for_file: deprecated_member_use, unnecessary_underscores
+// lib/features/ui/pages/home/sections/daily_ayah_card.dart
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/daily_ayah_provider.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/section_title.dart';
-import 'package:quranglow/features/ui/pages/mushaf/mushaf_page.dart'; // ← للاستدعاء المباشر
+import 'package:quranglow/features/ui/pages/mushaf/mushaf_page.dart';
 
 class DailyAyahCard extends ConsumerWidget {
   const DailyAyahCard({super.key});
@@ -27,7 +29,7 @@ class DailyAyahCard extends ConsumerWidget {
             height: 110,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: cs.surfaceContainerHigh,
+              color: cs.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: cs.primary.withOpacity(.20)),
             ),
@@ -54,10 +56,7 @@ class DailyAyahCard extends ConsumerWidget {
           data: (list) => Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  cs.primary.withOpacity(.10),
-                  cs.surfaceContainerHighest,
-                ],
+                colors: [cs.primary.withOpacity(.10), cs.surface],
                 begin: Alignment.topRight,
                 end: Alignment.bottomLeft,
               ),
@@ -104,7 +103,7 @@ class DailyAyahCard extends ConsumerWidget {
                       tooltip: 'اذهب للآية',
                       visualDensity: VisualDensity.compact,
                       style: ButtonStyle(
-                        overlayColor: WidgetStatePropertyAll(
+                        overlayColor: MaterialStatePropertyAll(
                           cs.primary.withOpacity(.08),
                         ),
                       ),
@@ -114,7 +113,7 @@ class DailyAyahCard extends ConsumerWidget {
                             builder: (_) => MushafPage(
                               chapter: a.surah,
                               editionId: 'quran-uthmani',
-                              initialAyah: a.ayah, // ← نفتح على الآية مباشرة
+                              initialAyah: a.ayah,
                             ),
                           ),
                         );

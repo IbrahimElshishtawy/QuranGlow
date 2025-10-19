@@ -1,3 +1,4 @@
+// lib/features/ui/pages/home/widgets/section_title.dart
 import 'package:flutter/material.dart';
 
 class SectionTitle extends StatelessWidget {

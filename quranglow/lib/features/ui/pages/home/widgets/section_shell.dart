@@ -1,3 +1,4 @@
+// lib/features/ui/pages/home/widgets/section_shell.dart
 import 'package:flutter/material.dart';
 
 class SectionShell extends StatelessWidget {
@@ -11,7 +12,7 @@ class SectionShell extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Material(
-        color: cs.surfaceContainerHigh,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(18),

@@ -1,6 +1,4 @@
-// lib/features/ui/pages/home/widgets/last_read_card.dart
-// ignore_for_file: deprecated_member_use
-
+// lib/features/ui/pages/home/sections/last_read_card.dart
 import 'package:flutter/material.dart';
 import 'package:quranglow/features/ui/pages/home/widgets/section_title.dart';
 import 'package:quranglow/features/ui/pages/mushaf/widget/position_store.dart';
@@ -48,8 +46,8 @@ class _LastReadCardState extends State<LastReadCard> {
         final hasPos = pos != null;
 
         final surahNum = hasPos ? pos.surah : 2;
-        final ayahIdx0 = hasPos ? pos.ayahIndex : 254; // 0-based
-        final ayahNum = ayahIdx0 + 1; // 1-based
+        final ayahIdx0 = hasPos ? pos.ayahIndex : 254;
+        final ayahNum = ayahIdx0 + 1;
         final surahName = quran.getSurahNameArabic(surahNum);
 
         return Column(
@@ -63,7 +61,7 @@ class _LastReadCardState extends State<LastReadCard> {
             const SizedBox(height: 8),
             Container(
               decoration: BoxDecoration(
-                color: cs.surfaceContainerHigh,
+                color: cs.surface,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: cs.outlineVariant.withOpacity(.5)),
               ),

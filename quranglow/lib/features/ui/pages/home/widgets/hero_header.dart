@@ -1,3 +1,4 @@
+// lib/features/ui/pages/home/widgets/hero_header.dart
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ class HeroHeader extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: isDark
-                  ? [cs.surfaceContainerHighest.withOpacity(.28), cs.surface]
+                  ? [cs.surface.withOpacity(.28), cs.surface]
                   : [cs.primary.withOpacity(.10), cs.surface],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
