@@ -7,7 +7,7 @@ import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/data/surah_names_ar.dart';
 import 'package:quranglow/features/ui/pages/downloads/controller/download_controller.dart'
     hide downloadControllerProvider;
-
+import 'package:quranglow/features/ui/pages/downloads/surah_files_page.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
 
 class DownloadDetailPage extends ConsumerStatefulWidget {
@@ -41,12 +41,18 @@ class _DownloadDetailPageState extends ConsumerState<DownloadDetailPage> {
       widget.reciterId,
       widget.surah,
     );
+
+    // استخدم التوقيع الجديد للحفاظ على أرقام الآيات في أسماء الملفات
+    final items = [
+      for (int i = 0; i < urls.length; i++)
+        AyahDownload(ayah: i + 1, url: urls[i]),
+    ];
     await ref
         .read(downloadControllerProvider.notifier)
-        .downloadSurah(
+        .downloadAyat(
           surah: widget.surah,
           reciterId: widget.reciterId,
-          ayahUrls: urls,
+          items: items,
         );
   }
 
@@ -54,6 +60,19 @@ class _DownloadDetailPageState extends ConsumerState<DownloadDetailPage> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final st = ref.watch(downloadControllerProvider);
+
+    ref.listen(downloadControllerProvider, (prev, next) {
+      if (next.status == DownloadStatus.done && mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => SurahFilesPage(
+              reciterId: widget.reciterId,
+              surah: widget.surah,
+            ),
+          ),
+        );
+      }
+    });
 
     final name = (widget.surah >= 1 && widget.surah < kSurahNamesAr.length)
         ? kSurahNamesAr[widget.surah]
@@ -93,7 +112,7 @@ class _DownloadDetailPageState extends ConsumerState<DownloadDetailPage> {
             children: [
               Card(
                 elevation: 0,
-                color: cs.surfaceContainerHigh,
+                color: cs.surface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                   side: BorderSide(color: cs.outlineVariant),
