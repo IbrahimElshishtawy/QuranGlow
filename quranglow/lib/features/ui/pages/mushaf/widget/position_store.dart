@@ -1,7 +1,8 @@
+// lib/features/ui/pages/mushaf/widgets/position_store.dart
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LastPosition {
-  final int surah; //
+  final int surah;
   final int ayahIndex;
   const LastPosition({required this.surah, required this.ayahIndex});
 }

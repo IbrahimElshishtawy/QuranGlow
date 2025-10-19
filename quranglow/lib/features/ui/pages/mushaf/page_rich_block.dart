@@ -1,4 +1,4 @@
-// ignore_for_file: dead_code, deprecated_member_use
+// lib/features/ui/pages/mushaf/page_rich_block.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
@@ -20,7 +20,7 @@ class PageRichBlock extends StatefulWidget {
     required this.basmalaText,
     required this.currentAyahIndex,
     required this.onTapIndex,
-    Color? ayahNumberColor,
+    this.ayahNumberColor,
   });
 
   final List<Aya> ayat;
@@ -29,6 +29,7 @@ class PageRichBlock extends StatefulWidget {
   final String basmalaText;
   final int? currentAyahIndex;
   final void Function(int index) onTapIndex;
+  final Color? ayahNumberColor;
 
   @override
   State<PageRichBlock> createState() => _PageRichBlockState();
@@ -75,32 +76,55 @@ class _PageRichBlockState extends State<PageRichBlock> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black;
 
-    return SingleChildScrollView(
-      physics: const NeverScrollableScrollPhysics(),
-      child: RichText(
-        textAlign: TextAlign.justify,
-        textDirection: TextDirection.rtl,
-        strutStyle: const StrutStyle(fontSize: 22, height: 2.0),
-        text: TextSpan(
-          style: TextStyle(
-            color: textColor,
-            fontFamilyFallback: [
-              'KFGQPC Uthmanic Script',
-              'Hafs',
-              'Noto Naskh Arabic',
-              'Scheherazade',
-            ],
-            height: 2.0,
-            fontSize: 22,
+    return LayoutBuilder(
+      builder: (context, c) {
+        return ScrollConfiguration(
+          behavior: const _NoGlowBehavior(),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.only(bottom: 2),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: c.maxHeight),
+              child: RichText(
+                textAlign: TextAlign.justify,
+                textDirection: TextDirection.rtl,
+                strutStyle: const StrutStyle(fontSize: 22, height: 2.0),
+                text: TextSpan(
+                  style: TextStyle(
+                    color: textColor,
+                    fontFamilyFallback: [
+                      'KFGQPC Uthmanic Script',
+                      'Hafs',
+                      'Noto Naskh Arabic',
+                      'Scheherazade',
+                    ],
+                    height: 2.0,
+                    fontSize: 22,
+                  ),
+                  children: spans,
+                ),
+              ),
+            ),
           ),
-          children: spans,
-        ),
-      ),
+        );
+      },
     );
   }
 
   int? _mapToLocal(int global, int start, int end) {
     if (global < start || global >= end) return null;
     return global - start;
+  }
+}
+
+class _NoGlowBehavior extends ScrollBehavior {
+  const _NoGlowBehavior();
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
+    return child;
   }
 }

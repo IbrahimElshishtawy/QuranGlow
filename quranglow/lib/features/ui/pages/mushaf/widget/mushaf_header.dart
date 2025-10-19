@@ -1,3 +1,4 @@
+// lib/features/ui/pages/mushaf/widgets/mushaf_header.dart
 import 'package:flutter/material.dart';
 
 class MushafHeader extends StatelessWidget {

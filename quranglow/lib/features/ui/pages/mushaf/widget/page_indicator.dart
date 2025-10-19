@@ -1,3 +1,4 @@
+// lib/features/ui/pages/mushaf/widgets/page_indicator.dart
 import 'package:flutter/material.dart';
 
 class PageIndicator extends StatelessWidget {
@@ -5,8 +6,15 @@ class PageIndicator extends StatelessWidget {
   final int current, total;
 
   String _toArabicDigits(int n) {
-    const map = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    return n.toString().split('').map((c) => map[int.parse(c)]).join();
+    const east = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    final s = n.toString();
+    final b = StringBuffer();
+    for (final ch in s.runes) {
+      final c = String.fromCharCode(ch);
+      final d = int.tryParse(c);
+      b.write(d == null ? c : east[d]);
+    }
+    return b.toString();
   }
 
   @override

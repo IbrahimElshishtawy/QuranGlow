@@ -1,4 +1,6 @@
+// lib/features/ui/pages/mushaf/widgets/mushaf_top_bar.dart
 // ignore_for_file: deprecated_member_use
+
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,23 +32,16 @@ class MushafTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    // ألوان متكيفة مع الثيم
-    final fg = isDark
-        ? cs.onSurface
-        : cs.onSurface; // نفس المصدر، لكن هنقلل/نزود الشفافية تحت
+    final fg = cs.onSurface;
     final titleColor = fg.withOpacity(isDark ? 0.95 : 0.90);
     final iconEnabled = fg.withOpacity(isDark ? 0.95 : 0.90);
     final iconDisabled = fg.withOpacity(0.30);
-
     final bg = isDark
         ? Colors.black.withOpacity(0.35)
         : cs.surface.withOpacity(0.75);
-
     final border = isDark
         ? Colors.white.withOpacity(0.06)
         : cs.outlineVariant.withOpacity(0.5);
-
     final gradStart = isDark
         ? Colors.white.withOpacity(0.06)
         : Colors.white.withOpacity(0.20);
@@ -129,8 +124,6 @@ class MushafTopBar extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 6),
-
-                        // التفسير
                         _roundButton(
                           icon: Icons.menu_book_outlined,
                           onTap: onTafsir,
@@ -139,8 +132,6 @@ class MushafTopBar extends StatelessWidget {
                           disabledColor: iconDisabled,
                           isDark: isDark,
                         ),
-
-                        // الحفظ
                         _roundButton(
                           icon: Icons.bookmark_add_outlined,
                           onTap: onSave,
@@ -149,7 +140,6 @@ class MushafTopBar extends StatelessWidget {
                           disabledColor: iconDisabled,
                           isDark: isDark,
                         ),
-
                         _roundButton(
                           icon: Icons.skip_previous,
                           onTap: onPrev,
