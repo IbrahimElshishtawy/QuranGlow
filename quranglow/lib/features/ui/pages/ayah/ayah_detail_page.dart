@@ -4,12 +4,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/core/model/book/surah.dart';
+import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/features/ui/pages/ayah/widgets/ayah_audio_card.dart';
-import 'package:quranglow/features/ui/pages/player/controller/player_controller_provider.dart';
-import 'package:riverpod/src/framework.dart';
 
 class AyahDetailPage extends ConsumerWidget {
   const AyahDetailPage({
@@ -29,30 +27,22 @@ class AyahDetailPage extends ConsumerWidget {
 
   int _ayahNumInSurah(Aya a) {
     final nIn = (a as dynamic).numberInSurah;
-    final n = (nIn is int && nIn > 0) ? nIn : a.number;
-    return n;
+    return (nIn is int && nIn > 0) ? nIn : a.number;
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final ayahNo = _ayahNumInSurah(aya);
-
-    // ثبّت قيمة القارئ كسلسلة غير null
-    final String effectiveReciterId =
-        reciterId ?? (ref.watch(editionIdProvider) as String?) ?? 'ar.alafasy';
-
-    // وحّد النوع: AsyncValue<String>
-    final AsyncValue<String> tafsirAsync =
-        (tafsir != null && tafsir!.trim().isNotEmpty)
+    final effectiveReciterId = reciterId ?? 'ar.alafasy';
+    final tafsirAsync = (tafsir?.trim().isNotEmpty ?? false)
         ? AsyncValue<String>.data(tafsir!)
         : ref.watch(
             tafsirFutureProvider((
-                  surah: surah.number,
-                  ayah: ayahNo,
-                  editionId: tafsirEditionId,
-                ))
-                as ProviderListenable<AsyncValue<String>>,
+              surah: surah.number,
+              ayah: ayahNo,
+              editionId: tafsirEditionId,
+            )),
           );
 
     return Directionality(
@@ -64,7 +54,6 @@ class AyahDetailPage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // النص
               Text(
                 '﴿${aya.text}﴾',
                 textAlign: TextAlign.right,
@@ -77,27 +66,26 @@ class AyahDetailPage extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
 
-              // الصوت
               AyahAudioCard(
                 surah: surah.number,
                 ayahInSurah: ayahNo,
-                reciterIdLabel: effectiveReciterId, // String غير nullable
-                effectiveReciterId: effectiveReciterId, // String غير nullable
+                reciterIdLabel: effectiveReciterId,
+                effectiveReciterId: effectiveReciterId,
               ),
 
               const SizedBox(height: 16),
 
-              // التفسير
               const Text(
                 'تفسير مختصر:',
                 style: TextStyle(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
+
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: cs.surfaceContainer,
+                    color: cs.surface,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: cs.outlineVariant),
                   ),
@@ -107,7 +95,7 @@ class AyahDetailPage extends ConsumerWidget {
                     error: (_, __) => const Text('لا يوجد تفسير متاح.'),
                     data: (t) => SingleChildScrollView(
                       child: Text(
-                        t.trim().isNotEmpty ? t : 'لا يوجد تفسير متاح.',
+                        t!.trim().isNotEmpty ? t : 'لا يوجد تفسير متاح.',
                         textAlign: TextAlign.right,
                       ),
                     ),
