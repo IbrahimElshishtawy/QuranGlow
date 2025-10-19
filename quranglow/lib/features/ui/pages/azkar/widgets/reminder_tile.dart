@@ -1,10 +1,7 @@
-// lib/features/ui/pages/azkar/widgets/reminder_tile.dart
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-
 import '../../../../../core/model/reminder/reminder.dart';
-
 
 class ReminderTile extends StatelessWidget {
   const ReminderTile({
@@ -22,9 +19,19 @@ class ReminderTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final time = TimeOfDay.fromDateTime(r.dateTime).format(context);
-    final week = ['الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد'];
-    final day = week[(r.dateTime.weekday + 5) % 7];
-    final fmt = '$day ${r.dateTime.day}/${r.dateTime.month}/${r.dateTime.year} • $time';
+    // 1=Mon..7=Sun
+    final week = [
+      'الإثنين',
+      'الثلاثاء',
+      'الأربعاء',
+      'الخميس',
+      'الجمعة',
+      'السبت',
+      'الأحد',
+    ];
+    final day = week[r.dateTime.weekday - 1];
+    final fmt =
+        '$day ${r.dateTime.day}/${r.dateTime.month}/${r.dateTime.year} • $time';
 
     return Card(
       child: ListTile(
@@ -32,17 +39,25 @@ class ReminderTile extends StatelessWidget {
         title: Text(r.title, maxLines: 1, overflow: TextOverflow.ellipsis),
         subtitle: Text(
           '$fmt${r.daily ? ' • يوميًا' : ''}'
-              '${(r.notes?.isNotEmpty ?? false) ? '\n${r.notes}' : ''}',
+          '${(r.notes?.isNotEmpty ?? false) ? '\n${r.notes}' : ''}',
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
         ),
         trailing: PopupMenuButton<String>(
           onSelected: (v) {
             switch (v) {
-              case 'schedule': onSchedule(); break;
-              case 'edit': onEdit(); break;
-              case 'cancel': onCancel(); break;
-              case 'delete': onDelete(); break;
+              case 'schedule':
+                onSchedule();
+                break;
+              case 'edit':
+                onEdit();
+                break;
+              case 'cancel':
+                onCancel();
+                break;
+              case 'delete':
+                onDelete();
+                break;
             }
           },
           itemBuilder: (_) => const [
