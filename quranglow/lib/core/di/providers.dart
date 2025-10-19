@@ -23,11 +23,15 @@ import 'package:quranglow/core/service/setting/stats_service_mock.dart';
 import 'package:quranglow/core/service/tracking_service.dart';
 import 'package:quranglow/core/storage/hive_storage_impl.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
+
+// Bookmarks
 import 'package:quranglow/features/ui/pages/bookmarks/controllers/bookmarks_controller.dart';
 import 'package:quranglow/features/ui/pages/bookmarks/logic/bookmarks_usecase.dart';
+
+// Downloads
 import 'package:quranglow/features/ui/pages/downloads/controller/download_controller.dart';
 
-// --- HTTP & Dio --------------------------------------------------------------
+/// --- HTTP & Dio -------------------------------------------------------------
 
 final httpClientProvider = Provider<http.Client>((ref) => http.Client());
 
@@ -42,11 +46,11 @@ final dioProvider = Provider<Dio>((ref) {
   );
 });
 
-// --- Storage -----------------------------------------------------------------
+/// --- Storage ----------------------------------------------------------------
 
 final storageProvider = Provider<LocalStorage>((ref) => HiveStorageImpl());
 
-// --- API Sources -------------------------------------------------------------
+/// --- API Sources ------------------------------------------------------------
 
 final fawazProvider = Provider<FawazCdnSource>((ref) {
   final client = ref.watch(httpClientProvider);
@@ -59,7 +63,7 @@ final alQuranProvider = Provider<AlQuranCloudSource>((ref) {
   return AlQuranCloudSource(dio: dio);
 });
 
-// --- Services ----------------------------------------------------------------
+/// --- Services ---------------------------------------------------------------
 
 final goalsServiceProvider = Provider<GoalsService>((ref) {
   final svc = GoalsService(storage: ref.watch(storageProvider));
@@ -83,13 +87,13 @@ final settingsServiceProvider = Provider<SettingsService>(
   (ref) => SettingsService(),
 );
 
-// --- Goals (Stream) ----------------------------------------------------------
+/// --- Goals (Stream) ---------------------------------------------------------
 
 final goalsStreamProvider = StreamProvider.autoDispose<List<Goal>>((ref) {
   return ref.watch(goalsServiceProvider).watchGoalsWithInitial();
 });
 
-// --- Quran Text --------------------------------------------------------------
+/// --- Quran Text -------------------------------------------------------------
 
 final quranAllProvider = FutureProvider.autoDispose.family<List<Surah>, String>(
   (ref, editionId) {
@@ -98,7 +102,7 @@ final quranAllProvider = FutureProvider.autoDispose.family<List<Surah>, String>(
   },
 );
 
-// --- Settings (StateNotifier) ------------------------------------------------
+/// --- Settings (StateNotifier) -----------------------------------------------
 
 final settingsProvider =
     StateNotifierProvider<SettingsController, AsyncValue<AppSettings>>(
@@ -139,13 +143,13 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
   }
 }
 
-// --- Audio Editions ----------------------------------------------------------
+/// --- Audio Editions ---------------------------------------------------------
 
 final audioEditionsProvider = FutureProvider<List<dynamic>>((ref) async {
   return ref.read(quranServiceProvider).listAudioEditions();
 });
 
-// --- Daily Ayah --------------------------------------------------------------
+/// --- Daily Ayah -------------------------------------------------------------
 
 final dailyAyahProvider = FutureProvider.autoDispose<Map<String, String>>((
   ref,
@@ -178,7 +182,7 @@ final dailyAyahProvider = FutureProvider.autoDispose<Map<String, String>>((
   return {'text': text, 'ref': '$surahName • $nInSurah'};
 });
 
-// --- Tafsir ------------------------------------------------------------------
+/// --- Tafsir -----------------------------------------------------------------
 
 final tafsirEditionsProvider = FutureProvider<List<Map<String, String>>>((ref) {
   return ref.read(quranServiceProvider).listTafsirEditions();
@@ -191,13 +195,14 @@ final tafsirForAyahProvider = FutureProvider.family<String, (int, int, String)>(
     return ref.read(quranServiceProvider).getAyahTafsir(surah, ayah, editionId);
   },
 );
+
+/// تصحيح الأنواع: (surah:int, editionId:String) -> getSurahText(editionId, surah)
 final quranSurahProvider = FutureProvider.autoDispose
     .family<Surah, (int, String)>((ref, t) {
       final (surah, editionId) = t;
-      return ref
-          .read(quranServiceProvider)
-          .getSurahText(surah as String, editionId as int);
+      return ref.read(quranServiceProvider).getSurahText(editionId, surah);
     });
+
 final tafsirFutureProvider = FutureProvider.autoDispose
     .family<String?, ({int surah, int ayah, String editionId})>((ref, p) async {
       final svc = ref.read(quranServiceProvider);
@@ -215,16 +220,19 @@ final surahAudioUrlsProvider = FutureProvider.autoDispose
       final svc = ref.read(quranServiceProvider);
       return svc.getSurahAudioUrls(p.reciterId, p.surah);
     });
-// --- download service ---------------------------------------------------------
+
+/// --- download service -------------------------------------------------------
+
 final downloadControllerProvider =
     StateNotifierProvider<DownloadController, DownloadState>((ref) {
       return DownloadController(ref);
     });
+
 final downloadServiceProvider = Provider<DownloadService>((ref) {
   return DownloadService(dio: ref.read(dioProvider));
 });
 
-// --- bookmarks controller -----------------------------------------------------
+/// --- bookmarks controller ----------------------------------------------------
 
 final bookmarksProvider =
     StateNotifierProvider<BookmarksController, List<Bookmark>>(
@@ -244,7 +252,8 @@ final surahAyatCountProvider = FutureProvider.family<int, int>((ref, n) {
   final uc = ref.read(bookmarksUseCaseProvider);
   return uc.getAyatCount(n);
 });
-// --- Stats Service ------------------------------------------------------------
+
+/// --- Stats Service ----------------------------------------------------------
 
 final statsServiceProvider = Provider<StatsService>((ref) {
   return StatsServiceMock();
