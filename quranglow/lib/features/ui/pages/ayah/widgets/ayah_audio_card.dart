@@ -1,4 +1,4 @@
-// lib/features/ayah/widgets/ayah_audio_card.dart
+// lib/features/ui/pages/ayah/widgets/ayah_audio_card.dart
 // ignore_for_file: deprecated_member_use, unnecessary_underscores
 
 import 'package:flutter/material.dart';
@@ -47,7 +47,7 @@ class _AyahAudioCardState extends ConsumerState<AyahAudioCard> {
 
     return Card(
       elevation: 0,
-      color: cs.surfaceContainerHigh,
+      color: cs.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(color: cs.outlineVariant),
@@ -81,10 +81,10 @@ class _AyahAudioCardState extends ConsumerState<AyahAudioCard> {
                       icon: const Icon(Icons.play_arrow),
                       tooltip: 'تشغيل',
                       onPressed: () async {
-                        if (_pickedUrl != null) {
-                          await _player.setUrl(_pickedUrl!);
-                          _player.play();
-                        }
+                        final url = _pickedUrl;
+                        if (url == null) return;
+                        await _player.setUrl(url);
+                        _player.play();
                       },
                     ),
                     IconButton(
