@@ -1,3 +1,4 @@
+// lib/features/ui/pages/downloads/controller/download_controller.dart
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,18 +40,37 @@ class DownloadState {
   }
 }
 
+class AyahDownload {
+  final int ayah; // 1-based
+  final String url;
+  AyahDownload({required this.ayah, required this.url});
+}
+
 class DownloadController extends StateNotifier<DownloadState> {
   DownloadController(this.ref) : super(const DownloadState());
   final Ref ref;
-
   CancelToken? _token;
 
+  // تنزيل سورة كاملة (يحفظ 001.mp3 .. nnn.mp3)
   Future<void> downloadSurah({
     required int surah,
-    required String reciterId, // مثل 'ar.alafasy'
-    required List<String> ayahUrls, // روابط صوت الآيات
+    required String reciterId,
+    required List<String> ayahUrls,
   }) async {
-    if (ayahUrls.isEmpty) {
+    final items = <AyahDownload>[
+      for (int i = 0; i < ayahUrls.length; i++)
+        AyahDownload(ayah: i + 1, url: ayahUrls[i]),
+    ];
+    await downloadAyat(surah: surah, reciterId: reciterId, items: items);
+  }
+
+  // تنزيل آيات محدّدة مع الحفاظ على رقم الآية في اسم الملف
+  Future<void> downloadAyat({
+    required int surah,
+    required String reciterId,
+    required List<AyahDownload> items,
+  }) async {
+    if (items.isEmpty) {
       state = state.copyWith(
         status: DownloadStatus.error,
         message: 'لا توجد روابط صوت',
@@ -68,22 +88,23 @@ class DownloadController extends StateNotifier<DownloadState> {
       status: DownloadStatus.running,
       progress: 0,
       current: 0,
-      total: ayahUrls.length,
+      total: items.length,
       message: null,
     );
 
     try {
-      for (int i = 0; i < ayahUrls.length; i++) {
-        final url = ayahUrls[i];
-        final file = File('${dir.path}/${i + 1}.mp3');
+      for (int i = 0; i < items.length; i++) {
+        final item = items[i];
+        final fileName = item.ayah.toString().padLeft(3, '0'); // 001, 002...
+        final file = File('${dir.path}/$fileName.mp3');
 
         await svc.downloadOne(
-          url: url,
+          url: item.url,
           savePath: file.path,
           cancelToken: _token,
           onProgress: (r, t) {
             final pFile = (t > 0) ? (r / t) : 0.0;
-            final overall = (i + pFile) / ayahUrls.length;
+            final overall = (i + pFile) / items.length;
             state = state.copyWith(
               status: DownloadStatus.running,
               current: i,
@@ -94,7 +115,7 @@ class DownloadController extends StateNotifier<DownloadState> {
 
         state = state.copyWith(
           current: i + 1,
-          progress: ((i + 1) / ayahUrls.length),
+          progress: ((i + 1) / items.length),
         );
       }
 
@@ -136,7 +157,7 @@ Future<File> saveAudioFile(
     await dir.create(recursive: true);
   }
 
-  final file = File('${dir.path}/$index.mp3');
+  final file = File('${dir.path}/${index.toString().padLeft(3, '0')}.mp3');
   final response = await http.get(Uri.parse(url));
 
   if (response.statusCode == 200) {
