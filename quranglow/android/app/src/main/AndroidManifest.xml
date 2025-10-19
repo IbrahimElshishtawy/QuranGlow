@@ -14,12 +14,14 @@
     <!-- Notifications (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
-    <!-- Wake lock (for wakelock_plus, audio, etc.) -->
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <!-- Exact alarms (Android 12+). مطلوبة للتذكير اليومي الدقيق -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
 
-    <!-- اختياري: لو عندك طلبات HTTP غير مشفرة -->
-    <!-- احذف السطر لو كل اتصالك HTTPS -->
-    <!-- android:usesCleartextTraffic="true" موجود داخل <application> أدناه -->
+    <!-- لإعادة جدولة الإشعارات بعد إعادة تشغيل الجهاز -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+    <!-- Wake lock -->
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
         android:name="${applicationName}"
@@ -48,12 +50,10 @@
         </activity>
 
         <!-- مطلوب لربط البلجنز -->
-        <meta-data
-            android:name="flutterEmbedding"
-            android:value="2" />
+        <meta-data android:name="flutterEmbedding" android:value="2" />
     </application>
 
-    <!-- Package visibility مثال لمحرك Flutter -->
+    <!-- Package visibility -->
     <queries>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
