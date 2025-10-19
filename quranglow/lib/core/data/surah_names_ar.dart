@@ -1,5 +1,4 @@
 const List<String> kSurahNamesAr = [
-  '',
   'الفاتحة',
   'البقرة',
   'آل عمران',
