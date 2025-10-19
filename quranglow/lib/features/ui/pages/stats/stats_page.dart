@@ -1,4 +1,4 @@
-// ignore_for_file: unused_local_variable, deprecated_member_use, unnecessary_underscores
+// lib/features/ui/pages/stats/stats_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/features/ui/pages/stats/controller/stats_controller.dart';
@@ -9,7 +9,7 @@ import 'package:quranglow/features/ui/pages/stats/widgets/goal_card.dart';
 class StatsPage extends ConsumerWidget {
   const StatsPage({super.key});
 
-  String _fmtDuration(Duration d) {
+  String _fmt(Duration d) {
     final h = d.inHours;
     final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
     return '$h:$m';
@@ -40,39 +40,33 @@ class StatsPage extends ConsumerWidget {
             onRetry: () => ref.read(statsControllerProvider.notifier).reload(),
           ),
           data: (st) {
-            final summary = st.summary;
-            final weekly = st.weekly;
-            final goal = st.goal;
-
+            final s = st.summary;
+            final w = st.weekly;
+            final g = st.goal;
             final cards = <Widget>[
               KpiCard(
                 title: 'ساعات التلاوة',
-                value: _fmtDuration(summary.totalReading),
+                value: _fmt(s.totalReading),
                 icon: Icons.schedule,
               ),
               KpiCard(
                 title: 'عدد الآيات المقروءة',
-                value: '${summary.readAyat}',
+                value: '${s.readAyat}',
                 icon: Icons.menu_book_rounded,
               ),
               KpiCard(
                 title: 'أيام المواظبة',
-                value: '${summary.streakDays}',
+                value: '${s.streakDays}',
                 icon: Icons.local_fire_department_rounded,
               ),
               KpiCard(
                 title: 'عدد الجلسات',
-                value: '${summary.sessions}',
+                value: '${s.sessions}',
                 icon: Icons.self_improvement_rounded,
               ),
-              ChartCard(title: 'التقدّم الأسبوعي', bars: weekly.dailyPercent),
-              GoalCard(
-                title: goal.title,
-                hint: goal.hint,
-                progress: goal.progress,
-              ),
+              ChartCard(title: 'التقدّم الأسبوعي', bars: w.dailyPercent),
+              GoalCard(title: g.title, hint: g.hint, progress: g.progress),
             ];
-
             return Padding(
               padding: const EdgeInsets.all(16),
               child: LayoutBuilder(
@@ -100,22 +94,19 @@ class StatsPage extends ConsumerWidget {
   }
 }
 
-/* ---------------- Views للحالات ---------------- */
-
 class _LoadingGrid extends StatelessWidget {
   const _LoadingGrid();
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    Widget shimmerBox() => Container(
+    Widget box() => Container(
       decoration: BoxDecoration(
         color: cs.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: cs.outlineVariant.withOpacity(.5)),
       ),
     );
-
     return Padding(
       padding: const EdgeInsets.all(16),
       child: LayoutBuilder(
@@ -130,7 +121,7 @@ class _LoadingGrid extends StatelessWidget {
               crossAxisSpacing: 12,
               childAspectRatio: 1.1,
             ),
-            itemBuilder: (_, __) => shimmerBox(),
+            itemBuilder: (_, __) => box(),
           );
         },
       ),

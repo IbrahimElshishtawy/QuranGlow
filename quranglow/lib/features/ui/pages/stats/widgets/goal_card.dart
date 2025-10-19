@@ -1,11 +1,10 @@
-// ignore_for_file: deprecated_member_use
-
+// lib/features/ui/pages/stats/widgets/goal_card.dart
 import 'package:flutter/material.dart';
 
 class GoalCard extends StatelessWidget {
   final String title;
   final String hint;
-  final double progress; // 0..1
+  final double progress;
   const GoalCard({
     super.key,
     required this.title,
@@ -38,7 +37,7 @@ class GoalCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(40),
               child: LinearProgressIndicator(
-                value: progress,
+                value: progress.clamp(0, 1),
                 minHeight: 8,
                 backgroundColor: cs.primary.withOpacity(.12),
                 valueColor: AlwaysStoppedAnimation(cs.primary),
@@ -46,7 +45,7 @@ class GoalCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              '${(progress * 100).toStringAsFixed(0)}%',
+              '${(progress.clamp(0, 1) * 100).toStringAsFixed(0)}%',
               textAlign: TextAlign.end,
             ),
           ],

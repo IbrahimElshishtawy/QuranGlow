@@ -1,5 +1,4 @@
-// ignore_for_file: deprecated_member_use
-
+// lib/features/ui/pages/stats/widgets/kpi_card.dart
 import 'package:flutter/material.dart';
 
 class KpiCard extends StatelessWidget {

@@ -1,11 +1,10 @@
-// ignore_for_file: deprecated_member_use
-
+// lib/features/ui/pages/stats/widgets/chart_card.dart
 import 'package:flutter/material.dart';
 import 'mini_bar.dart';
 
 class ChartCard extends StatelessWidget {
   final String title;
-  final List<int> bars; // 0..100
+  final List<int> bars;
   const ChartCard({super.key, required this.title, required this.bars});
 
   @override
@@ -33,7 +32,7 @@ class ChartCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   for (final v in bars) ...[
-                    Expanded(child: MiniBar(value: v / 100.0)),
+                    Expanded(child: MiniBar(value: v.clamp(0, 100) / 100.0)),
                     const SizedBox(width: 6),
                   ],
                 ],

@@ -1,3 +1,4 @@
+// lib/features/ui/pages/stats/controller/stats_controller.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:quranglow/core/di/providers.dart';

@@ -1,9 +1,8 @@
-// ignore_for_file: deprecated_member_use
-
+// lib/features/ui/pages/stats/widgets/mini_bar.dart
 import 'package:flutter/material.dart';
 
 class MiniBar extends StatelessWidget {
-  final double value; // 0..1
+  final double value;
   const MiniBar({super.key, required this.value});
 
   @override
