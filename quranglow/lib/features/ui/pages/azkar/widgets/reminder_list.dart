@@ -1,4 +1,3 @@
-// lib/features/ui/pages/azkar/widgets/reminder_list.dart
 // ignore_for_file: prefer_const_constructors, dead_code, unnecessary_underscores
 
 import 'package:flutter/material.dart';
@@ -64,9 +63,14 @@ class _ReminderListState extends State<ReminderList> {
   Future<void> _schedule(Reminder r) async {
     try {
       if (r.dateTime.isBefore(DateTime.now()) && !r.daily) {
-        r.dateTime = DateTime.now()
-            .add(const Duration(days: 1))
-            .copyWith(hour: r.dateTime.hour, minute: r.dateTime.minute);
+        final now = DateTime.now();
+        r.dateTime = DateTime(
+          now.year,
+          now.month,
+          now.day + 1,
+          r.dateTime.hour,
+          r.dateTime.minute,
+        );
       }
 
       await NotificationService.instance.scheduleReminder(
