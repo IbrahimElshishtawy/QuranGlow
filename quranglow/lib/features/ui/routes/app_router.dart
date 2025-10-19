@@ -2,10 +2,11 @@
 // ignore_for_file: unused_local_variable
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/core/model/book/surah.dart';
-
+import 'package:quranglow/core/service/quran/quran_service.dart';
 // الصفحات
 import 'package:quranglow/features/ui/pages/ayah/ayah_detail_page.dart';
 import 'package:quranglow/features/ui/pages/bookmarks/bookmarks_page.dart';
@@ -29,6 +30,13 @@ import 'package:quranglow/features/ui/pages/azkar/azkar_tasbih_page.dart';
 
 import '../pages/qibla/qibla_page.dart';
 import 'app_routes.dart';
+
+// لو عندك provider جاهز استبدل التالي بالاستيراد الصحيح
+final quranServiceProvider = Provider<QuranService>(
+  (ref) => throw UnimplementedError(
+    'Override quranServiceProvider in ProviderScope',
+  ),
+);
 
 class MushafArgs {
   const MushafArgs({
@@ -85,21 +93,39 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
       return MaterialPageRoute(
         settings: s,
         builder: (context) {
-          return PagedMushaf(
-            ayat: a.ayat,
-            surahName: a.surahName,
-            surahNumber: a.surahNumber,
-            initialSelectedAyah: a.initialSelectedAyah,
-            onAyahTap: (int ayahNumber, Aya aya) {
-              final fakeSurah = Surah(
-                number: a.surahNumber,
-                name: a.surahName,
+          return Consumer(
+            builder: (context, ref, _) {
+              final quran = ref.read(quranServiceProvider);
+              const tafsirEdition = 'ar-tafsir-muyassar';
+
+              return PagedMushaf(
                 ayat: a.ayat,
-              );
-              Navigator.pushNamed(
-                context,
-                AppRoutes.ayah,
-                arguments: AyahArgs(aya: aya, surah: fakeSurah, tafsir: null),
+                surahName: a.surahName,
+                surahNumber: a.surahNumber,
+                initialSelectedAyah: a.initialSelectedAyah,
+                onAyahTap: (int ayahNumber, Aya aya) async {
+                  final fakeSurah = Surah(
+                    number: a.surahNumber,
+                    name: a.surahName,
+                    ayat: a.ayat,
+                  );
+                  final tafsirText = await quran.getAyahTafsir(
+                    a.surahNumber,
+                    ayahNumber,
+                    tafsirEdition,
+                  );
+
+                  if (!context.mounted) return;
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.ayah,
+                    arguments: AyahArgs(
+                      aya: aya,
+                      surah: fakeSurah,
+                      tafsir: tafsirText,
+                    ),
+                  );
+                },
               );
             },
           );
@@ -135,7 +161,6 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
   } else if (name == AppRoutes.bookmarks) {
     return _mat(const BookmarksPage(), s);
   } else if (name == AppRoutes.downloads) {
-    // ← لا نحتاج أي Arguments هنا
     return _mat(const dlp.DownloadsPage(embedded: false), s);
   } else if (name == AppRoutes.downloadDetail) {
     final a = s.arguments;
