@@ -7,7 +7,7 @@ class FawazCdnSource {
   FawazCdnSource(Client watch, this.dio);
 
   final Dio? dio;
-  // jsDelivr يوصي بـ @1
+
   static const _base = 'https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1';
   static const _rawGithack =
       'https://rawcdn.githack.com/fawazahmed0/quran-api/1';
