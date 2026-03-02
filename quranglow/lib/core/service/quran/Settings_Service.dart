@@ -1,20 +1,32 @@
 import 'package:quranglow/core/model/setting/App_Settings.dart';
+import 'package:quranglow/core/theme/theme_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsService {
   static const _kDark = 'settings.dark';
   static const _kScale = 'settings.fontScale';
   static const _kReader = 'settings.readerEditionId';
+  static const _kFontFamily = 'settings.fontFamily';
+  static const _kColorScheme = 'settings.colorScheme';
 
   Future<AppSettings> load() async {
     final sp = await SharedPreferences.getInstance();
     final dark = sp.getBool(_kDark) ?? false;
     final scale = sp.getDouble(_kScale) ?? 1.0;
     final reader = sp.getString(_kReader) ?? 'ar.alafasy';
+    final fontFamily = sp.getString(_kFontFamily) ?? 'System';
+    final colorSchemeStr = sp.getString(_kColorScheme) ?? 'green';
+    final colorScheme = AppColorScheme.values.firstWhere(
+      (e) => e.name == colorSchemeStr,
+      orElse: () => AppColorScheme.green,
+    );
+
     return AppSettings(
       darkMode: dark,
       fontScale: scale,
       readerEditionId: reader,
+      fontFamily: fontFamily,
+      colorScheme: colorScheme,
     );
   }
 
@@ -31,5 +43,15 @@ class SettingsService {
   Future<void> setReader(String v) async {
     final sp = await SharedPreferences.getInstance();
     await sp.setString(_kReader, v);
+  }
+
+  Future<void> setFontFamily(String v) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setString(_kFontFamily, v);
+  }
+
+  Future<void> setColorScheme(AppColorScheme v) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setString(_kColorScheme, v.name);
   }
 }

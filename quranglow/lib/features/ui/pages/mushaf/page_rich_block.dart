@@ -92,8 +92,8 @@ class _PageRichBlockState extends State<PageRichBlock> {
                 text: TextSpan(
                   style: TextStyle(
                     color: textColor,
-                    fontFamilyFallback: [
-                      'KFGQPC Uthmanic Script',
+                    fontFamily: 'KFGQPC Uthmanic Script',
+                    fontFamilyFallback: const [
                       'Hafs',
                       'Noto Naskh Arabic',
                       'Scheherazade',

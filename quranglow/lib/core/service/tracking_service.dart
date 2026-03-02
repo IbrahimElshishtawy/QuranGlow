@@ -1,8 +1,10 @@
 import 'package:quranglow/core/storage/local_storage.dart';
+import 'package:quranglow/core/service/sync/firebase_sync_service.dart';
 
 class TrackingService {
   final LocalStorage storage;
-  TrackingService(this.storage);
+  final FirebaseSyncService? syncService;
+  TrackingService(this.storage, [this.syncService]);
 
   static const _kStats = 'stats_v1';
 
@@ -18,8 +20,12 @@ class TrackingService {
         'activeStart': null, // ISO string
       };
 
-  Future<void> _save(Map<String, dynamic> m) async =>
-      storage.putMap(_kStats, m);
+  Future<void> _save(Map<String, dynamic> m) async {
+    await storage.putMap(_kStats, m);
+    if (syncService != null) {
+      await syncService!.syncStats(m);
+    }
+  }
 
   /// يبدأ جلسة قراءة
   Future<void> startSession() async {

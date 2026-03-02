@@ -19,7 +19,8 @@ import 'package:quranglow/core/service/setting/download_service.dart';
 import 'package:quranglow/core/service/setting/goals_service.dart';
 import 'package:quranglow/core/service/quran/quran_service.dart';
 import 'package:quranglow/core/service/quran/stats_service.dart';
-import 'package:quranglow/core/service/setting/stats_service_mock.dart';
+import 'package:quranglow/core/service/quran/stats_service_impl.dart';
+import 'package:quranglow/core/service/sync/firebase_sync_service.dart';
 import 'package:quranglow/core/service/tracking_service.dart';
 import 'package:quranglow/core/storage/hive_storage_impl.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
@@ -79,8 +80,15 @@ final quranServiceProvider = Provider<QuranService>((ref) {
   );
 });
 
+final firebaseSyncServiceProvider = Provider<FirebaseSyncService>((ref) {
+  return FirebaseSyncService();
+});
+
 final trackingServiceProvider = Provider<TrackingService>(
-  (ref) => TrackingService(ref.watch(storageProvider)),
+  (ref) => TrackingService(
+    ref.watch(storageProvider),
+    ref.watch(firebaseSyncServiceProvider),
+  ),
 );
 
 final settingsServiceProvider = Provider<SettingsService>(
@@ -140,6 +148,20 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
     if (cur == null) return;
     state = AsyncValue.data(cur.copyWith(readerEditionId: id));
     await ref.read(settingsServiceProvider).setReader(id);
+  }
+
+  Future<void> setFontFamily(String family) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(fontFamily: family));
+    await ref.read(settingsServiceProvider).setFontFamily(family);
+  }
+
+  Future<void> setColorScheme(AppColorScheme scheme) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(colorScheme: scheme));
+    await ref.read(settingsServiceProvider).setColorScheme(scheme);
   }
 }
 
@@ -256,5 +278,5 @@ final surahAyatCountProvider = FutureProvider.family<int, int>((ref, n) {
 /// --- Stats Service ----------------------------------------------------------
 
 final statsServiceProvider = Provider<StatsService>((ref) {
-  return StatsServiceMock();
+  return StatsServiceImpl(ref.watch(trackingServiceProvider));
 });

@@ -11,7 +11,7 @@ import 'package:quranglow/features/ui/pages/mushaf/widget/saved_position_banner.
 
 class PagedMushaf extends StatefulWidget {
   const PagedMushaf({
-    super.key,
+    required GlobalKey<_PagedMushafState> key,
     required this.ayat,
     required this.surahName,
     required this.surahNumber,
@@ -104,12 +104,22 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
     }
   }
 
+  void animateToPage(int page) {
+    _controller.animateToPage(
+      page,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOutCubic,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return PageView.builder(
       controller: _controller,
       reverse: true,
-      physics: const BouncingScrollPhysics(),
+      physics: const BouncingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
+      ),
       itemCount: _pages.length,
       itemBuilder: (context, pageIndex) {
         final r = _pages[pageIndex];

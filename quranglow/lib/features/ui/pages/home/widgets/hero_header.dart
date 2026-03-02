@@ -11,20 +11,23 @@ class HeroHeader extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: isDark
-                  ? [cs.surface.withOpacity(.28), cs.surface]
-                  : [cs.primary.withOpacity(.10), cs.surface],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+    return Material(
+      elevation: 4,
+      shadowColor: cs.shadow.withOpacity(0.2),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: isDark
+                    ? [cs.surfaceContainerHighest.withOpacity(.28), cs.surface]
+                    : [cs.primaryContainer.withOpacity(.4), cs.surface],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
             ),
           ),
-        ),
         Align(
           alignment: const Alignment(-0.9, -0.3),
           child: Icon(
@@ -41,19 +44,21 @@ class HeroHeader extends StatelessWidget {
             color: cs.primary.withOpacity(.16),
           ),
         ),
-        Align(
-          alignment: const Alignment(0, .35),
-          child: Text(
-            'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              color: cs.onSurface.withOpacity(.70),
-              fontWeight: FontWeight.w600,
+          Align(
+            alignment: const Alignment(0, .35),
+            child: Text(
+              'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                color: cs.primary,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
