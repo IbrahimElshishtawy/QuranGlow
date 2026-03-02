@@ -2,21 +2,25 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quranglow/core/di/providers.dart';
 
 import 'dhikr_quick_list.dart';
 
 
-class TasbihCounter extends StatefulWidget {
+class TasbihCounter extends ConsumerStatefulWidget {
   const TasbihCounter({super.key});
 
   @override
-  State<TasbihCounter> createState() => _TasbihCounterState();
+  ConsumerState<TasbihCounter> createState() => _TasbihCounterState();
 }
 
-class _TasbihCounterState extends State<TasbihCounter> {
+class _TasbihCounterState extends ConsumerState<TasbihCounter> {
   int _count = 0;
   int _target = 33;
   int _rounds = 0;
+  bool _vibrate = true;
+  bool _sound = false;
 
   void _inc() {
     setState(() {
@@ -27,13 +31,27 @@ class _TasbihCounterState extends State<TasbihCounter> {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('أُنجزت دورة $_rounds')));
       }
+      _syncTasbih();
     });
   }
 
-  void _reset() => setState(() {
-    _count = 0;
-    _rounds = 0;
-  });
+  void _reset() {
+    setState(() {
+      _count = 0;
+      _rounds = 0;
+      _syncTasbih();
+    });
+  }
+
+  void _syncTasbih() {
+    ref.read(firebaseSyncServiceProvider).syncTasbih({
+      'count': _count,
+      'target': _target,
+      'rounds': _rounds,
+      'vibrate': _vibrate,
+      'sound': _sound,
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +59,24 @@ class _TasbihCounterState extends State<TasbihCounter> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        Text('الإعدادات', style: t.titleMedium),
+        Card(
+          child: Column(
+            children: [
+              SwitchListTile(
+                title: const Text('اهتزاز عند التسبيح'),
+                value: _vibrate,
+                onChanged: (v) => setState(() => _vibrate = v),
+              ),
+              SwitchListTile(
+                title: const Text('صوت عند التسبيح'),
+                value: _sound,
+                onChanged: (v) => setState(() => _sound = v),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
         Text('الهدف', style: t.titleMedium),
         Card(
           clipBehavior: Clip.antiAlias,

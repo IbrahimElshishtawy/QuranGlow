@@ -17,10 +17,13 @@ import 'package:quranglow/core/model/setting/goal.dart';
 import 'package:quranglow/core/service/quran/Settings_Service.dart';
 import 'package:quranglow/core/service/setting/download_service.dart';
 import 'package:quranglow/core/service/setting/goals_service.dart';
+import 'package:quranglow/core/service/audio/audio_service.dart';
+import 'package:quranglow/core/service/audio/my_audio_handler.dart';
 import 'package:quranglow/core/service/quran/quran_service.dart';
 import 'package:quranglow/core/service/quran/stats_service.dart';
 import 'package:quranglow/core/service/quran/stats_service_impl.dart';
 import 'package:quranglow/core/service/sync/firebase_sync_service.dart';
+import 'package:quranglow/core/service/sync/reminders_service.dart';
 import 'package:quranglow/core/service/tracking_service.dart';
 import 'package:quranglow/core/storage/hive_storage_impl.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
@@ -72,6 +75,14 @@ final goalsServiceProvider = Provider<GoalsService>((ref) {
   return svc;
 });
 
+final audioHandlerProvider = Provider<MyAudioHandler>((ref) {
+  return MyAudioHandler();
+});
+
+final audioServiceProvider = Provider<MyAudioService>((ref) {
+  return MyAudioService(ref.watch(audioHandlerProvider));
+});
+
 final quranServiceProvider = Provider<QuranService>((ref) {
   return QuranService(
     fawaz: ref.watch(fawazProvider),
@@ -82,6 +93,10 @@ final quranServiceProvider = Provider<QuranService>((ref) {
 
 final firebaseSyncServiceProvider = Provider<FirebaseSyncService>((ref) {
   return FirebaseSyncService();
+});
+
+final remindersServiceProvider = Provider<RemindersService>((ref) {
+  return RemindersService();
 });
 
 final trackingServiceProvider = Provider<TrackingService>(

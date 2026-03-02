@@ -15,6 +15,9 @@ class StatsServiceImpl implements StatsService {
       readAyat: (stats['ayatCount'] as int?) ?? 0,
       streakDays: (stats['streakDays'] as int?) ?? 0,
       sessions: (stats['sessions'] as int?) ?? 0,
+      memorizedCount: (stats['memorizedCount'] as int?) ?? 0,
+      listeningTime: Duration(seconds: (stats['listeningSeconds'] as int?) ?? 0),
+      remembranceCount: (stats['remembranceCount'] as int?) ?? 0,
     );
   }
 

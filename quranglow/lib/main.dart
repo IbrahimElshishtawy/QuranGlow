@@ -10,12 +10,15 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:quranglow/Quran_Glow_App.dart';
 import 'package:quranglow/core/service/sync/firebase_sync_service.dart';
 import 'package:quranglow/core/service/setting/notification_service.dart';
+import 'package:quranglow/firebase_options.dart';
 
 Future<void> main() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: binding);
 
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   // Simple anonymous sign in for syncing
   try {

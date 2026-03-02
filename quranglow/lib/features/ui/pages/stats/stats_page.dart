@@ -66,6 +66,21 @@ class StatsPage extends ConsumerWidget {
                 value: '${s.sessions}',
                 icon: Icons.self_improvement_rounded,
               ),
+              KpiCard(
+                title: 'الآيات المحفوظة',
+                value: '${s.memorizedCount}',
+                icon: Icons.bookmark_added_rounded,
+              ),
+              KpiCard(
+                title: 'وقت الاستماع',
+                value: _fmt(s.listeningTime),
+                icon: Icons.headset_rounded,
+              ),
+              KpiCard(
+                title: 'الأذكار المنجزة',
+                value: '${s.remembranceCount}',
+                icon: Icons.favorite_rounded,
+              ),
               ChartCard(title: 'التقدّم الأسبوعي', bars: w.dailyPercent),
               GoalCard(title: g.title, hint: g.hint, progress: g.progress),
             ];

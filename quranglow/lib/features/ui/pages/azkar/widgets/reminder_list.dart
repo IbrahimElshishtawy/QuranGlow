@@ -1,20 +1,38 @@
 // ignore_for_file: prefer_const_constructors, dead_code, unnecessary_underscores
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/service/setting/notification_service.dart';
 import 'package:quranglow/features/ui/pages/azkar/widgets/reminder_editor.dart';
 import 'package:quranglow/features/ui/pages/azkar/widgets/reminder_tile.dart';
 import '../../../../../core/model/reminder/reminder.dart';
 
-class ReminderList extends StatefulWidget {
+class ReminderList extends ConsumerStatefulWidget {
   const ReminderList({super.key});
 
   @override
-  State<ReminderList> createState() => _ReminderListState();
+  ConsumerState<ReminderList> createState() => _ReminderListState();
 }
 
-class _ReminderListState extends State<ReminderList> {
+class _ReminderListState extends ConsumerState<ReminderList> {
   final List<Reminder> _items = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadReminders();
+  }
+
+  Future<void> _loadReminders() async {
+    final reminders = await ref.read(remindersServiceProvider).fetchReminders();
+    if (mounted) {
+      setState(() {
+        _items.clear();
+        _items.addAll(reminders);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,11 +69,13 @@ class _ReminderListState extends State<ReminderList> {
     setState(() {
       if (edit == null) {
         _items.add(res);
+      await ref.read(remindersServiceProvider).saveReminder(res);
       } else {
         edit.title = res.title;
         edit.dateTime = res.dateTime;
         edit.daily = res.daily;
         edit.notes = res.notes;
+      await ref.read(remindersServiceProvider).saveReminder(edit);
       }
     });
   }
@@ -98,10 +118,11 @@ class _ReminderListState extends State<ReminderList> {
     }
   }
 
-  void _delete(Reminder r) {
+  void _delete(Reminder r) async {
     try {
       NotificationService.instance.cancel(r.id).catchError((_) {});
       setState(() => _items.removeWhere((x) => x.id == r.id));
+      await ref.read(remindersServiceProvider).deleteReminder(r.id);
       _snack('تم حذف التذكير');
     } catch (e) {
       _snack('فشل الحذف: $e');

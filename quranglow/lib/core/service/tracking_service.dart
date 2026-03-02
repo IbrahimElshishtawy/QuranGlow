@@ -18,6 +18,9 @@ class TrackingService {
         'lastDay': '',
         'weekly': List<int>.filled(7, 0),
         'activeStart': null, // ISO string
+        'memorizedCount': 0,
+        'listeningSeconds': 0,
+        'remembranceCount': 0,
       };
 
   Future<void> _save(Map<String, dynamic> m) async {
@@ -82,6 +85,24 @@ class TrackingService {
   Future<void> incAyat(int count) async {
     final m = await _load();
     m['ayatCount'] = (m['ayatCount'] as int) + count;
+    await _save(m);
+  }
+
+  Future<void> incMemorized(int count) async {
+    final m = await _load();
+    m['memorizedCount'] = (m['memorizedCount'] as int) + count;
+    await _save(m);
+  }
+
+  Future<void> addListeningTime(int seconds) async {
+    final m = await _load();
+    m['listeningSeconds'] = (m['listeningSeconds'] as int) + seconds;
+    await _save(m);
+  }
+
+  Future<void> incRemembrance(int count) async {
+    final m = await _load();
+    m['remembranceCount'] = (m['remembranceCount'] as int) + count;
     await _save(m);
   }
 

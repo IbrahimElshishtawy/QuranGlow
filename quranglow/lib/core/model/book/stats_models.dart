@@ -3,11 +3,18 @@ class StatsSummary {
   final int readAyat; // الآيات المقروءة
   final int streakDays; // أيام المواظبة
   final int sessions; // عدد الجلسات
+  final int memorizedCount;
+  final Duration listeningTime;
+  final int remembranceCount;
+
   const StatsSummary({
     required this.totalReading,
     required this.readAyat,
     required this.streakDays,
     required this.sessions,
+    this.memorizedCount = 0,
+    this.listeningTime = Duration.zero,
+    this.remembranceCount = 0,
   });
 }
 

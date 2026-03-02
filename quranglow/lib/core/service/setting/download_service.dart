@@ -39,4 +39,16 @@ class DownloadService {
       cancelToken: cancelToken,
     );
   }
+
+  Future<void> saveTextFile({
+    required String content,
+    required String fileName,
+    required int surah,
+  }) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final base = Directory('${dir.path}/quran_text/$surah');
+    if (!await base.exists()) await base.create(recursive: true);
+    final file = File('${base.path}/$fileName.json');
+    await file.writeAsString(content);
+  }
 }

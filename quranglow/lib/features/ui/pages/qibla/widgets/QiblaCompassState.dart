@@ -12,9 +12,11 @@ import 'package:quranglow/features/ui/pages/qibla/widgets/info_row.dart'
 import 'package:quranglow/features/ui/pages/qibla/widgets/loading_error.dart';
 import 'package:quranglow/features/ui/pages/qibla/widgets/qibla_arrow.dart';
 import 'package:quranglow/features/ui/pages/qibla/widgets/qibla_compass.dart';
+import 'package:quranglow/features/ui/pages/qibla/widgets/burning_effect_painter.dart';
 
-class QiblaCompassState extends State<QiblaCompass> {
+class QiblaCompassState extends State<QiblaCompass> with SingleTickerProviderStateMixin {
   static const _kaabaLat = 21.4225, _kaabaLng = 39.8262;
+  late AnimationController _animationController;
 
   Position? _pos;
   StreamSubscription<Position>? _posSub;
@@ -33,11 +35,16 @@ class QiblaCompassState extends State<QiblaCompass> {
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat();
     _init();
   }
 
   @override
   void dispose() {
+    _animationController.dispose();
     _cancelStreams();
     super.dispose();
   }
@@ -213,6 +220,19 @@ class QiblaCompassState extends State<QiblaCompass> {
                   dial.CompassDial(
                     rotationDeg: heading,
                     ringsColor: cs.outlineVariant,
+                  ),
+                  AnimatedBuilder(
+                    animation: _animationController,
+                    builder: (context, child) {
+                      return CustomPaint(
+                        size: Size.infinite,
+                        painter: BurningEffectPainter(
+                          rotation: delta,
+                          color: cs.primary,
+                          animationValue: _animationController.value,
+                        ),
+                      );
+                    },
                   ),
                   QiblaArrow(rotationDeg: delta, color: cs.primary),
                   Container(

@@ -6,6 +6,28 @@ class FirebaseSyncService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  Future<void> syncTasbih(Map<String, dynamic> data) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+    try {
+      await _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('azkar')
+          .doc('tasbih')
+          .set(
+            {
+              ...data,
+              'updatedAt': FieldValue.serverTimestamp(),
+            },
+            SetOptions(merge: true),
+          );
+      L.d('FirebaseSyncService', 'Tasbih synced successfully');
+    } catch (e, st) {
+      L.e('FirebaseSyncService', 'Failed to sync tasbih', st);
+    }
+  }
+
   Future<void> syncStats(Map<String, dynamic> stats) async {
     final user = _auth.currentUser;
     if (user == null) return;
