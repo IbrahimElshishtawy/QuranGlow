@@ -117,6 +117,7 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
     return PageView.builder(
       controller: _controller,
       reverse: true,
+      allowImplicitScrolling: true,
       physics: const BouncingScrollPhysics(
         parent: AlwaysScrollableScrollPhysics(),
       ),

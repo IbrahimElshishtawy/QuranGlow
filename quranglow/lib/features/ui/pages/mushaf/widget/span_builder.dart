@@ -9,6 +9,8 @@ class AyahSpanBuilder {
   AyahSpanBuilder({required this.onAyahTap});
   final void Function(int index) onAyahTap;
 
+  final Map<int, List<InlineSpan>> _cache = {};
+
   static const _base = TextStyle(
     fontSize: 20,
     height: 1.9,
@@ -22,6 +24,16 @@ class AyahSpanBuilder {
     required int? currentAyahIndex,
     required List<TapGestureRecognizer> recognizersBucket,
   }) {
+    final cacheKey = Object.hash(
+      ayat.first.number,
+      ayat.last.number,
+      showBasmala,
+      currentAyahIndex,
+    );
+    if (_cache.containsKey(cacheKey)) {
+      return _cache[cacheKey]!;
+    }
+
     final out = <InlineSpan>[];
     if (showBasmala) {
       out.add(TextSpan(text: '$basmala  ', style: _base));
@@ -43,6 +55,7 @@ class AyahSpanBuilder {
       out.add(_ayahMarker(i, selected, onTap: () => onAyahTap(i)));
       out.add(const TextSpan(text: '  ', style: _base));
     }
+    _cache[cacheKey] = out;
     return out;
   }
 

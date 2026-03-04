@@ -38,7 +38,12 @@ class _DownloadsLibraryPageState extends ConsumerState<DownloadsLibraryPage> {
 
   Future<Directory> _rootDir() async {
     final docs = await getApplicationDocumentsDirectory();
-    return Directory(p.join(docs.path, 'QuranGlow', 'downloads'));
+    return Directory(p.join(docs.path, 'QuranGlow', 'downloads', 'audio'));
+  }
+
+  Future<Directory> _textRootDir() async {
+    final docs = await getApplicationDocumentsDirectory();
+    return Directory(p.join(docs.path, 'QuranGlow', 'downloads', 'text'));
   }
 
   Future<void> _scan() async {
@@ -114,6 +119,47 @@ class _DownloadsLibraryPageState extends ConsumerState<DownloadsLibraryPage> {
     } catch (_) {}
   }
 
+  Future<void> _viewText(int surah) async {
+    final root = await _textRootDir();
+    final sdir = Directory(p.join(root.path, surah.toString()));
+    if (!await sdir.exists()) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('لم يتم تنزيل نص هذه السورة')),
+        );
+      }
+      return;
+    }
+
+    final files = sdir.listSync().whereType<File>().toList();
+    if (files.isEmpty) return;
+
+    final content = await files.first.readAsString();
+    if (!mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => DraggableScrollableSheet(
+        initialChildSize: 0.8,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (_, scrollController) => Container(
+          padding: const EdgeInsets.all(16),
+          child: ListView(
+            controller: scrollController,
+            children: [
+              Text('نص السورة $surah', style: Theme.of(context).textTheme.titleLarge),
+              const Divider(),
+              Text(content, style: const TextStyle(fontSize: 16)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -141,9 +187,19 @@ class _DownloadsLibraryPageState extends ConsumerState<DownloadsLibraryPage> {
                   subtitle: Text(
                     '${g.files.length} ملف • ${_fmt(g.totalBytes)}',
                   ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () => _delete(g),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.description),
+                        tooltip: 'عرض النص',
+                        onPressed: () => _viewText(g.surah),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () => _delete(g),
+                      ),
+                    ],
                   ),
                   children: List.generate(g.files.length, (idx) {
                     final f = g.files[idx];
