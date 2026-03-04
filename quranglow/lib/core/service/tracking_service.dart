@@ -1,8 +1,10 @@
 import 'package:quranglow/core/storage/local_storage.dart';
+import 'package:quranglow/core/service/sync/firebase_sync_service.dart';
 
 class TrackingService {
   final LocalStorage storage;
-  TrackingService(this.storage);
+  final FirebaseSyncService? syncService;
+  TrackingService(this.storage, [this.syncService]);
 
   static const _kStats = 'stats_v1';
 
@@ -16,10 +18,17 @@ class TrackingService {
         'lastDay': '',
         'weekly': List<int>.filled(7, 0),
         'activeStart': null, // ISO string
+        'memorizedCount': 0,
+        'listeningSeconds': 0,
+        'remembranceCount': 0,
       };
 
-  Future<void> _save(Map<String, dynamic> m) async =>
-      storage.putMap(_kStats, m);
+  Future<void> _save(Map<String, dynamic> m) async {
+    await storage.putMap(_kStats, m);
+    if (syncService != null) {
+      await syncService!.syncStats(m);
+    }
+  }
 
   /// يبدأ جلسة قراءة
   Future<void> startSession() async {
@@ -76,6 +85,24 @@ class TrackingService {
   Future<void> incAyat(int count) async {
     final m = await _load();
     m['ayatCount'] = (m['ayatCount'] as int) + count;
+    await _save(m);
+  }
+
+  Future<void> incMemorized(int count) async {
+    final m = await _load();
+    m['memorizedCount'] = (m['memorizedCount'] as int) + count;
+    await _save(m);
+  }
+
+  Future<void> addListeningTime(int seconds) async {
+    final m = await _load();
+    m['listeningSeconds'] = (m['listeningSeconds'] as int) + seconds;
+    await _save(m);
+  }
+
+  Future<void> incRemembrance(int count) async {
+    final m = await _load();
+    m['remembranceCount'] = (m['remembranceCount'] as int) + count;
     await _save(m);
   }
 

@@ -64,12 +64,15 @@ class _MushafPageState extends ConsumerState<MushafPage> {
     super.dispose();
   }
 
+  final GlobalKey<_PagedMushafState> _pagedMushafKey = GlobalKey<_PagedMushafState>();
+
   void _goPrev() {
     if (_chapter > 1) {
       setState(() {
         _chapter--;
         _lastAyahNumber = null;
       });
+      _pagedMushafKey.currentState?.animateToPage(0);
     }
   }
 
@@ -79,6 +82,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
         _chapter++;
         _lastAyahNumber = null;
       });
+      _pagedMushafKey.currentState?.animateToPage(0);
     }
   }
 
@@ -136,6 +140,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                 ),
               ),
               data: (surah) => PagedMushaf(
+                key: _pagedMushafKey,
                 ayat: surah.ayat,
                 surahName: surah.name,
                 surahNumber: _chapter,

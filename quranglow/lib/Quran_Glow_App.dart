@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/theme/app_themes.dart';
+import 'package:quranglow/core/theme/theme_controller.dart';
 import 'package:quranglow/features/ui/pages/spa/splash_screen.dart';
 import 'package:quranglow/features/ui/routes/app_router.dart';
 
@@ -18,6 +19,33 @@ class QuranGlowApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
+
+    ThemeData getTheme(AppSettings s, bool isDark) {
+      if (isDark) {
+        return buildDarkTheme(
+          fontFamily: s.fontFamily,
+          fontScale: s.fontScale,
+        );
+      }
+      switch (s.colorScheme) {
+        case AppColorScheme.sepia:
+          return buildSepiaTheme(
+            fontFamily: s.fontFamily,
+            fontScale: s.fontScale,
+          );
+        case AppColorScheme.blue:
+          return buildBlueTheme(
+            fontFamily: s.fontFamily,
+            fontScale: s.fontScale,
+          );
+        case AppColorScheme.green:
+        default:
+          return buildLightTheme(
+            fontFamily: s.fontFamily,
+            fontScale: s.fontScale,
+          );
+      }
+    }
 
     return settings.when(
       loading: () => MaterialApp(
@@ -46,8 +74,8 @@ class QuranGlowApp extends ConsumerWidget {
       data: (s) => MaterialApp(
         title: 'QuranGlow',
         debugShowCheckedModeBanner: false,
-        theme: buildLightTheme(fontFamily: 'System', fontScale: s.fontScale),
-        darkTheme: buildDarkTheme(fontFamily: 'System', fontScale: s.fontScale),
+        theme: getTheme(s, false),
+        darkTheme: getTheme(s, true),
         themeMode: s.darkMode ? ThemeMode.dark : ThemeMode.light,
         localizationsDelegates: _delegates,
         supportedLocales: _locales,

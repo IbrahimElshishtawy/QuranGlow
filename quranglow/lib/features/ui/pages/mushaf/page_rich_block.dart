@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
+import 'package:quranglow/core/model/book/topic.dart';
 import 'package:quranglow/features/ui/pages/mushaf/widget/span_builder.dart';
 
 class PageRange {
@@ -75,6 +76,11 @@ class _PageRichBlockState extends State<PageRichBlock> {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black;
+    final cs = Theme.of(context).colorScheme;
+
+    final currentTopics = mockTopics.where((t) =>
+        t.surah == widget.ayat.first.surah &&
+        subAyat.any((a) => a.numberInSurah >= t.startAyah && a.numberInSurah <= t.endAyah)).toList();
 
     return LayoutBuilder(
       builder: (context, c) {
@@ -92,8 +98,8 @@ class _PageRichBlockState extends State<PageRichBlock> {
                 text: TextSpan(
                   style: TextStyle(
                     color: textColor,
-                    fontFamilyFallback: [
-                      'KFGQPC Uthmanic Script',
+                    fontFamily: 'KFGQPC Uthmanic Script',
+                    fontFamilyFallback: const [
                       'Hafs',
                       'Noto Naskh Arabic',
                       'Scheherazade',
@@ -104,6 +110,17 @@ class _PageRichBlockState extends State<PageRichBlock> {
                   children: spans,
                 ),
               ),
+              if (currentTopics.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  children: currentTopics.map((topic) => Chip(
+                    label: Text(topic.title, style: const TextStyle(fontSize: 12)),
+                    backgroundColor: cs.secondaryContainer,
+                    labelStyle: TextStyle(color: cs.onSecondaryContainer),
+                  )).toList(),
+                ),
+              ],
             ),
           ),
         );

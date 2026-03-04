@@ -39,6 +39,84 @@ ThemeData buildLightTheme({
   );
 }
 
+ThemeData buildSepiaTheme({
+  required String fontFamily,
+  required double fontScale,
+}) {
+  final base = ThemeData.light(useMaterial3: true);
+  final textTheme = base.textTheme.apply(
+    fontFamily: fontFamily,
+    fontSizeFactor: fontScale,
+    bodyColor: const Color(0xFF5B4636),
+    displayColor: const Color(0xFF5B4636),
+  );
+
+  return base.copyWith(
+    textTheme: textTheme,
+    scaffoldBackgroundColor: const Color(0xFFF4ECD8),
+    colorScheme: base.colorScheme.copyWith(
+      primary: const Color(0xFF704214),
+      secondary: const Color(0xFF8B4513),
+      surface: const Color(0xFFFDF5E6),
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      brightness: Brightness.light,
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Color(0xFF704214),
+      foregroundColor: Colors.white,
+      centerTitle: true,
+      elevation: 0,
+    ),
+    cardTheme: const CardThemeData(
+      color: Color(0xFFFDF5E6),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
+      elevation: 1,
+    ),
+  );
+}
+
+ThemeData buildBlueTheme({
+  required String fontFamily,
+  required double fontScale,
+}) {
+  final base = ThemeData.light(useMaterial3: true);
+  final textTheme = base.textTheme.apply(
+    fontFamily: fontFamily,
+    fontSizeFactor: fontScale,
+    bodyColor: const Color(0xFF0D47A1),
+    displayColor: const Color(0xFF0D47A1),
+  );
+
+  return base.copyWith(
+    textTheme: textTheme,
+    scaffoldBackgroundColor: const Color(0xFFE3F2FD),
+    colorScheme: base.colorScheme.copyWith(
+      primary: const Color(0xFF1976D2),
+      secondary: const Color(0xFF2196F3),
+      surface: Colors.white,
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      brightness: Brightness.light,
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Color(0xFF1976D2),
+      foregroundColor: Colors.white,
+      centerTitle: true,
+      elevation: 0,
+    ),
+    cardTheme: const CardThemeData(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
+      elevation: 2,
+    ),
+  );
+}
+
 ThemeData buildDarkTheme({
   required String fontFamily,
   required double fontScale,

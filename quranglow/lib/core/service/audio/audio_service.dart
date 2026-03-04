@@ -1,19 +1,22 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:quranglow/core/service/audio/my_audio_handler.dart';
 
-class AudioService {
-  final AudioPlayer _player = AudioPlayer();
+class MyAudioService {
+  final MyAudioHandler _handler;
 
-  Future<void> playUrl(String url) async {
+  MyAudioService(this._handler);
+
+  Future<void> playUrl(String url, {String? title}) async {
     try {
-      await _player.setUrl(url);
-      _player.play();
+      await _handler.playUri(Uri.parse(url), title: title);
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<void> pause() => _player.pause();
-  Future<void> stop() => _player.stop();
-  Stream<PlayerState> get playerState => _player.playerStateStream;
-  void dispose() => _player.dispose();
+  Future<void> pause() => _handler.pause();
+  Future<void> stop() => _handler.stop();
+  Stream<PlaybackState> get playbackState => _handler.playbackState;
+  Stream<MediaItem?> get mediaItem => _handler.mediaItem;
 }
