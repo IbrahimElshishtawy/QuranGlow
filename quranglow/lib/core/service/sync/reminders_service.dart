@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:quranglow/core/model/reminder/reminder.dart';
 import 'package:quranglow/core/utils/logger.dart';
 
@@ -16,18 +15,17 @@ class RemindersService {
 
   Future<void> saveReminder(Reminder reminder) async {
     try {
-      await _remindersCol.doc(reminder.id.toString()).set({
-        ...reminder.toMap(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      await _remindersCol.doc(reminder.id.toString()).set(
+        {
+          ...reminder.toMap(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
       L.d('RemindersService', 'Reminder saved to Firestore');
     } catch (e, st) {
       L.e('RemindersService', 'Failed to save reminder', st);
-      FirebaseCrashlytics.instance.recordError(
-        e,
-        st,
-        reason: 'Failed to save reminder to Firestore',
-      );
+      FirebaseCrashlytics.instance.recordError(e, st, reason: 'Failed to save reminder to Firestore');
     }
   }
 

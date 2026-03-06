@@ -8,6 +8,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:quranglow/Quran_Glow_App.dart';
+import 'package:quranglow/core/service/audio/audio_locator.dart';
 import 'package:quranglow/core/service/sync/firebase_sync_service.dart';
 import 'package:quranglow/core/service/setting/notification_service.dart';
 import 'package:quranglow/firebase_options.dart';
@@ -34,6 +35,7 @@ Future<void> main() async {
   };
 
   await Hive.initFlutter();
+  await initAudioHandler();
   await NotificationService.instance.init();
   runApp(const ProviderScope(child: _Bootstrap(child: QuranGlowApp())));
   WidgetsBinding.instance.addPostFrameCallback(

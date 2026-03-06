@@ -8,27 +8,27 @@ import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/core/model/book/surah.dart';
 import 'package:quranglow/core/service/quran/quran_service.dart';
 // الصفحات
-import 'package:quranglow/features/ui/pages/ayah/ayah_detail_page.dart';
-import 'package:quranglow/features/ui/pages/bookmarks/bookmarks_page.dart';
-import 'package:quranglow/features/ui/pages/downloads/download_detail_page.dart'
+import 'package:quranglow/features/ayah/presentation/pages/ayah_detail_page.dart';
+import 'package:quranglow/features/bookmarks/presentation/pages/bookmarks_page.dart';
+import 'package:quranglow/features/downloads/presentation/pages/download_detail_page.dart'
     as ddp;
-import 'package:quranglow/features/ui/pages/downloads/downloads_page.dart'
+import 'package:quranglow/features/downloads/presentation/pages/downloads_page.dart'
     as dlp;
-import 'package:quranglow/features/ui/pages/goals/goals_page.dart';
-import 'package:quranglow/features/ui/pages/home/home_page.dart';
-import 'package:quranglow/features/ui/pages/mushaf/mushaf_page.dart';
-import 'package:quranglow/features/ui/pages/mushaf/paged_mushaf.dart';
-import 'package:quranglow/features/ui/pages/onboarding/onboarding_page.dart';
-import 'package:quranglow/features/ui/pages/player/player_page.dart';
-import 'package:quranglow/features/ui/pages/search/search_page.dart';
-import 'package:quranglow/features/ui/pages/setting/settings_page.dart';
-import 'package:quranglow/features/ui/pages/spa/splash_screen.dart';
-import 'package:quranglow/features/ui/pages/stats/stats_page.dart';
-import 'package:quranglow/features/ui/pages/surah/surah_list_page.dart';
-import 'package:quranglow/features/ui/pages/tafsir/tafsir_reader_page.dart';
-import 'package:quranglow/features/ui/pages/azkar/azkar_tasbih_page.dart';
+import 'package:quranglow/features/goals/presentation/pages/goals_page.dart';
+import 'package:quranglow/features/home/presentation/pages/home_page.dart';
+import 'package:quranglow/features/mushaf/presentation/pages/mushaf_page.dart';
+import 'package:quranglow/features/mushaf/presentation/pages/paged_mushaf.dart';
+import 'package:quranglow/features/onboarding/presentation/pages/onboarding_page.dart';
+import 'package:quranglow/features/player/presentation/pages/player_page.dart';
+import 'package:quranglow/features/search/presentation/pages/search_page.dart';
+import 'package:quranglow/features/settings/presentation/pages/settings_page.dart';
+import 'package:quranglow/features/splash/presentation/pages/splash_screen.dart';
+import 'package:quranglow/features/stats/presentation/pages/stats_page.dart';
+import 'package:quranglow/features/surah/presentation/pages/surah_list_page.dart';
+import 'package:quranglow/features/tafsir/presentation/pages/tafsir_reader_page.dart';
+import 'package:quranglow/features/azkar/presentation/pages/azkar_tasbih_page.dart';
 
-import '../pages/qibla/qibla_page.dart';
+import 'package:quranglow/features/qibla/presentation/pages/qibla_page.dart';
 import 'app_routes.dart';
 
 // لو عندك provider جاهز استبدل التالي بالاستيراد الصحيح
@@ -125,7 +125,7 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
                       tafsir: tafsirText,
                     ),
                   );
-                }, key: ValueKey(a.surahNumber),
+                },
               );
             },
           );

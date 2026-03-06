@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/model/setting/App_Settings.dart';
 import 'package:quranglow/core/theme/app_themes.dart';
 import 'package:quranglow/core/theme/theme_controller.dart';
-import 'package:quranglow/features/ui/pages/spa/splash_screen.dart';
+import 'package:quranglow/core/widgets/error_boundary.dart';
+import 'package:quranglow/features/splash/presentation/pages/splash_screen.dart';
 import 'package:quranglow/features/ui/routes/app_router.dart';
 
 class QuranGlowApp extends ConsumerWidget {
@@ -23,7 +23,10 @@ class QuranGlowApp extends ConsumerWidget {
 
     ThemeData getTheme(AppSettings s, bool isDark) {
       if (isDark) {
-        return buildDarkTheme(fontFamily: s.fontFamily, fontScale: s.fontScale);
+        return buildDarkTheme(
+          fontFamily: s.fontFamily,
+          fontScale: s.fontScale,
+        );
       }
       switch (s.colorScheme) {
         case AppColorScheme.sepia:
@@ -37,6 +40,7 @@ class QuranGlowApp extends ConsumerWidget {
             fontScale: s.fontScale,
           );
         case AppColorScheme.green:
+        default:
           return buildLightTheme(
             fontFamily: s.fontFamily,
             fontScale: s.fontScale,
@@ -68,16 +72,18 @@ class QuranGlowApp extends ConsumerWidget {
           body: Center(child: Text('خطأ في تحميل الإعدادات')),
         ),
       ),
-      data: (s) => MaterialApp(
-        title: 'QuranGlow',
-        debugShowCheckedModeBanner: false,
-        theme: getTheme(s, false),
-        darkTheme: getTheme(s, true),
-        themeMode: s.darkMode ? ThemeMode.dark : ThemeMode.light,
-        localizationsDelegates: _delegates,
-        supportedLocales: _locales,
-        home: const SplashScreen(),
-        onGenerateRoute: onGenerateRoute,
+      data: (s) => GlobalErrorBoundary(
+        child: MaterialApp(
+          title: 'QuranGlow',
+          debugShowCheckedModeBanner: false,
+          theme: getTheme(s, false),
+          darkTheme: getTheme(s, true),
+          themeMode: s.darkMode ? ThemeMode.dark : ThemeMode.light,
+          localizationsDelegates: _delegates,
+          supportedLocales: _locales,
+          home: const SplashScreen(),
+          onGenerateRoute: onGenerateRoute,
+        ),
       ),
     );
   }

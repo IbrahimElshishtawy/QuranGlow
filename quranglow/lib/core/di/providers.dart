@@ -4,7 +4,7 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:quranglow/core/api/alquran_cloud_source.dart';
@@ -14,7 +14,7 @@ import 'package:quranglow/core/model/setting/App_Settings.dart';
 import 'package:quranglow/core/model/book/bookmark.dart';
 import 'package:quranglow/core/model/book/surah.dart';
 import 'package:quranglow/core/model/setting/goal.dart';
-import 'package:quranglow/core/service/quran/Settings_Service.dart';
+import 'package:quranglow/core/service/quran/settings_service.dart';
 import 'package:quranglow/core/service/setting/download_service.dart';
 import 'package:quranglow/core/service/setting/goals_service.dart';
 import 'package:quranglow/core/service/audio/audio_service.dart';
@@ -27,14 +27,13 @@ import 'package:quranglow/core/service/sync/reminders_service.dart';
 import 'package:quranglow/core/service/tracking_service.dart';
 import 'package:quranglow/core/storage/hive_storage_impl.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
-import 'package:quranglow/core/theme/theme_controller.dart';
 
 // Bookmarks
-import 'package:quranglow/features/ui/pages/bookmarks/controllers/bookmarks_controller.dart';
-import 'package:quranglow/features/ui/pages/bookmarks/logic/bookmarks_usecase.dart';
+import 'package:quranglow/features/bookmarks/presentation/providers/bookmarks_controller.dart';
+import 'package:quranglow/features/bookmarks/presentation/providers/bookmarks_usecase.dart';
 
 // Downloads
-import 'package:quranglow/features/ui/pages/downloads/controller/download_controller.dart';
+import 'package:quranglow/features/downloads/presentation/providers/download_controller.dart';
 
 /// --- HTTP & Dio -------------------------------------------------------------
 
