@@ -43,6 +43,7 @@ class FirebaseSyncService {
       L.d('FirebaseSyncService', 'Stats synced successfully');
     } catch (e, st) {
       L.e('FirebaseSyncService', 'Failed to sync stats', st);
+      FirebaseCrashlytics.instance.recordError(e, st, reason: 'Failed to sync stats to Firestore');
     }
   }
 

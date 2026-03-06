@@ -25,6 +25,7 @@ class RemindersService {
       L.d('RemindersService', 'Reminder saved to Firestore');
     } catch (e, st) {
       L.e('RemindersService', 'Failed to save reminder', st);
+      FirebaseCrashlytics.instance.recordError(e, st, reason: 'Failed to save reminder to Firestore');
     }
   }
 
