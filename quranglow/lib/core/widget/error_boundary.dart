@@ -1,4 +1,3 @@
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 
 class GlobalErrorBoundary extends StatefulWidget {
@@ -11,7 +10,7 @@ class GlobalErrorBoundary extends StatefulWidget {
 }
 
 class _GlobalErrorBoundaryState extends State<GlobalErrorBoundary> {
-  bool _hasError = false;
+  bool hasError = false;
   Object? _error;
 
   @override
@@ -55,21 +54,11 @@ class _GlobalErrorBoundaryState extends State<GlobalErrorBoundary> {
 
   @override
   Widget build(BuildContext context) {
-    if (_hasError) {
+    if (hasError) {
       return _defaultErrorBuilder(context, _error!);
     }
 
-    return ErrorWidget.withDetails(
-      message: 'UI Error caught by boundary',
-      onError: (details) {
-        FirebaseCrashlytics.instance.recordFlutterError(details);
-        setState(() {
-          _hasError = true;
-          _error = details.exception;
-        });
-      },
-      child: widget.child,
-    );
+    return widget.child;
   }
 }
 
