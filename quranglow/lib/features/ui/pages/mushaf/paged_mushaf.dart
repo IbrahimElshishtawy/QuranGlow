@@ -11,7 +11,7 @@ import 'package:quranglow/features/ui/pages/mushaf/widget/saved_position_banner.
 
 class PagedMushaf extends StatefulWidget {
   const PagedMushaf({
-    required GlobalKey<_PagedMushafState> key,
+    super.key,
     required this.ayat,
     required this.surahName,
     required this.surahNumber,
@@ -32,10 +32,10 @@ class PagedMushaf extends StatefulWidget {
   final Color? ayahNumberColor;
 
   @override
-  State<PagedMushaf> createState() => _PagedMushafState();
+  State<PagedMushaf> createState() => PagedMushafState();
 }
 
-class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
+class PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
   final _pos = PositionStore();
   final _controller = PageController(keepPage: true);
 
@@ -52,19 +52,28 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
   }
 
   Future<void> _restoreInitial() async {
+    if (widget.ayat.isEmpty) return;
+
     int? idx0;
     if (widget.initialSelectedAyah != null) {
       idx0 = (widget.initialSelectedAyah! - 1).clamp(0, widget.ayat.length - 1);
     } else {
       final loaded = await _pos.load(widget.surahNumber);
-      if (loaded is int) idx0 = loaded.clamp(0, widget.ayat.length - 1);
+      if (loaded is int) {
+        idx0 = loaded.clamp(0, widget.ayat.length - 1);
+      }
     }
+
     if (!mounted) return;
+
     if (idx0 != null) {
       setState(() => _currentAyahIdx0 = idx0);
-      final p = _pageIndexForAyah(idx0);
+      final pageIndex = _pageIndexForAyah(idx0);
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _controller.jumpToPage(p);
+        if (mounted && _controller.hasClients) {
+          _controller.jumpToPage(pageIndex);
+        }
       });
     }
   }
@@ -85,26 +94,37 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
 
   void _saveCurrentIfAny() {
     final i = _currentAyahIdx0;
-    if (i != null) _pos.save(widget.surahNumber, i);
+    if (i != null) {
+      _pos.save(widget.surahNumber, i);
+    }
   }
 
-  void _onAyahTap(int index0) async {
+  Future<void> _onAyahTap(int index0) async {
     setState(() => _currentAyahIdx0 = index0);
+
     await _pos.save(widget.surahNumber, index0);
+
+    if (!mounted) return;
     setState(() => _justSaved = true);
+
     Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) setState(() => _justSaved = false);
+      if (mounted) {
+        setState(() => _justSaved = false);
+      }
     });
+
     if (index0 >= 0 && index0 < widget.ayat.length) {
       widget.onAyahTap(index0 + 1, widget.ayat[index0]);
     }
+
     if (kDebugMode) {
-      // ignore: avoid_print
       print('saved ${widget.surahNumber}:${index0 + 1}');
     }
   }
 
   void animateToPage(int page) {
+    if (!_controller.hasClients) return;
+
     _controller.animateToPage(
       page,
       duration: const Duration(milliseconds: 400),
@@ -114,6 +134,10 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.ayat.isEmpty) {
+      return const Center(child: Text('لا توجد آيات متاحة'));
+    }
+
     return PageView.builder(
       controller: _controller,
       reverse: true,
@@ -121,8 +145,14 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
         parent: AlwaysScrollableScrollPhysics(),
       ),
       itemCount: _pages.length,
+      onPageChanged: (newPageIndex) {
+        final pageRange = _pages[newPageIndex];
+        setState(() => _currentAyahIdx0 = pageRange.start);
+        _saveCurrentIfAny();
+      },
       itemBuilder: (context, pageIndex) {
-        final r = _pages[pageIndex];
+        final range = _pages[pageIndex];
+
         return Directionality(
           textDirection: TextDirection.rtl,
           child: SafeArea(
@@ -142,7 +172,7 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
                       Expanded(
                         child: PageRichBlock(
                           ayat: widget.ayat,
-                          range: r,
+                          range: range,
                           showBasmala: widget.showBasmala && pageIndex == 0,
                           basmalaText: widget.basmalaText,
                           currentAyahIndex: _currentAyahIdx0,
@@ -162,43 +192,46 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
                   visible: _justSaved,
                   text: _currentAyahIdx0 == null
                       ? ''
-                      : 'تم حفظ موضعك: آية ${_toArabicDigits((_currentAyahIdx0! + 1))} من ${widget.surahName}',
+                      : 'تم حفظ موضعك: آية ${_toArabicDigits(_currentAyahIdx0! + 1)} من ${widget.surahName}',
                 ),
               ],
             ),
           ),
         );
       },
-      onPageChanged: (newPageIndex) {
-        final pr = _pages[newPageIndex];
-        setState(() => _currentAyahIdx0 = pr.start);
-        _saveCurrentIfAny();
-      },
     );
   }
 
   List<PageRange> _buildPages(List<Aya> ayat) {
-    if (ayat.isEmpty) return const [PageRange(start: 0, end: 0)];
-    final res = <PageRange>[];
+    if (ayat.isEmpty) {
+      return const [PageRange(start: 0, end: 0)];
+    }
+
+    final result = <PageRange>[];
     int start = 0;
     int currentPage = quran.getPageNumber(widget.surahNumber, 1);
+
     for (int i = 0; i < ayat.length; i++) {
       final page = quran.getPageNumber(widget.surahNumber, i + 1);
       if (page != currentPage) {
-        res.add(PageRange(start: start, end: i));
+        result.add(PageRange(start: start, end: i));
         start = i;
         currentPage = page;
       }
     }
-    if (res.isEmpty || res.last.end != ayat.length) {
-      res.add(PageRange(start: start, end: ayat.length));
+
+    if (result.isEmpty || result.last.end != ayat.length) {
+      result.add(PageRange(start: start, end: ayat.length));
     }
-    return res;
+
+    return result;
   }
 
   int _pageIndexForAyah(int idx0) {
     for (int p = 0; p < _pages.length; p++) {
-      if (_pages[p].contains(idx0)) return p;
+      if (_pages[p].contains(idx0)) {
+        return p;
+      }
     }
     return 0;
   }
@@ -206,12 +239,15 @@ class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
   String _toArabicDigits(int number) {
     const western = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
     const eastern = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+
     final s = number.toString();
-    final buf = StringBuffer();
+    final buffer = StringBuffer();
+
     for (final ch in s.split('')) {
       final i = western.indexOf(ch);
-      buf.write(i == -1 ? ch : eastern[i]);
+      buffer.write(i == -1 ? ch : eastern[i]);
     }
-    return buf.toString();
+
+    return buffer.toString();
   }
 }

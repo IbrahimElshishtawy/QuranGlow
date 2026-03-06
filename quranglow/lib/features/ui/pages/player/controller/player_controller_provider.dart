@@ -2,7 +2,6 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/model/book/Play_list_State.dart';

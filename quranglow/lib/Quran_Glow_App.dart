@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
+import 'package:quranglow/core/model/setting/App_Settings.dart';
 import 'package:quranglow/core/theme/app_themes.dart';
 import 'package:quranglow/core/theme/theme_controller.dart';
 import 'package:quranglow/features/ui/pages/spa/splash_screen.dart';
@@ -22,10 +23,7 @@ class QuranGlowApp extends ConsumerWidget {
 
     ThemeData getTheme(AppSettings s, bool isDark) {
       if (isDark) {
-        return buildDarkTheme(
-          fontFamily: s.fontFamily,
-          fontScale: s.fontScale,
-        );
+        return buildDarkTheme(fontFamily: s.fontFamily, fontScale: s.fontScale);
       }
       switch (s.colorScheme) {
         case AppColorScheme.sepia:
@@ -39,7 +37,6 @@ class QuranGlowApp extends ConsumerWidget {
             fontScale: s.fontScale,
           );
         case AppColorScheme.green:
-        default:
           return buildLightTheme(
             fontFamily: s.fontFamily,
             fontScale: s.fontScale,

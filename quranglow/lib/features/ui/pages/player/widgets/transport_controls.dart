@@ -1,7 +1,7 @@
 // lib/features/ui/pages/player/widgets/transport_controls.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
+
 import 'package:quranglow/core/model/book/Play_list_State.dart';
 import 'package:quranglow/features/ui/pages/player/controller/player_controller_provider.dart';
 import 'package:quranglow/features/ui/pages/player/widgets/position_bar.dart';

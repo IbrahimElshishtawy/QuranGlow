@@ -4,7 +4,7 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
+
 import 'package:http/http.dart' as http;
 
 import 'package:quranglow/core/api/alquran_cloud_source.dart';
@@ -27,6 +27,7 @@ import 'package:quranglow/core/service/sync/reminders_service.dart';
 import 'package:quranglow/core/service/tracking_service.dart';
 import 'package:quranglow/core/storage/hive_storage_impl.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
+import 'package:quranglow/core/theme/theme_controller.dart';
 
 // Bookmarks
 import 'package:quranglow/features/ui/pages/bookmarks/controllers/bookmarks_controller.dart';

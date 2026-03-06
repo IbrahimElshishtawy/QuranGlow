@@ -125,7 +125,7 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
                       tafsir: tafsirText,
                     ),
                   );
-                },
+                }, key: ValueKey(a.surahNumber),
               );
             },
           );

@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use, unnecessary_brace_in_string_interps
+// ignore_for_file: unused_result, deprecated_member_use, unnecessary_brace_in_string_interps
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,11 +26,12 @@ class MushafPage extends ConsumerStatefulWidget {
     super.key,
     this.chapter = 1,
     this.editionId = 'quran-uthmani',
-    int? initialAyah, // احتفاظ للتوافق إن احتجته لاحقاً
+    this.initialAyah,
   });
 
   final int chapter;
   final String editionId;
+  final int? initialAyah;
 
   @override
   ConsumerState<MushafPage> createState() => _MushafPageState();
@@ -43,10 +44,14 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   int? _lastAyahNumber;
   final _pos = PositionStore();
 
+  final GlobalKey<PagedMushafState> _pagedMushafKey =
+      GlobalKey<PagedMushafState>();
+
   @override
   void initState() {
     super.initState();
     _chapter = widget.chapter.clamp(1, 114);
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
       await SystemChrome.setPreferredOrientations([
@@ -63,8 +68,6 @@ class _MushafPageState extends ConsumerState<MushafPage> {
     WakelockPlus.disable();
     super.dispose();
   }
-
-  final GlobalKey<_PagedMushafState> _pagedMushafKey = GlobalKey<_PagedMushafState>();
 
   void _goPrev() {
     if (_chapter > 1) {
@@ -89,7 +92,9 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   Future<void> _saveCurrentPosition() async {
     final ayahIndex0 = (_lastAyahNumber ?? 1) - 1;
     await _pos.save(_chapter, ayahIndex0);
+
     if (!mounted) return;
+
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('تم حفظ موضع القراءة')));
@@ -130,9 +135,11 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                       ),
                       const SizedBox(height: 12),
                       OutlinedButton(
-                        onPressed: () => ref.refresh(
-                          surahProvider((_chapter, widget.editionId)),
-                        ),
+                        onPressed: () {
+                          ref.refresh(
+                            surahProvider((_chapter, widget.editionId)),
+                          );
+                        },
                         child: const Text('إعادة المحاولة'),
                       ),
                     ],
@@ -145,7 +152,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                 surahName: surah.name,
                 surahNumber: _chapter,
                 showBasmala: surah.name.trim() != 'التوبة',
-                initialSelectedAyah: null,
+                initialSelectedAyah: widget.initialAyah,
                 onAyahTap: (int ayahNumber, Aya aya) {
                   _lastAyahNumber = ayahNumber;
                   Navigator.pushNamed(
@@ -157,13 +164,17 @@ class _MushafPageState extends ConsumerState<MushafPage> {
               ),
             ),
 
-            // Toggle UI overlay
             Positioned.fill(
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
-                onTap: () => setState(() => _uiVisible = !_uiVisible),
+                onTap: () {
+                  setState(() {
+                    _uiVisible = !_uiVisible;
+                  });
+                },
               ),
             ),
+
             MushafTopBar(
               visible: _uiVisible,
               asyncSurah: asyncSurah,

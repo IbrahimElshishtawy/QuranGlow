@@ -69,13 +69,13 @@ class _ReminderListState extends ConsumerState<ReminderList> {
     setState(() {
       if (edit == null) {
         _items.add(res);
-      await ref.read(remindersServiceProvider).saveReminder(res);
+        ref.read(remindersServiceProvider).saveReminder(res);
       } else {
         edit.title = res.title;
         edit.dateTime = res.dateTime;
         edit.daily = res.daily;
         edit.notes = res.notes;
-      await ref.read(remindersServiceProvider).saveReminder(edit);
+        ref.read(remindersServiceProvider).saveReminder(edit);
       }
     });
   }
