@@ -46,6 +46,7 @@ class QuranGlowApp extends ConsumerWidget {
         );
     }
 
+    // ignore: dead_code
     return buildLightTheme(
       fontFamily: settings.fontFamily,
       fontScale: settings.fontScale,

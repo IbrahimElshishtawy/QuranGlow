@@ -20,6 +20,8 @@ import 'package:quranglow/core/model/setting/goal.dart';
 import 'package:quranglow/core/service/quran/settings_service.dart';
 import 'package:quranglow/core/service/setting/download_service.dart';
 import 'package:quranglow/core/service/setting/goals_service.dart';
+import 'package:quranglow/core/service/setting/location_service.dart';
+import 'package:quranglow/core/service/setting/prayer_times_service.dart';
 import 'package:quranglow/core/service/audio/audio_service.dart';
 import 'package:quranglow/core/service/audio/my_audio_handler.dart';
 import 'package:quranglow/core/service/quran/quran_service.dart';
@@ -113,6 +115,19 @@ final trackingServiceProvider = Provider<TrackingService>(
 final settingsServiceProvider = Provider<SettingsService>(
   (ref) => SettingsService(),
 );
+
+final locationServiceProvider = Provider<LocationService>((ref) {
+  final service = LocationService();
+  ref.onDispose(service.dispose);
+  return service;
+});
+
+final prayerTimesServiceProvider = Provider<PrayerTimesService>((ref) {
+  return PrayerTimesService(
+    client: ref.watch(httpClientProvider),
+    locationService: ref.watch(locationServiceProvider),
+  );
+});
 
 /// --- Goals (Stream) ---------------------------------------------------------
 

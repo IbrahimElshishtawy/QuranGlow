@@ -12,14 +12,11 @@ class SurahListPage extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('قائمة السور'),
-          centerTitle: true,
-        ),
+        appBar: AppBar(title: const Text('قائمة السور'), centerTitle: true),
         body: ListView.separated(
           padding: const EdgeInsets.fromLTRB(12, 10, 12, 16),
           itemCount: kSurahNamesAr.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 10),
+          separatorBuilder: (_, _) => const SizedBox(height: 10),
           itemBuilder: (context, i) {
             final surahNumber = i + 1;
             final cs = Theme.of(context).colorScheme;

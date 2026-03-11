@@ -1,13 +1,12 @@
-// lib/features/ui/pages/home/sections/goals_strip.dart
-// ignore_for_file: deprecated_member_use, unnecessary_underscores
-
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart' as di;
 import 'package:quranglow/core/model/setting/goal.dart' as models;
 import 'package:quranglow/features/home/presentation/widgets/goal_pill.dart';
 import 'package:quranglow/features/home/presentation/widgets/goal_pos_store.dart';
+import 'package:quranglow/features/home/presentation/widgets/home_surface_card.dart';
 import 'package:quranglow/features/home/presentation/widgets/section_title.dart';
 import 'package:quranglow/features/ui/routes/app_router.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
@@ -33,42 +32,27 @@ class GoalsStrip extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         goalsAsync.when(
-          loading: () => Container(
-            height: 86,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: cs.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: cs.outlineVariant.withOpacity(.5)),
+          loading: () => const HomeSurfaceCard(
+            child: SizedBox(
+              height: 92,
+              child: Center(child: CircularProgressIndicator()),
             ),
-            child: const CircularProgressIndicator(),
           ),
-          error: (e, _) => Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: cs.errorContainer,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: cs.error),
-            ),
+          error: (e, _) => HomeSurfaceCard(
             child: Text('تعذّر تحميل الأهداف: $e'),
           ),
           data: (goals) {
             final list = goals.whereType<models.Goal>().toList();
             final shown = list.take(limit).toList();
             if (shown.isEmpty) {
-              return Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: cs.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: cs.outlineVariant.withOpacity(.5)),
-                ),
+              return HomeSurfaceCard(
                 child: Row(
                   children: [
+                    Icon(Icons.flag_outlined, color: cs.primary),
+                    const SizedBox(width: 10),
                     const Expanded(
-                      child: Text('لا توجد أهداف بعد — ابدأ بإضافة هدف'),
+                      child: Text('لا توجد أهداف بعد، ابدأ بإضافة هدف جديد'),
                     ),
-                    const SizedBox(width: 8),
                     FilledButton.tonal(
                       onPressed: () =>
                           Navigator.pushNamed(context, AppRoutes.goals),
@@ -79,53 +63,49 @@ class GoalsStrip extends ConsumerWidget {
               );
             }
 
-            return Container(
-              decoration: BoxDecoration(
-                color: cs.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: cs.outlineVariant.withOpacity(.5)),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              height: 130,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                itemCount: shown.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 12),
-                itemBuilder: (context, i) {
-                  final g = shown[i];
-                  return GoalPill(
-                    goal: g,
-                    posStore: GoalPosStore(),
-                    onFollow: (surahNum, ayahNum) async {
-                      await Navigator.pushNamed(
-                        context,
-                        AppRoutes.mushaf,
-                        arguments: MushafArgs(
-                          chapter: surahNum,
-                          initialAyah: ayahNum,
-                        ),
-                      );
-                      if (context.mounted) {
-                        (context as Element).markNeedsBuild();
-                      }
-                    },
-                    onIncreaseProgress: () async {
-                      final svc = ref.read(di.goalsServiceProvider);
-                      final list = List<models.Goal>.from(
-                        await svc.listGoals(),
-                      );
-                      final idx = list.indexWhere((x) => x.id == g.id);
-                      if (idx != -1) {
-                        final cur = list[idx];
-                        list[idx] = cur.copyWith(
-                          current: min(cur.target, cur.current + 1),
+            return HomeSurfaceCard(
+              child: SizedBox(
+                height: 138,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: shown.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  itemBuilder: (context, i) {
+                    final g = shown[i];
+                    return GoalPill(
+                      goal: g,
+                      posStore: GoalPosStore(),
+                      onFollow: (surahNum, ayahNum) async {
+                        await Navigator.pushNamed(
+                          context,
+                          AppRoutes.mushaf,
+                          arguments: MushafArgs(
+                            chapter: surahNum,
+                            initialAyah: ayahNum,
+                          ),
                         );
-                        await svc.saveAll(list);
-                      }
-                    },
-                  );
-                },
+                        if (context.mounted) {
+                          (context as Element).markNeedsBuild();
+                        }
+                      },
+                      onIncreaseProgress: () async {
+                        final svc = ref.read(di.goalsServiceProvider);
+                        final list = List<models.Goal>.from(
+                          await svc.listGoals(),
+                        );
+                        final idx = list.indexWhere((x) => x.id == g.id);
+                        if (idx != -1) {
+                          final cur = list[idx];
+                          list[idx] = cur.copyWith(
+                            current: min(cur.target, cur.current + 1),
+                          );
+                          await svc.saveAll(list);
+                        }
+                      },
+                    );
+                  },
+                ),
               ),
             );
           },

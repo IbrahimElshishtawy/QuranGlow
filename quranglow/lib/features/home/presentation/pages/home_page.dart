@@ -7,6 +7,7 @@ import 'package:quranglow/features/home/presentation/widgets/daily_ayah_card.dar
 import 'package:quranglow/features/home/presentation/widgets/goals_strip.dart';
 import 'package:quranglow/features/home/presentation/widgets/hero_header.dart';
 import 'package:quranglow/features/home/presentation/widgets/last_read_card.dart';
+import 'package:quranglow/features/home/presentation/widgets/prayer_times_card.dart';
 import 'package:quranglow/features/home/presentation/widgets/quick_actions_grid.dart';
 import 'package:quranglow/features/home/presentation/widgets/section_spacing.dart';
 import 'package:quranglow/features/home/presentation/widgets/shortcuts_list.dart';
@@ -229,6 +230,9 @@ class _HomeSections extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
+        const SliverToBoxAdapter(
+          child: SectionSpacing(child: PrayerTimesCard()),
+        ),
         const SliverToBoxAdapter(child: SectionSpacing(child: DailyAyahCard())),
         const SliverToBoxAdapter(child: SectionSpacing(child: GoalsStrip())),
         const SliverToBoxAdapter(child: SectionSpacing(child: LastReadCard())),

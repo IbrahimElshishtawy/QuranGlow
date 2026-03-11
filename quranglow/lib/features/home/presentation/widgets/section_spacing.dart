@@ -6,5 +6,5 @@ class SectionSpacing extends StatelessWidget {
   const SectionSpacing({super.key, required this.child});
   @override
   Widget build(BuildContext context) =>
-      Padding(padding: const EdgeInsets.fromLTRB(16, 16, 16, 0), child: child);
+      Padding(padding: const EdgeInsets.fromLTRB(16, 14, 16, 0), child: child);
 }

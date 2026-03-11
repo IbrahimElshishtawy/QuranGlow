@@ -1,7 +1,6 @@
-// lib/features/ui/pages/home/sections/shortcuts_list.dart
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
+import 'package:quranglow/features/home/presentation/widgets/home_surface_card.dart';
+import 'package:quranglow/features/home/presentation/widgets/section_title.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
 
 class ShortcutsList extends StatelessWidget {
@@ -10,23 +9,24 @@ class ShortcutsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _SectionTitleLocal('اختصارات'),
+        const SectionTitle('اختصارات'),
         const SizedBox(height: 8),
         _ShortcutTile(
-          icon: Icons.history,
+          icon: Icons.history_rounded,
           title: 'آخر قراءاتك',
-          subtitle: 'نرجعك لنفس الموضع السابق',
+          subtitle: 'نرجعك لنفس الموضع السابق بسرعة',
           color: cs.primary,
           onTap: () => Navigator.pushNamed(context, AppRoutes.bookmarks),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         _ShortcutTile(
-          icon: Icons.headset,
+          icon: Icons.headset_rounded,
           title: 'اختر قارئًا',
-          subtitle: 'استعرض التلاوات الصوتية',
+          subtitle: 'استعرض التلاوات الصوتية بسهولة',
           color: cs.primary,
           onTap: () => Navigator.pushNamed(context, AppRoutes.player),
         ),
@@ -36,11 +36,6 @@ class ShortcutsList extends StatelessWidget {
 }
 
 class _ShortcutTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Color color;
-  final VoidCallback onTap;
   const _ShortcutTile({
     required this.icon,
     required this.title,
@@ -49,24 +44,30 @@ class _ShortcutTile extends StatelessWidget {
     required this.onTap,
   });
 
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
+  final VoidCallback onTap;
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
     return Material(
-      color: cs.surface,
-      borderRadius: BorderRadius.circular(14),
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Padding(
+        borderRadius: BorderRadius.circular(16),
+        child: HomeSurfaceCard(
           padding: const EdgeInsets.all(14),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(.12),
-                  shape: BoxShape.circle,
+                  color: color.withValues(alpha: .13),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: color),
               ),
@@ -77,32 +78,28 @@ class _ShortcutTile extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                      ),
                     ),
                     const SizedBox(height: 4),
-                    Opacity(opacity: .75, child: Text(subtitle)),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: cs.onSurfaceVariant,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_left),
+              Icon(Icons.chevron_left_rounded, color: cs.onSurfaceVariant),
             ],
           ),
         ),
       ),
     );
   }
-}
-
-class _SectionTitleLocal extends StatelessWidget {
-  final String title;
-  const _SectionTitleLocal(this.title);
-  @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Text(
-        title,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-      ),
-    ],
-  );
 }
