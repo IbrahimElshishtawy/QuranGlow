@@ -132,8 +132,11 @@ class NotificationService {
       _dailyChannelId,
       'التذكير اليومي',
       channelDescription: 'تذكير يومي لقراءة الورد',
-      importance: Importance.high,
+      importance: Importance.max,
       priority: Priority.high,
+      showWhen: true,
+      enableVibration: true,
+      playSound: true,
     );
     const ios = DarwinNotificationDetails();
     const mac = DarwinNotificationDetails();
@@ -168,8 +171,11 @@ class NotificationService {
       _salawatChannelId,
       'تذكير الصلاة على النبي ﷺ',
       channelDescription: 'تذكير يومي للصلاة على النبي ﷺ',
-      importance: Importance.high,
+      importance: Importance.max,
       priority: Priority.high,
+      showWhen: true,
+      enableVibration: true,
+      playSound: true,
     );
     const ios = DarwinNotificationDetails();
     const mac = DarwinNotificationDetails();
@@ -207,9 +213,12 @@ class NotificationService {
       _remindersChannelId,
       'تذكيرات الأذكار',
       channelDescription: 'تذكيرات الأذكار والمواعيد التي يحددها المستخدم',
-      importance: Importance.high,
+      importance: Importance.max,
       priority: Priority.high,
       category: AndroidNotificationCategory.reminder,
+      showWhen: true,
+      enableVibration: true,
+      playSound: true,
     );
     const ios = DarwinNotificationDetails();
     const mac = DarwinNotificationDetails();

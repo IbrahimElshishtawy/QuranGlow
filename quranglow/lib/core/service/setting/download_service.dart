@@ -9,7 +9,7 @@ class DownloadService {
 
   Future<Directory> _rootDir() async {
     final dir = await getApplicationDocumentsDirectory();
-    final base = Directory('${dir.path}/quran_audio');
+    final base = Directory('${dir.path}/QuranGlow/downloads');
     if (!await base.exists()) await base.create(recursive: true);
     return base;
   }
@@ -19,7 +19,7 @@ class DownloadService {
     required int surah,
   }) async {
     final root = await _rootDir();
-    final d = Directory('${root.path}/$reciter/$surah');
+    final d = Directory('${root.path}/audio/$reciter/$surah');
     if (!await d.exists()) await d.create(recursive: true);
     return d;
   }
@@ -45,8 +45,8 @@ class DownloadService {
     required String fileName,
     required int surah,
   }) async {
-    final dir = await getApplicationDocumentsDirectory();
-    final base = Directory('${dir.path}/quran_text/$surah');
+    final root = await _rootDir();
+    final base = Directory('${root.path}/text/$surah');
     if (!await base.exists()) await base.create(recursive: true);
     final file = File('${base.path}/$fileName.json');
     await file.writeAsString(content);

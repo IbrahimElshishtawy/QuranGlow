@@ -14,7 +14,7 @@ import 'package:quranglow/core/model/setting/App_Settings.dart';
 import 'package:quranglow/core/model/book/bookmark.dart';
 import 'package:quranglow/core/model/book/surah.dart';
 import 'package:quranglow/core/model/setting/goal.dart';
-import 'package:quranglow/core/service/quran/Settings_Service.dart';
+import 'package:quranglow/core/service/quran/settings_service.dart';
 import 'package:quranglow/core/service/setting/download_service.dart';
 import 'package:quranglow/core/service/setting/goals_service.dart';
 import 'package:quranglow/core/service/audio/audio_service.dart';
@@ -29,11 +29,11 @@ import 'package:quranglow/core/storage/hive_storage_impl.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
 
 // Bookmarks
-import 'package:quranglow/features/ui/pages/bookmarks/controllers/bookmarks_controller.dart';
-import 'package:quranglow/features/ui/pages/bookmarks/logic/bookmarks_usecase.dart';
+import 'package:quranglow/features/bookmarks/presentation/providers/bookmarks_controller.dart';
+import 'package:quranglow/features/bookmarks/presentation/providers/bookmarks_usecase.dart';
 
 // Downloads
-import 'package:quranglow/features/ui/pages/downloads/controller/download_controller.dart';
+import 'package:quranglow/features/downloads/presentation/providers/download_controller.dart';
 
 /// --- HTTP & Dio -------------------------------------------------------------
 

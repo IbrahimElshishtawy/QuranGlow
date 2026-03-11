@@ -11,6 +11,9 @@ Future<void> initAudioHandler() async {
       androidNotificationChannelId: 'playback_ch',
       androidNotificationChannelName: 'تشغيل الصوت',
       androidNotificationOngoing: true,
+      androidStopForegroundOnPause: true,
+      androidNotificationClickStartsActivity: true,
+      notificationColor: Color(0xFF1B5E20),
     ),
   );
 }
