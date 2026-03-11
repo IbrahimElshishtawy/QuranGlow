@@ -74,12 +74,21 @@ class _PageRichBlockState extends State<PageRichBlock> {
       recognizersBucket: _recognizers,
     );
 
+    final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black;
 
-    mockTopics.where((t) =>
-        t.surah == widget.ayat.first.surah &&
-        subAyat.any((a) => a.numberInSurah >= t.startAyah && a.numberInSurah <= t.endAyah)).toList();
+    final currentTopics = mockTopics
+        .where(
+          (t) =>
+              t.surah == widget.ayat.first.surah &&
+              subAyat.any(
+                (a) =>
+                    a.numberInSurah >= t.startAyah &&
+                    a.numberInSurah <= t.endAyah,
+              ),
+        )
+        .toList(growable: false);
 
     return LayoutBuilder(
       builder: (context, c) {
@@ -90,36 +99,50 @@ class _PageRichBlockState extends State<PageRichBlock> {
             padding: const EdgeInsets.only(bottom: 2),
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: c.maxHeight),
-              child: RichText(
-                textAlign: TextAlign.justify,
-                textDirection: TextDirection.rtl,
-                strutStyle: const StrutStyle(fontSize: 22, height: 2.0),
-                text: TextSpan(
-                  style: TextStyle(
-                    color: textColor,
-                    fontFamily: 'KFGQPC Uthmanic Script',
-                    fontFamilyFallback: const [
-                      'Hafs',
-                      'Noto Naskh Arabic',
-                      'Scheherazade',
-                    ],
-                    height: 2.0,
-                    fontSize: 22,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  RichText(
+                    textAlign: TextAlign.justify,
+                    textDirection: TextDirection.rtl,
+                    strutStyle: const StrutStyle(fontSize: 22, height: 2.0),
+                    text: TextSpan(
+                      style: TextStyle(
+                        color: textColor,
+                        fontFamily: 'KFGQPC Uthmanic Script',
+                        fontFamilyFallback: const [
+                          'Hafs',
+                          'Noto Naskh Arabic',
+                          'Scheherazade',
+                        ],
+                        height: 2.0,
+                        fontSize: 22,
+                      ),
+                      children: spans,
+                    ),
                   ),
-                  children: spans,
-                ),
+                  if (currentTopics.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      children: currentTopics
+                          .map(
+                            (topic) => Chip(
+                              label: Text(
+                                topic.title,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              backgroundColor: cs.secondaryContainer,
+                              labelStyle: TextStyle(
+                                color: cs.onSecondaryContainer,
+                              ),
+                            ),
+                          )
+                          .toList(growable: false),
+                    ),
+                  ],
+                ],
               ),
-              if (currentTopics.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  children: currentTopics.map((topic) => Chip(
-                    label: Text(topic.title, style: const TextStyle(fontSize: 12)),
-                    backgroundColor: cs.secondaryContainer,
-                    labelStyle: TextStyle(color: cs.onSecondaryContainer),
-                  )).toList(),
-                ),
-              ],
             ),
           ),
         );
