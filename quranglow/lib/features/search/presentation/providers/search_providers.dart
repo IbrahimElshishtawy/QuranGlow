@@ -5,8 +5,20 @@ import 'package:quranglow/core/model/setting/search_hit.dart';
 final editionIdForSearchProvider = Provider<String>((ref) {
   final settings = ref.watch(settingsProvider);
   return settings.maybeWhen(
-    data: (s) =>
-        s.readerEditionId.trim().isEmpty ? 'quran-uthmani' : s.readerEditionId,
+    data: (s) {
+      final editionId = s.readerEditionId.trim();
+      if (editionId.isEmpty) return 'quran-uthmani';
+      final lower = editionId.toLowerCase();
+      final looksLikeAudioEdition =
+          lower.startsWith('ar.') ||
+          lower.contains('audio') ||
+          lower.contains('alafasy') ||
+          lower.contains('ajamy') ||
+          lower.contains('hudhaify') ||
+          lower.contains('minshawi') ||
+          lower.contains('sudais');
+      return looksLikeAudioEdition ? 'quran-uthmani' : editionId;
+    },
     orElse: () => 'quran-uthmani',
   );
 });

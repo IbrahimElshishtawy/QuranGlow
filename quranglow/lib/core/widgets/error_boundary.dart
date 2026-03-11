@@ -1,6 +1,7 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 class GlobalErrorBoundary extends StatefulWidget {
   final Widget child;
@@ -14,7 +15,32 @@ class GlobalErrorBoundary extends StatefulWidget {
 class _GlobalErrorBoundaryState extends State<GlobalErrorBoundary> {
   bool _hasError = false;
   Object? _error;
+  bool _rebuildScheduled = false;
   FlutterExceptionHandler? _previousOnError;
+
+  void _setError(Object error) {
+    if (!mounted) return;
+
+    void apply() {
+      if (!mounted) return;
+      _rebuildScheduled = false;
+      setState(() {
+        _hasError = true;
+        _error = error;
+      });
+    }
+
+    final phase = WidgetsBinding.instance.schedulerPhase;
+    if (phase == SchedulerPhase.idle ||
+        phase == SchedulerPhase.postFrameCallbacks) {
+      apply();
+      return;
+    }
+
+    if (_rebuildScheduled) return;
+    _rebuildScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) => apply());
+  }
 
   @override
   void initState() {
@@ -22,12 +48,7 @@ class _GlobalErrorBoundaryState extends State<GlobalErrorBoundary> {
     _previousOnError = FlutterError.onError;
     FlutterError.onError = (FlutterErrorDetails details) {
       FirebaseCrashlytics.instance.recordFlutterError(details);
-      if (mounted) {
-        setState(() {
-          _hasError = true;
-          _error = details.exception;
-        });
-      }
+      _setError(details.exception);
       _previousOnError?.call(details);
     };
   }

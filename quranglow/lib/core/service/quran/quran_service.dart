@@ -253,18 +253,6 @@ class QuranService {
 
   void clearImageCache() => _imageCache.clear();
 
-  String _normalizeArabic(String input) {
-    var s = input.trim();
-    const diacritics = r'[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]';
-    s = s.replaceAll(RegExp(diacritics), '');
-    s = s.replaceAll('\u0640', '');
-    s = s.replaceAll(RegExp(r'[^\u0600-\u06FF0-9\s]'), '');
-    s = s.replaceAll(RegExp(r'[أإآٱ]'), 'ا');
-    s = s.replaceAll('ى', 'ي');
-    s = s.replaceAll(RegExp(r'\s+'), ' ').trim();
-    return s;
-  }
-
   Future<List<Map<String, String>>> listTafsirEditions() async {
     final raw = await cloud.listTafsirEditions();
     return raw.map((m) {

@@ -179,6 +179,7 @@ class _GlassNavigationBar extends StatelessWidget {
                             : null,
                       ),
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
@@ -188,11 +189,12 @@ class _GlassNavigationBar extends StatelessWidget {
                                 ? cs.primary
                                 : cs.onSurfaceVariant.withValues(alpha: 0.90),
                           ),
-                          const SizedBox(height: 3),
+                          const SizedBox(height: 2),
                           AnimatedDefaultTextStyle(
                             duration: const Duration(milliseconds: 200),
                             style: TextStyle(
-                              fontSize: active ? 12 : 11,
+                              fontSize: active ? 11 : 10,
+                              height: 1,
                               fontWeight: active
                                   ? FontWeight.w800
                                   : FontWeight.w600,

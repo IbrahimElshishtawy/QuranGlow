@@ -44,13 +44,14 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   final _ayahPreviewPlayer = AudioPlayer();
   final GlobalKey<PagedMushafState> _pagedMushafKey = GlobalKey<PagedMushafState>();
 
-  TextStyle _ayahPreviewTextStyle(Color color) => TextStyle(
-    color: color,
-    fontSize: 24,
-    height: 1.9,
-    fontFamily: 'KFGQPC Uthmanic Script',
-    fontFamilyFallback: const ['Hafs', 'Noto Naskh Arabic', 'Scheherazade'],
-  );
+  TextStyle _ayahPreviewTextStyle(BuildContext context, Color color) =>
+      DefaultTextStyle.of(context).style.copyWith(
+        color: color,
+        fontSize: 22,
+        height: 1.8,
+        fontFamily: null,
+        fontFamilyFallback: const ['Noto Naskh Arabic', 'Scheherazade'],
+      );
 
   @override
   void initState() {
@@ -104,7 +105,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
     await _pos.save(_chapter, ayahIndex0);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('?? ??? ???? ???????')),
+      const SnackBar(content: Text('تم حفظ موضع القراءة')),
     );
   }
 
@@ -121,7 +122,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
     Clipboard.setData(ClipboardData(text: content));
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('?? ??? ?????')),
+      const SnackBar(content: Text('تم نسخ الآية')),
     );
   }
 
@@ -141,7 +142,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
       if (url == null || url.trim().isEmpty) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('?? ???? ???? ??? ???? ?????')),
+          const SnackBar(content: Text('لا يوجد ملف صوت متاح لهذه الآية')),
         );
         return;
       }
@@ -150,12 +151,12 @@ class _MushafPageState extends ConsumerState<MushafPage> {
       await _ayahPreviewPlayer.play();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('???? ????? ????? $ayahNumber')),
+        SnackBar(content: Text('يتم تشغيل الآية $ayahNumber')),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('???? ????? ?????: $e')),
+        SnackBar(content: Text('تعذر تشغيل الآية: $e')),
       );
     }
   }
@@ -196,15 +197,14 @@ class _MushafPageState extends ConsumerState<MushafPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  '????? $ayahNumber',
+                  'الآية $ayahNumber',
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 8),
-                Text(
+                SelectableText(
                   aya.text,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: _ayahPreviewTextStyle(cs.onSurfaceVariant),
+                  textDirection: TextDirection.rtl,
+                  style: _ayahPreviewTextStyle(context, cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 14),
                 Row(
@@ -216,7 +216,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                           await _playAyahAudio(aya, ayahNumber);
                         },
                         icon: const Icon(Icons.play_arrow_rounded),
-                        label: const Text('????? ?????'),
+                        label: const Text('تشغيل الآية'),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -227,7 +227,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                           _openTafsirForAyah(ayahNumber);
                         },
                         icon: const Icon(Icons.menu_book_rounded),
-                        label: const Text('???????'),
+                        label: const Text('التفسير'),
                       ),
                     ),
                   ],
@@ -239,7 +239,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                     _copyAyahText(ayahNumber, aya.text);
                   },
                   icon: const Icon(Icons.copy_rounded),
-                  label: const Text('??? ?? ?????'),
+                  label: const Text('نسخ نص الآية'),
                 ),
               ],
             ),
@@ -286,7 +286,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text('???? ????? ??????'),
+                        const Text('تعذر تحميل السورة'),
                         const SizedBox(height: 8),
                         Text(
                           '$e',
@@ -298,7 +298,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                           onPressed: () => ref.refresh(
                             surahProvider((_chapter, widget.editionId)),
                           ),
-                          child: const Text('????? ????????'),
+                          child: const Text('إعادة المحاولة'),
                         ),
                       ],
                     ),
@@ -309,7 +309,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                   ayat: surah.ayat,
                   surahName: surah.name,
                   surahNumber: _chapter,
-                  showBasmala: surah.name.trim() != '??????',
+                  showBasmala: surah.name.trim() != 'التوبة',
                   initialSelectedAyah: _lastAyahNumber,
                   onAyahTap: (int ayahNumber, Aya aya) {
                     setState(() {
@@ -386,13 +386,14 @@ class _SelectedAyahPanel extends StatelessWidget {
   final VoidCallback onPlay;
   final VoidCallback onCopy;
 
-  TextStyle _ayahPreviewTextStyle(Color color) => TextStyle(
-    color: color,
-    fontSize: 22,
-    height: 1.8,
-    fontFamily: 'KFGQPC Uthmanic Script',
-    fontFamilyFallback: const ['Hafs', 'Noto Naskh Arabic', 'Scheherazade'],
-  );
+  TextStyle _ayahPreviewTextStyle(BuildContext context, Color color) =>
+      DefaultTextStyle.of(context).style.copyWith(
+        color: color,
+        fontSize: 20,
+        height: 1.7,
+        fontFamily: null,
+        fontFamilyFallback: const ['Noto Naskh Arabic', 'Scheherazade'],
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -429,26 +430,25 @@ class _SelectedAyahPanel extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          '????? ${ayahNumber ?? ''}',
+                          'الآية ${ayahNumber ?? ''}',
                           style: const TextStyle(fontWeight: FontWeight.w800),
                         ),
                       ),
                       IconButton(
                         onPressed: onClear,
                         icon: const Icon(Icons.close_rounded),
-                        tooltip: '????? ???????',
+                        tooltip: 'إغلاق المعاينة',
                       ),
                     ],
                   ),
                   if (ayahText != null && ayahText!.trim().isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
+                      child: SelectableText(
                         ayahText!,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.right,
-                        style: _ayahPreviewTextStyle(cs.onSurfaceVariant),
+                        textDirection: TextDirection.rtl,
+                        style: _ayahPreviewTextStyle(context, cs.onSurfaceVariant),
                       ),
                     ),
                   Row(
@@ -457,7 +457,7 @@ class _SelectedAyahPanel extends StatelessWidget {
                         child: FilledButton.icon(
                           onPressed: onPlay,
                           icon: const Icon(Icons.play_arrow_rounded),
-                          label: const Text('??????'),
+                          label: const Text('تشغيل'),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -465,7 +465,7 @@ class _SelectedAyahPanel extends StatelessWidget {
                         child: FilledButton.icon(
                           onPressed: onOpenTafsir,
                           icon: const Icon(Icons.menu_book_rounded),
-                          label: const Text('??? ???????'),
+                          label: const Text('عرض التفسير'),
                         ),
                       ),
                     ],
@@ -474,7 +474,7 @@ class _SelectedAyahPanel extends StatelessWidget {
                   OutlinedButton.icon(
                     onPressed: onCopy,
                     icon: const Icon(Icons.copy_rounded),
-                    label: const Text('??? ?????'),
+                    label: const Text('نسخ الآية'),
                   ),
                 ],
               ),

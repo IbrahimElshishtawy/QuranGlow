@@ -17,71 +17,90 @@ class QuranGlowApp extends ConsumerWidget {
     GlobalWidgetsLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
   ];
+
   static const _locales = <Locale>[Locale('en'), Locale('ar')];
+
+  ThemeData _getTheme(AppSettings settings, bool isDark) {
+    if (isDark) {
+      return buildDarkTheme(
+        fontFamily: settings.fontFamily,
+        fontScale: settings.fontScale,
+      );
+    }
+
+    switch (settings.colorScheme) {
+      case AppColorScheme.sepia:
+        return buildSepiaTheme(
+          fontFamily: settings.fontFamily,
+          fontScale: settings.fontScale,
+        );
+      case AppColorScheme.blue:
+        return buildBlueTheme(
+          fontFamily: settings.fontFamily,
+          fontScale: settings.fontScale,
+        );
+      case AppColorScheme.green:
+        return buildLightTheme(
+          fontFamily: settings.fontFamily,
+          fontScale: settings.fontScale,
+        );
+    }
+
+    return buildLightTheme(
+      fontFamily: settings.fontFamily,
+      fontScale: settings.fontScale,
+    );
+  }
+
+  MaterialApp _buildApp({
+    required ThemeData theme,
+    required ThemeData darkTheme,
+    required Widget home,
+    ThemeMode? themeMode,
+    RouteFactory? onGenerateRoute,
+  }) {
+    return MaterialApp(
+      title: 'QuranGlow',
+      debugShowCheckedModeBanner: false,
+      theme: theme,
+      darkTheme: darkTheme,
+      themeMode: themeMode,
+      localizationsDelegates: _delegates,
+      supportedLocales: _locales,
+      onGenerateRoute: onGenerateRoute,
+      builder: (context, child) =>
+          GlobalErrorBoundary(child: child ?? const SizedBox.shrink()),
+      home: home,
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
 
-    ThemeData getTheme(AppSettings s, bool isDark) {
-      if (isDark) {
-        return buildDarkTheme(fontFamily: s.fontFamily, fontScale: s.fontScale);
-      }
-      switch (s.colorScheme) {
-        case AppColorScheme.sepia:
-          return buildSepiaTheme(
-            fontFamily: s.fontFamily,
-            fontScale: s.fontScale,
-          );
-        case AppColorScheme.blue:
-          return buildBlueTheme(
-            fontFamily: s.fontFamily,
-            fontScale: s.fontScale,
-          );
-        case AppColorScheme.green:
-          return buildLightTheme(
-            fontFamily: s.fontFamily,
-            fontScale: s.fontScale,
-          );
-      }
-      return buildLightTheme(fontFamily: s.fontFamily, fontScale: s.fontScale);
-    }
-
     return settings.when(
-      loading: () => MaterialApp(
-        debugShowCheckedModeBanner: false,
+      loading: () => _buildApp(
         theme: buildLightTheme(fontFamily: 'System', fontScale: 1),
         darkTheme: buildDarkTheme(fontFamily: 'System', fontScale: 1),
-        localizationsDelegates: _delegates,
-        supportedLocales: _locales,
         home: const Scaffold(
           backgroundColor: Colors.white,
           body: Center(child: CircularProgressIndicator()),
         ),
       ),
-      error: (_, _) => MaterialApp(
-        title: 'QuranGlow',
-        debugShowCheckedModeBanner: false,
+      error: (_, _) => _buildApp(
         theme: buildLightTheme(fontFamily: 'System', fontScale: 1),
         darkTheme: buildDarkTheme(fontFamily: 'System', fontScale: 1),
-        localizationsDelegates: _delegates,
-        supportedLocales: _locales,
         home: const Scaffold(
           backgroundColor: Colors.white,
-          body: Center(child: Text('خطأ في تحميل الإعدادات')),
+          body: Center(child: Text('حدث خطأ في تحميل الإعدادات')),
         ),
       ),
-      data: (s) => GlobalErrorBoundary(
-        child: MaterialApp(
-          title: 'QuranGlow',
-          debugShowCheckedModeBanner: false,
-          theme: getTheme(s, false),
-          darkTheme: getTheme(s, true),
-          themeMode: s.darkMode ? ThemeMode.dark : ThemeMode.light,
-          localizationsDelegates: _delegates,
-          supportedLocales: _locales,
-          home: const SplashScreen(),
-          onGenerateRoute: onGenerateRoute,
-        ),
+      data: (settings) => _buildApp(
+        theme: _getTheme(settings, false),
+        darkTheme: _getTheme(settings, true),
+        themeMode: settings.darkMode ? ThemeMode.dark : ThemeMode.light,
+        onGenerateRoute: onGenerateRoute,
+        home: const SplashScreen(),
       ),
     );
   }
