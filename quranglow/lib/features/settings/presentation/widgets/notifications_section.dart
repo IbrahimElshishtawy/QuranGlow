@@ -1,4 +1,6 @@
-﻿import 'package:flutter/material.dart';
+﻿// ignore_for_file: use_build_context_synchronously
+
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/service/setting/notification_service.dart';
 
@@ -48,9 +50,12 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
     ) async {
       try {
         await _rescheduleDaily();
-        _snack(enabled ? '?? ????? ??????? ??????' : '?? ????? ??????? ??????');
+        _snack(enabled ? 'Daily reminder enabled' : 'Daily reminder disabled');
       } catch (e) {
-        _snack('??? ??? ??????? ??????: $e', bg: Theme.of(context).colorScheme.error);
+        _snack(
+          'Failed to update daily reminder: $e',
+          bg: Theme.of(context).colorScheme.error,
+        );
       }
     }, fireImmediately: true);
 
@@ -61,10 +66,13 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
       try {
         await _rescheduleDaily();
         if (ref.read(notificationsEnabledProvider)) {
-          _snack('?? ????? ??? ??????? ?????? ??? ${time.format(context)}');
+          _snack('Daily reminder time updated to ${time.format(context)}');
         }
       } catch (e) {
-        _snack('??? ????? ??? ??????? ??????: $e', bg: Theme.of(context).colorScheme.error);
+        _snack(
+          'Failed to update time: $e',
+          bg: Theme.of(context).colorScheme.error,
+        );
       }
     });
 
@@ -74,10 +82,13 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
         try {
           await _rescheduleDaily();
           if (ref.read(notificationsEnabledProvider)) {
-            _snack('?? ????? ??? ??????? ??????');
+            _snack('Daily reminder type updated');
           }
         } catch (e) {
-          _snack('??? ????? ??? ???????: $e', bg: Theme.of(context).colorScheme.error);
+          _snack(
+            'Failed to update reminder type: $e',
+            bg: Theme.of(context).colorScheme.error,
+          );
         }
       },
     );
@@ -88,14 +99,18 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
     ) async {
       try {
         final t = ref.read(salawatTimeProvider);
-        await NotificationService.instance.scheduleSalawat(enabled: enabled, time: t);
+        await NotificationService.instance.scheduleSalawat(
+          enabled: enabled,
+          time: t,
+        );
         _snack(
-          enabled
-              ? '?? ????? ????? ?????? ??? ????? ?'
-              : '?? ????? ????? ?????? ??? ????? ?',
+          enabled ? 'Salawat reminder enabled' : 'Salawat reminder disabled',
         );
       } catch (e) {
-        _snack('??? ??? ????? ?????? ??? ????? ?: $e', bg: Theme.of(context).colorScheme.error);
+        _snack(
+          'Failed to update salawat reminder: $e',
+          bg: Theme.of(context).colorScheme.error,
+        );
       }
     }, fireImmediately: true);
 
@@ -105,12 +120,18 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
     ) async {
       try {
         final en = ref.read(salawatEnabledProvider);
-        await NotificationService.instance.scheduleSalawat(enabled: en, time: time);
+        await NotificationService.instance.scheduleSalawat(
+          enabled: en,
+          time: time,
+        );
         if (en) {
-          _snack('?? ????? ??? ????? ?????? ??? ????? ? ??? ${time.format(context)}');
+          _snack('Salawat reminder time updated to ${time.format(context)}');
         }
       } catch (e) {
-        _snack('??? ????? ?????: $e', bg: Theme.of(context).colorScheme.error);
+        _snack(
+          'Failed to update salawat time: $e',
+          bg: Theme.of(context).colorScheme.error,
+        );
       }
     });
   }
@@ -141,17 +162,17 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '?????????',
+              'Notifications',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SwitchListTile(
               value: dailyEnabled,
-              title: const Text('????? ??????? ??????'),
+              title: const Text('Enable daily reminder'),
               onChanged: (v) =>
                   ref.read(notificationsEnabledProvider.notifier).state = v,
             ),
             ListTile(
-              title: const Text('??? ??????? ??????'),
+              title: const Text('Daily reminder time'),
               subtitle: Text(dailyTime.format(context)),
               onTap: () async {
                 final t = await showTimePicker(
@@ -164,11 +185,11 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
               },
             ),
             ListTile(
-              title: const Text('??? ???????'),
+              title: const Text('Reminder content type'),
               subtitle: Text(switch (dailyKind) {
-                DailyReminderKind.quran => '????? ??????',
-                DailyReminderKind.adhan => '??????',
-                DailyReminderKind.dhikr => '?????',
+                DailyReminderKind.quran => 'Quran reading',
+                DailyReminderKind.adhan => 'Adhan / Salah prep',
+                DailyReminderKind.dhikr => 'Dhikr',
               }),
               trailing: DropdownButton<DailyReminderKind>(
                 value: dailyKind,
@@ -179,15 +200,15 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
                 items: const [
                   DropdownMenuItem(
                     value: DailyReminderKind.quran,
-                    child: Text('????'),
+                    child: Text('Quran'),
                   ),
                   DropdownMenuItem(
                     value: DailyReminderKind.adhan,
-                    child: Text('????'),
+                    child: Text('Adhan'),
                   ),
                   DropdownMenuItem(
                     value: DailyReminderKind.dhikr,
-                    child: Text('???'),
+                    child: Text('Dhikr'),
                   ),
                 ],
               ),
@@ -195,11 +216,12 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
             const Divider(height: 24),
             SwitchListTile(
               value: salawatEnabled,
-              title: const Text('????? ????? ?????? ??? ????? ?'),
-              onChanged: (v) => ref.read(salawatEnabledProvider.notifier).state = v,
+              title: const Text('Enable salawat reminder'),
+              onChanged: (v) =>
+                  ref.read(salawatEnabledProvider.notifier).state = v,
             ),
             ListTile(
-              title: const Text('?????'),
+              title: const Text('Salawat reminder time'),
               subtitle: Text(salawatTime.format(context)),
               onTap: () async {
                 final t = await showTimePicker(
@@ -216,24 +238,27 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
               alignment: Alignment.centerLeft,
               child: OutlinedButton.icon(
                 icon: const Icon(Icons.notifications_active_outlined),
-                label: const Text('?????? ????? ????'),
+                label: const Text('Test notification now'),
                 onPressed: () async {
                   try {
                     final kindText = switch (dailyKind) {
-                      DailyReminderKind.quran => '????',
-                      DailyReminderKind.adhan => '????',
-                      DailyReminderKind.dhikr => '???',
+                      DailyReminderKind.quran => 'Quran',
+                      DailyReminderKind.adhan => 'Adhan',
+                      DailyReminderKind.dhikr => 'Dhikr',
                     };
                     await NotificationService.instance.scheduleReminder(
                       id: 991001,
-                      title: '?????? ????? ($kindText)',
-                      body: '??? ????? ?????? ?????? ?? ?????? ??????.',
+                      title: 'Test Notification ($kindText)',
+                      body: 'This is a test notification from QuranGlow.',
                       when: DateTime.now().add(const Duration(seconds: 3)),
                       daily: false,
                     );
-                    _snack('???? ????? ???????? ??? ?????');
+                    _snack('Test notification will appear in a few seconds');
                   } catch (e) {
-                    _snack('??? ????? ??????: $e', bg: Theme.of(context).colorScheme.error);
+                    _snack(
+                      'Failed to schedule test: $e',
+                      bg: Theme.of(context).colorScheme.error,
+                    );
                   }
                 },
               ),
@@ -244,4 +269,3 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
     );
   }
 }
-

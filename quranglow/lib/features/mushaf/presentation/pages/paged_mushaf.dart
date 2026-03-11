@@ -17,7 +17,7 @@ class PagedMushaf extends StatefulWidget {
     required this.surahName,
     required this.surahNumber,
     this.showBasmala = false,
-    this.basmalaText = '?',
+    this.basmalaText = '﷽',
     this.initialSelectedAyah,
     required this.onAyahTap,
     required this.onAyahLongPress,
@@ -57,7 +57,13 @@ class PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
   Future<void> _restoreInitial() async {
     int? idx0;
     if (widget.initialSelectedAyah != null) {
-      idx0 = (widget.initialSelectedAyah! - 1).clamp(0, widget.ayat.length - 1);
+      final targetAyah = widget.initialSelectedAyah!;
+      final found = widget.ayat.indexWhere((a) => a.numberInSurah == targetAyah);
+      if (found != -1) {
+        idx0 = found;
+      } else {
+        idx0 = (targetAyah - 1).clamp(0, widget.ayat.length - 1);
+      }
     } else {
       final loaded = await _pos.load(widget.surahNumber);
       if (loaded is int) idx0 = loaded.clamp(0, widget.ayat.length - 1);
@@ -102,19 +108,21 @@ class PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
     });
 
     if (index0 >= 0 && index0 < widget.ayat.length) {
-      widget.onAyahTap(index0 + 1, widget.ayat[index0]);
+      final aya = widget.ayat[index0];
+      widget.onAyahTap(aya.numberInSurah, aya);
     }
 
     if (kDebugMode) {
       // ignore: avoid_print
-      print('saved ${widget.surahNumber}:${index0 + 1}');
+      print('saved ${widget.surahNumber}:${widget.ayat[index0].numberInSurah}');
     }
   }
 
   void _onAyahLongPress(int index0) {
     if (index0 < 0 || index0 >= widget.ayat.length) return;
     setState(() => _currentAyahIdx0 = index0);
-    widget.onAyahLongPress(index0 + 1, widget.ayat[index0]);
+    final aya = widget.ayat[index0];
+    widget.onAyahLongPress(aya.numberInSurah, aya);
   }
 
   void animateToPage(int page) {
@@ -129,7 +137,7 @@ class PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return PageView.builder(
       controller: _controller,
-      reverse: true,
+      reverse: false,
       allowImplicitScrolling: true,
       physics: const BouncingScrollPhysics(
         parent: AlwaysScrollableScrollPhysics(),
@@ -174,7 +182,7 @@ class PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
                   visible: _justSaved,
                   text: _currentAyahIdx0 == null
                       ? ''
-                      : '?? ??? ?????: ??? ${_toArabicDigits((_currentAyahIdx0! + 1))} ?? ${widget.surahName}',
+                      : 'تم حفظ موضعك: آية ${_toArabicDigits(widget.ayat[_currentAyahIdx0!].numberInSurah)} من ${widget.surahName}',
                 ),
               ],
             ),
@@ -219,7 +227,7 @@ class PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
 
   String _toArabicDigits(int number) {
     const western = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    const eastern = ['?', '?', '?', '?', '?', '?', '?', '?', '?', '?'];
+    const eastern = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
     final s = number.toString();
     final buf = StringBuffer();
     for (final ch in s.split('')) {

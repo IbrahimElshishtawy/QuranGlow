@@ -26,27 +26,27 @@ class _HomePageState extends State<HomePage> {
 
   static const _tabs = <_NavTab>[
     _NavTab(
-      label: '????????',
+      label: 'الرئيسية',
       icon: Icons.home_outlined,
       activeIcon: Icons.home_rounded,
     ),
     _NavTab(
-      label: '??????',
+      label: 'المصحف',
       icon: Icons.menu_book_outlined,
       activeIcon: Icons.menu_book_rounded,
     ),
     _NavTab(
-      label: '???????',
+      label: 'الأذكار',
       icon: Icons.favorite_border,
       activeIcon: Icons.favorite,
     ),
     _NavTab(
-      label: '??????',
+      label: 'المشغل',
       icon: Icons.play_circle_outline,
       activeIcon: Icons.play_circle,
     ),
     _NavTab(
-      label: '???',
+      label: 'بحث',
       icon: Icons.search_rounded,
       activeIcon: Icons.manage_search_rounded,
     ),
@@ -73,18 +73,26 @@ class _HomePageState extends State<HomePage> {
           selectedIndex: _tab,
           onSelect: (i) => setState(() => _tab = i),
         ),
-        body: IndexedStack(
-          index: _tab,
-          children: const [
-            _HomeSections(),
-            MushafPage(),
-            AzkarTasbihPage(),
-            PlayerPage(),
-            SearchPage(),
-          ],
-        ),
+        body: _buildTabBody(),
       ),
     );
+  }
+
+  Widget _buildTabBody() {
+    switch (_tab) {
+      case 0:
+        return const _HomeSections();
+      case 1:
+        return const MushafPage();
+      case 2:
+        return const AzkarTasbihPage();
+      case 3:
+        return const PlayerPage();
+      case 4:
+        return const SearchPage();
+      default:
+        return const _HomeSections();
+    }
   }
 }
 

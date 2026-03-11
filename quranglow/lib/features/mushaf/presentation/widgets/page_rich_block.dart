@@ -41,29 +41,6 @@ class PageRichBlock extends StatefulWidget {
 
 class _PageRichBlockState extends State<PageRichBlock> {
   final List<GestureRecognizer> _recognizers = [];
-  late AyahSpanBuilder _builder;
-
-  @override
-  void initState() {
-    super.initState();
-    _builder = AyahSpanBuilder(
-      onAyahTap: widget.onTapIndex,
-      onAyahLongPress: widget.onLongPressIndex,
-    );
-  }
-
-  @override
-  void didUpdateWidget(covariant PageRichBlock oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.onTapIndex != widget.onTapIndex ||
-        oldWidget.onLongPressIndex != widget.onLongPressIndex) {
-      _builder = AyahSpanBuilder(
-        onAyahTap: widget.onTapIndex,
-        onAyahLongPress: widget.onLongPressIndex,
-      );
-    }
-  }
 
   void _disposeRecognizers() {
     for (final r in _recognizers) {
@@ -103,7 +80,13 @@ class _PageRichBlockState extends State<PageRichBlock> {
     // Ù…Ù‡Ù…: Ù†Ø¸Ù Ø§Ù„Ù€ recognizers Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø© Ù‚Ø¨Ù„ Ø¨Ù†Ø§Ø¡ spans Ø¬Ø¯ÙŠØ¯Ø©
     _disposeRecognizers();
 
-    final spans = _builder.buildSpans(
+    final builder = AyahSpanBuilder(
+      onAyahTap: (localIndex) => widget.onTapIndex(widget.range.start + localIndex),
+      onAyahLongPress: (localIndex) =>
+          widget.onLongPressIndex(widget.range.start + localIndex),
+    );
+
+    final spans = builder.buildSpans(
       ayat: subAyat,
       showBasmala: widget.showBasmala,
       basmala: widget.basmalaText,

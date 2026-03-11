@@ -57,29 +57,27 @@ class AyahSpanBuilder {
             )
           : _base;
       out.add(TextSpan(text: '${a.text.trim()} ', style: s, recognizer: r));
-      out.add(
-        _ayahMarker(
-          i,
-          selected,
-          ayahNumberColor: ayahNumberColor,
-          onTap: () => onAyahTap(i),
-          onLongPress: () => onAyahLongPress(i),
-        ),
-      );
+      out.add(_ayahMarker(
+        ayahNumber: a.numberInSurah,
+        selected: selected,
+        ayahNumberColor: ayahNumberColor,
+        onTap: () => onAyahTap(i),
+        onLongPress: () => onAyahLongPress(i),
+      ));
       out.add(const TextSpan(text: '  ', style: _base));
     }
     _cache[cacheKey] = out;
     return out;
   }
 
-  InlineSpan _ayahMarker(
-    int ayahIndex,
-    bool selected, {
+  InlineSpan _ayahMarker({
+    required int ayahNumber,
+    required bool selected,
     VoidCallback? onTap,
     VoidCallback? onLongPress,
     Color? ayahNumberColor,
   }) {
-    final txt = _toArabicDigits(ayahIndex + 1);
+    final txt = _toArabicDigits(ayahNumber);
     return WidgetSpan(
       alignment: PlaceholderAlignment.middle,
       child: GestureDetector(
