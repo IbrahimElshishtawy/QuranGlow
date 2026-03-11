@@ -1,13 +1,15 @@
 // lib/features/ui/pages/mushaf/span_builder.dart
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
 
 class AyahSpanBuilder {
-  AyahSpanBuilder({required this.onAyahTap});
+  AyahSpanBuilder({
+    required this.onAyahTap,
+    required this.onAyahLongPress,
+  });
   final void Function(int index) onAyahTap;
+  final void Function(int index) onAyahLongPress;
 
   final Map<int, List<InlineSpan>> _cache = {};
 
@@ -23,7 +25,7 @@ class AyahSpanBuilder {
     required String basmala,
     required int? currentAyahIndex,
     Color? ayahNumberColor,
-    required List<TapGestureRecognizer> recognizersBucket,
+    required List<GestureRecognizer> recognizersBucket,
   }) {
     final cacheKey = Object.hash(
       ayat.first.number,
@@ -50,7 +52,9 @@ class AyahSpanBuilder {
       recognizersBucket.add(r);
       final selected = currentAyahIndex == i;
       final s = selected
-          ? _base.copyWith(backgroundColor: Colors.amber.withOpacity(.18))
+          ? _base.copyWith(
+              backgroundColor: Colors.amber.withValues(alpha: 0.18),
+            )
           : _base;
       out.add(TextSpan(text: '${a.text.trim()} ', style: s, recognizer: r));
       out.add(
@@ -58,8 +62,8 @@ class AyahSpanBuilder {
           i,
           selected,
           ayahNumberColor: ayahNumberColor,
-          recognizersBucket: recognizersBucket,
           onTap: () => onAyahTap(i),
+          onLongPress: () => onAyahLongPress(i),
         ),
       );
       out.add(const TextSpan(text: '  ', style: _base));
@@ -72,22 +76,32 @@ class AyahSpanBuilder {
     int ayahIndex,
     bool selected, {
     VoidCallback? onTap,
+    VoidCallback? onLongPress,
     Color? ayahNumberColor,
-    required List<TapGestureRecognizer> recognizersBucket,
   }) {
     final txt = _toArabicDigits(ayahIndex + 1);
-    final markerTap = TapGestureRecognizer()..onTap = onTap;
-    recognizersBucket.add(markerTap);
-    return TextSpan(
-      text: ' \u06DD$txt ',
-      style: TextStyle(
-        fontSize: 14,
-        height: 1.0,
-        color: ayahNumberColor,
-        backgroundColor: selected ? Colors.amber.withOpacity(.18) : null,
-        fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+    return WidgetSpan(
+      alignment: PlaceholderAlignment.middle,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: onTap,
+        onLongPress: onLongPress,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 1),
+          child: Text(
+            '۝$txt',
+            style: TextStyle(
+              fontSize: 14,
+              height: 1.0,
+              color: ayahNumberColor,
+              backgroundColor: selected
+                  ? Colors.amber.withValues(alpha: 0.18)
+                  : null,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+            ),
+          ),
+        ),
       ),
-      recognizer: markerTap,
     );
   }
 

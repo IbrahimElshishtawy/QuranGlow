@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
@@ -24,6 +22,7 @@ class PageRichBlock extends StatefulWidget {
     required this.basmalaText,
     required this.currentAyahIndex,
     required this.onTapIndex,
+    required this.onLongPressIndex,
     this.ayahNumberColor,
   });
 
@@ -33,6 +32,7 @@ class PageRichBlock extends StatefulWidget {
   final String basmalaText;
   final int? currentAyahIndex;
   final void Function(int index) onTapIndex;
+  final void Function(int index) onLongPressIndex;
   final Color? ayahNumberColor;
 
   @override
@@ -40,21 +40,28 @@ class PageRichBlock extends StatefulWidget {
 }
 
 class _PageRichBlockState extends State<PageRichBlock> {
-  final List<TapGestureRecognizer> _recognizers = [];
+  final List<GestureRecognizer> _recognizers = [];
   late AyahSpanBuilder _builder;
 
   @override
   void initState() {
     super.initState();
-    _builder = AyahSpanBuilder(onAyahTap: widget.onTapIndex);
+    _builder = AyahSpanBuilder(
+      onAyahTap: widget.onTapIndex,
+      onAyahLongPress: widget.onLongPressIndex,
+    );
   }
 
   @override
   void didUpdateWidget(covariant PageRichBlock oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.onTapIndex != widget.onTapIndex) {
-      _builder = AyahSpanBuilder(onAyahTap: widget.onTapIndex);
+    if (oldWidget.onTapIndex != widget.onTapIndex ||
+        oldWidget.onLongPressIndex != widget.onLongPressIndex) {
+      _builder = AyahSpanBuilder(
+        onAyahTap: widget.onTapIndex,
+        onAyahLongPress: widget.onLongPressIndex,
+      );
     }
   }
 
@@ -117,8 +124,8 @@ class _PageRichBlockState extends State<PageRichBlock> {
         ? const Color(0xFF30291D)
         : const Color(0xFFE3D4B4);
     final paperOverlay = isDark
-        ? Colors.white.withOpacity(0.04)
-        : const Color(0xFFFFFBF2).withOpacity(0.70);
+        ? Colors.white.withValues(alpha: 0.04)
+        : const Color(0xFFFFFBF2).withValues(alpha: 0.70);
 
     final currentTopics = mockTopics
         .where(
@@ -145,7 +152,7 @@ class _PageRichBlockState extends State<PageRichBlock> {
             border: Border.all(color: paperEdge, width: 1.2),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.25 : 0.10),
+                color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.10),
                 blurRadius: 14,
                 offset: const Offset(0, 6),
               ),

@@ -57,6 +57,7 @@ class MushafReaderView extends StatelessWidget {
             surahNumber: chapter,
             showBasmala: chapter != 9,
             onAyahTap: onAyahTap,
+            onAyahLongPress: onAyahTap,
           ),
         ),
       ),
