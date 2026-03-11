@@ -26,7 +26,8 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
       prev,
       next,
     ) async {
-      next.whenOrNull(
+      if (!isAudioHandlerReady) return;
+      await next.when(
         data: (s) async {
           final bool isPlaying = (s.isPlaying ?? false);
           final String? url = s.currentUrl;
@@ -42,6 +43,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
         error: (e, st) async {
           await audioHandler.stop();
         },
+        loading: () async {},
       );
     }, fireImmediately: false);
   }
