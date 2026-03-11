@@ -1,4 +1,6 @@
 // lib/features/ui/pages/mushaf/paged_mushaf.dart
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
@@ -11,7 +13,7 @@ import 'package:quranglow/features/mushaf/presentation/widgets/saved_position_ba
 
 class PagedMushaf extends StatefulWidget {
   const PagedMushaf({
-    required GlobalKey<_PagedMushafState> key,
+    super.key,
     required this.ayat,
     required this.surahName,
     required this.surahNumber,
@@ -32,10 +34,10 @@ class PagedMushaf extends StatefulWidget {
   final Color? ayahNumberColor;
 
   @override
-  State<PagedMushaf> createState() => _PagedMushafState();
+  State<PagedMushaf> createState() => PagedMushafState();
 }
 
-class _PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
+class PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
   final _pos = PositionStore();
   final _controller = PageController(keepPage: true);
 

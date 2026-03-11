@@ -76,9 +76,8 @@ class _PageRichBlockState extends State<PageRichBlock> {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black;
-    final cs = Theme.of(context).colorScheme;
 
-    final currentTopics = mockTopics.where((t) =>
+    mockTopics.where((t) =>
         t.surah == widget.ayat.first.surah &&
         subAyat.any((a) => a.numberInSurah >= t.startAyah && a.numberInSurah <= t.endAyah)).toList();
 

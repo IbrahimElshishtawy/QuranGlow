@@ -26,7 +26,7 @@ class MushafPage extends ConsumerStatefulWidget {
     super.key,
     this.chapter = 1,
     this.editionId = 'quran-uthmani',
-    int? initialAyah, // احتفاظ للتوافق إن احتجته لاحقاً
+    int? initialAyah,
   });
 
   final int chapter;
@@ -64,7 +64,8 @@ class _MushafPageState extends ConsumerState<MushafPage> {
     super.dispose();
   }
 
-  final GlobalKey<_PagedMushafState> _pagedMushafKey = GlobalKey<_PagedMushafState>();
+  final GlobalKey<PagedMushafState> _pagedMushafKey =
+      GlobalKey<PagedMushafState>();
 
   void _goPrev() {
     if (_chapter > 1) {

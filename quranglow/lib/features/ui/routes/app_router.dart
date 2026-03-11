@@ -126,6 +126,7 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
                     ),
                   );
                 },
+                key: null,
               );
             },
           );

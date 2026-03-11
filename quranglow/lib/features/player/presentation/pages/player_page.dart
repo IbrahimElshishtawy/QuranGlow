@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/service/audio/audio_locator.dart';
-import 'package:quranglow/features/player/presentation/providers/player_controller_provider.dart';
 import 'package:quranglow/features/player/presentation/widgets/reader_row.dart';
 import 'package:quranglow/features/player/presentation/widgets/track_card.dart';
 import 'package:quranglow/features/player/presentation/widgets/transport_controls.dart';

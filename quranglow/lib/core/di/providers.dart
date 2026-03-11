@@ -4,11 +4,14 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:just_audio/just_audio.dart';
+
 import 'package:http/http.dart' as http;
 
 import 'package:quranglow/core/api/alquran_cloud_source.dart';
 import 'package:quranglow/core/api/fawaz_cdn_source.dart';
+import 'package:quranglow/core/data/surah_names_ar.dart';
+import 'package:quranglow/core/model/book/Play_list_State.dart';
 import 'package:quranglow/core/model/setting/App_Settings.dart';
 
 import 'package:quranglow/core/model/book/bookmark.dart';
@@ -27,6 +30,7 @@ import 'package:quranglow/core/service/sync/reminders_service.dart';
 import 'package:quranglow/core/service/tracking_service.dart';
 import 'package:quranglow/core/storage/hive_storage_impl.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
+import 'package:quranglow/core/theme/theme_controller.dart';
 
 // Bookmarks
 import 'package:quranglow/features/bookmarks/presentation/providers/bookmarks_controller.dart';
@@ -185,6 +189,210 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
 final audioEditionsProvider = FutureProvider<List<dynamic>>((ref) async {
   return ref.read(quranServiceProvider).listAudioEditions();
 });
+
+final editionIdProvider = StateProvider<String>((ref) => 'ar.alafasy');
+final chapterProvider = StateProvider<int>((ref) => 1);
+
+class PlayerUiState extends PlaylistState {
+  final bool? isPlaying;
+  final String? currentUrl;
+  final String? surahName;
+  final String? reciterName;
+
+  const PlayerUiState({
+    required super.editionId,
+    required super.chapter,
+    required super.total,
+    required super.durationStream,
+    required super.positionStream,
+    required super.bufferedStream,
+    required super.indexStream,
+    required super.playingStream,
+    required super.loopModeStream,
+    required super.volumeStream,
+    this.isPlaying,
+    this.currentUrl,
+    this.surahName,
+    this.reciterName,
+  });
+}
+
+final playerControllerProvider =
+    StateNotifierProvider<PlayerController, AsyncValue<PlayerUiState>>(
+      (ref) => PlayerController(ref),
+    );
+
+class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
+  PlayerController(this.ref) : super(const AsyncValue.loading()) {
+    _playingSub = _player.playingStream.listen((_) => _emitState());
+    _indexSub = _player.currentIndexStream.listen((_) => _emitState());
+    _init();
+  }
+
+  final Ref ref;
+  final AudioPlayer _player = AudioPlayer();
+  StreamSubscription<bool>? _playingSub;
+  StreamSubscription<int?>? _indexSub;
+  List<String> _urls = const <String>[];
+  String _reciterName = '';
+
+  Future<void> _init() async {
+    final editionId = ref.read(editionIdProvider);
+    final chapter = ref.read(chapterProvider).clamp(1, 114);
+    await _loadSurah(editionId: editionId, chapter: chapter, autoPlay: false);
+  }
+
+  Future<void> _loadSurah({
+    required String editionId,
+    required int chapter,
+    required bool autoPlay,
+  }) async {
+    state = const AsyncValue.loading();
+    try {
+      final service = ref.read(quranServiceProvider);
+      final urls = await service.getSurahAudioUrls(editionId, chapter);
+      if (urls.isEmpty) {
+        throw Exception('No audio URLs found');
+      }
+
+      _urls = urls;
+      _reciterName = await _resolveReciterName(editionId);
+
+      await _player.setAudioSource(
+        // ignore: deprecated_member_use
+        ConcatenatingAudioSource(
+          children: urls
+              .map((url) => AudioSource.uri(Uri.parse(url)))
+              .toList(growable: false),
+        ),
+        initialIndex: 0,
+        initialPosition: Duration.zero,
+      );
+
+      if (autoPlay) {
+        await _player.play();
+      }
+
+      _emitState();
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  Future<String> _resolveReciterName(String editionId) async {
+    try {
+      final editions = await ref.read(quranServiceProvider).listAudioEditions();
+      for (final item in editions) {
+        if (item is! Map) continue;
+        final map = Map<String, dynamic>.from(item);
+        final id = (map['identifier'] ?? map['id'] ?? '').toString();
+        if (id == editionId) {
+          return (map['name'] ?? map['englishName'] ?? editionId).toString();
+        }
+      }
+    } catch (_) {}
+    return editionId;
+  }
+
+  void _emitState() {
+    if (_urls.isEmpty) return;
+
+    final editionId = ref.read(editionIdProvider);
+    final chapter = ref.read(chapterProvider).clamp(1, 114);
+    final index = _player.currentIndex ?? 0;
+    final safeIndex = index.clamp(0, _urls.length - 1);
+    final surahName = (chapter >= 1 && chapter < kSurahNamesAr.length)
+        ? kSurahNamesAr[chapter]
+        : 'سورة $chapter';
+
+    state = AsyncValue.data(
+      PlayerUiState(
+        editionId: editionId,
+        chapter: chapter,
+        total: _urls.length,
+        durationStream: _player.durationStream,
+        positionStream: _player.positionStream,
+        bufferedStream: _player.bufferedPositionStream,
+        indexStream: _player.currentIndexStream,
+        playingStream: _player.playingStream,
+        loopModeStream: _player.loopModeStream,
+        volumeStream: _player.volumeStream,
+        isPlaying: _player.playing,
+        currentUrl: _urls[safeIndex],
+        surahName: surahName,
+        reciterName: _reciterName,
+      ),
+    );
+  }
+
+  Future<void> play() async {
+    await _player.play();
+    _emitState();
+  }
+
+  Future<void> pause() async {
+    await _player.pause();
+    _emitState();
+  }
+
+  Future<void> next() async {
+    await _player.seekToNext();
+    _emitState();
+  }
+
+  Future<void> previous() async {
+    await _player.seekToPrevious();
+    _emitState();
+  }
+
+  Future<void> seekTo(Duration position) async {
+    await _player.seek(position);
+  }
+
+  Future<void> setSpeed(double speed) async {
+    await _player.setSpeed(speed);
+    _emitState();
+  }
+
+  Future<void> toggleLoop() async {
+    final nextMode = _player.loopMode == LoopMode.off
+        ? LoopMode.all
+        : LoopMode.off;
+    await _player.setLoopMode(nextMode);
+    _emitState();
+  }
+
+  Future<void> toggleMute() async {
+    final nextVolume = _player.volume > 0 ? 0.0 : 1.0;
+    await _player.setVolume(nextVolume);
+    _emitState();
+  }
+
+  Future<void> changeEdition(String editionId) async {
+    ref.read(editionIdProvider.notifier).state = editionId;
+    final chapter = ref.read(chapterProvider).clamp(1, 114);
+    await _loadSurah(editionId: editionId, chapter: chapter, autoPlay: false);
+  }
+
+  Future<void> changeChapter(int chapter) async {
+    final safeChapter = chapter.clamp(1, 114);
+    ref.read(chapterProvider.notifier).state = safeChapter;
+    final editionId = ref.read(editionIdProvider);
+    await _loadSurah(
+      editionId: editionId,
+      chapter: safeChapter,
+      autoPlay: false,
+    );
+  }
+
+  @override
+  void dispose() {
+    _playingSub?.cancel();
+    _indexSub?.cancel();
+    _player.dispose();
+    super.dispose();
+  }
+}
 
 /// --- Daily Ayah -------------------------------------------------------------
 

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:quranglow/core/utils/logger.dart';
 
 class FirebaseSyncService {
@@ -15,13 +16,10 @@ class FirebaseSyncService {
           .doc(user.uid)
           .collection('azkar')
           .doc('tasbih')
-          .set(
-            {
-              ...data,
-              'updatedAt': FieldValue.serverTimestamp(),
-            },
-            SetOptions(merge: true),
-          );
+          .set({
+            ...data,
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
       L.d('FirebaseSyncService', 'Tasbih synced successfully');
     } catch (e, st) {
       L.e('FirebaseSyncService', 'Failed to sync tasbih', st);
@@ -33,17 +31,23 @@ class FirebaseSyncService {
     if (user == null) return;
 
     try {
-      await _firestore.collection('users').doc(user.uid).collection('stats').doc('current').set(
-        {
-          ...stats,
-          'updatedAt': FieldValue.serverTimestamp(),
-        },
-        SetOptions(merge: true),
-      );
+      await _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('stats')
+          .doc('current')
+          .set({
+            ...stats,
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
       L.d('FirebaseSyncService', 'Stats synced successfully');
     } catch (e, st) {
       L.e('FirebaseSyncService', 'Failed to sync stats', st);
-      FirebaseCrashlytics.instance.recordError(e, st, reason: 'Failed to sync stats to Firestore');
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        st,
+        reason: 'Failed to sync stats to Firestore',
+      );
     }
   }
 
@@ -53,12 +57,17 @@ class FirebaseSyncService {
 
     try {
       final batch = _firestore.batch();
-      final bookmarksCol = _firestore.collection('users').doc(user.uid).collection('bookmarks');
+      final bookmarksCol = _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('bookmarks');
 
       // Simple implementation: overwrite all bookmarks
       // In a real app, you might want a more sophisticated merge strategy
       for (var bookmark in bookmarks) {
-        final docRef = bookmarksCol.doc('${bookmark['surah']}_${bookmark['ayah']}');
+        final docRef = bookmarksCol.doc(
+          '${bookmark['surah']}_${bookmark['ayah']}',
+        );
         batch.set(docRef, {
           ...bookmark,
           'updatedAt': FieldValue.serverTimestamp(),

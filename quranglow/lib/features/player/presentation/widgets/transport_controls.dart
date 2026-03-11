@@ -1,9 +1,8 @@
 // lib/features/ui/pages/player/widgets/transport_controls.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/model/book/Play_list_State.dart';
-import 'package:quranglow/features/player/presentation/providers/player_controller_provider.dart';
 import 'package:quranglow/features/player/presentation/widgets/position_bar.dart';
 import 'package:quranglow/features/player/presentation/widgets/speed_menu.dart';
 

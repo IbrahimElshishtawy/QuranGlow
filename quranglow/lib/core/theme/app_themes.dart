@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:quranglow/core/theme/theme_controller.dart';
 
-ThemeData buildTheme(AppColorScheme colorScheme, bool isDark, String fontFamily, double fontScale) {
-  if (isDark) return buildDarkTheme(fontFamily: fontFamily, fontScale: fontScale);
+ThemeData buildTheme(
+  AppColorScheme colorScheme,
+  bool isDark,
+  String fontFamily,
+  double fontScale,
+) {
+  if (isDark) {
+    return buildDarkTheme(fontFamily: fontFamily, fontScale: fontScale);
+  }
 
   switch (colorScheme) {
     case AppColorScheme.sepia:
@@ -10,7 +17,6 @@ ThemeData buildTheme(AppColorScheme colorScheme, bool isDark, String fontFamily,
     case AppColorScheme.blue:
       return buildBlueTheme(fontFamily: fontFamily, fontScale: fontScale);
     case AppColorScheme.green:
-    default:
       return buildLightTheme(fontFamily: fontFamily, fontScale: fontScale);
   }
 }
