@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-enum DailyReminderKind { quran, adhan, dhikr }
+import 'package:quranglow/core/service/setting/daily_reminder_kind.dart';
 
 final notificationsEnabledProvider = StateProvider<bool>((ref) => false);
 

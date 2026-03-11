@@ -3,7 +3,6 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import '../../../../core/theme/theme.dart';
 
@@ -110,7 +109,8 @@ class _SplashScreenState extends State<SplashScreen>
                         Text(
                           'QuranGlow',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.scheherazadeNew(
+                          style: TextStyle(
+                            fontFamily: 'ScheherazadeNew',
                             fontSize: 42,
                             fontWeight: FontWeight.bold,
                             color: scheme.primary,
@@ -129,7 +129,8 @@ class _SplashScreenState extends State<SplashScreen>
                           opacity: .85,
                           child: Text(
                             'تلاوة • تدبر • تقدّم',
-                            style: GoogleFonts.scheherazadeNew(
+                            style: TextStyle(
+                              fontFamily: 'ScheherazadeNew',
                               fontSize: 16,
                               color: scheme.onSurface.withOpacity(.65),
                             ),

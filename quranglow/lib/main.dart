@@ -9,6 +9,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:quranglow/Quran_Glow_App.dart';
 import 'package:quranglow/core/service/audio/audio_locator.dart';
 import 'package:quranglow/core/service/sync/firebase_sync_service.dart';
@@ -17,6 +18,7 @@ import 'package:quranglow/firebase_options.dart';
 
 Future<void> main() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
+  GoogleFonts.config.allowRuntimeFetching = false;
   FlutterNativeSplash.preserve(widgetsBinding: binding);
 
   final firebaseReady = await _safeInit(
