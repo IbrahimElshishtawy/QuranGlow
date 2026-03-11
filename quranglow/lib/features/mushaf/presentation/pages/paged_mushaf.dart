@@ -150,7 +150,9 @@ class PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
                           basmalaText: widget.basmalaText,
                           currentAyahIndex: _currentAyahIdx0,
                           onTapIndex: _onAyahTap,
-                          ayahNumberColor: widget.ayahNumberColor,
+                          ayahNumberColor:
+                              widget.ayahNumberColor ??
+                              Theme.of(context).colorScheme.primary,
                         ),
                       ),
                       const SizedBox(height: 8),

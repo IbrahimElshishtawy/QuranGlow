@@ -22,6 +22,7 @@ class AyahSpanBuilder {
     required bool showBasmala,
     required String basmala,
     required int? currentAyahIndex,
+    Color? ayahNumberColor,
     required List<TapGestureRecognizer> recognizersBucket,
   }) {
     final cacheKey = Object.hash(
@@ -52,24 +53,41 @@ class AyahSpanBuilder {
           ? _base.copyWith(backgroundColor: Colors.amber.withOpacity(.18))
           : _base;
       out.add(TextSpan(text: '${a.text.trim()} ', style: s, recognizer: r));
-      out.add(_ayahMarker(i, selected, onTap: () => onAyahTap(i)));
+      out.add(
+        _ayahMarker(
+          i,
+          selected,
+          ayahNumberColor: ayahNumberColor,
+          recognizersBucket: recognizersBucket,
+          onTap: () => onAyahTap(i),
+        ),
+      );
       out.add(const TextSpan(text: '  ', style: _base));
     }
     _cache[cacheKey] = out;
     return out;
   }
 
-  InlineSpan _ayahMarker(int ayahIndex, bool selected, {VoidCallback? onTap}) {
+  InlineSpan _ayahMarker(
+    int ayahIndex,
+    bool selected, {
+    VoidCallback? onTap,
+    Color? ayahNumberColor,
+    required List<TapGestureRecognizer> recognizersBucket,
+  }) {
     final txt = _toArabicDigits(ayahIndex + 1);
+    final markerTap = TapGestureRecognizer()..onTap = onTap;
+    recognizersBucket.add(markerTap);
     return TextSpan(
       text: ' \u06DD$txt ',
       style: TextStyle(
         fontSize: 14,
         height: 1.0,
+        color: ayahNumberColor,
         backgroundColor: selected ? Colors.amber.withOpacity(.18) : null,
         fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
       ),
-      recognizer: (TapGestureRecognizer()..onTap = onTap),
+      recognizer: markerTap,
     );
   }
 

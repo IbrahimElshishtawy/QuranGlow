@@ -28,13 +28,17 @@ Future<void> main() async {
 
   if (firebaseReady) {
     // Simple anonymous sign in for syncing
-    unawaited(
-      _safeInit(
-        'firebase-anon-signin',
-        () => FirebaseSyncService().signInAnonymously(),
-        timeout: const Duration(seconds: 5),
-      ),
-    );
+    if (!kDebugMode) {
+      unawaited(
+        _safeInit(
+          'firebase-anon-signin',
+          () => FirebaseSyncService().signInAnonymously(),
+          timeout: const Duration(seconds: 5),
+        ),
+      );
+    } else {
+      debugPrint('[BOOT] firebase-anon-signin skipped on debug build');
+    }
 
     FlutterError.onError = (errorDetails) {
       FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
@@ -50,11 +54,16 @@ Future<void> main() async {
     () => Hive.initFlutter(),
     timeout: const Duration(seconds: 5),
   );
-  await _safeInit(
-    'audio-handler',
-    () => initAudioHandler(),
-    timeout: const Duration(seconds: 10),
-  );
+  final shouldInitAudioService = !(defaultTargetPlatform == TargetPlatform.android && kDebugMode);
+  if (shouldInitAudioService) {
+    await _safeInit(
+      'audio-handler',
+      () => initAudioHandler(),
+      timeout: const Duration(seconds: 10),
+    );
+  } else {
+    debugPrint('[BOOT] audio-handler skipped on Android debug build');
+  }
   await _safeInit(
     'notifications',
     () => NotificationService.instance.init(),

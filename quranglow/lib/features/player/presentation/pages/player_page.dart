@@ -3,7 +3,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quranglow/core/data/surah_names_ar.dart';
 import 'package:quranglow/core/di/providers.dart';
+import 'package:quranglow/core/model/aya/aya.dart';
+import 'package:quranglow/core/model/book/surah.dart';
 import 'package:quranglow/core/service/audio/audio_locator.dart';
 import 'package:quranglow/features/player/presentation/widgets/reader_row.dart';
 import 'package:quranglow/features/player/presentation/widgets/track_card.dart';
@@ -102,7 +105,17 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
     final ed = ref.watch(editionIdProvider);
     final ch = ref.watch(chapterProvider).clamp(1, 114);
     final editions = ref.watch(audioEditionsProvider);
-    final surahs = ref.watch(quranAllProvider('quran-uthmani'));
+    final surahs = AsyncValue.data(
+      List<Surah>.generate(
+        kSurahNamesAr.length,
+        (i) => Surah(
+          number: i + 1,
+          name: kSurahNamesAr[i],
+          ayat: const <Aya>[],
+        ),
+        growable: false,
+      ),
+    );
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -112,7 +125,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [cs.primary.withOpacity(.06), cs.surface],
+              colors: [cs.primary.withValues(alpha: 0.06), cs.surface],
             ),
           ),
           child: SafeArea(
