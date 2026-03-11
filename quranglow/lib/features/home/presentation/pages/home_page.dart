@@ -127,7 +127,7 @@ class _GlassNavigationBar extends StatelessWidget {
       top: false,
       minimum: const EdgeInsets.fromLTRB(10, 0, 10, 8),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(24),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
           child: Container(
@@ -173,7 +173,9 @@ class _GlassNavigationBar extends StatelessWidget {
                               )
                             : null,
                         border: active
-                            ? Border.all(color: cs.primary.withValues(alpha: 0.45))
+                            ? Border.all(
+                                color: cs.primary.withValues(alpha: 0.45),
+                              )
                             : null,
                       ),
                       child: Column(
@@ -191,7 +193,9 @@ class _GlassNavigationBar extends StatelessWidget {
                             duration: const Duration(milliseconds: 200),
                             style: TextStyle(
                               fontSize: active ? 12 : 11,
-                              fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+                              fontWeight: active
+                                  ? FontWeight.w800
+                                  : FontWeight.w600,
                               color: active
                                   ? cs.primary
                                   : cs.onSurfaceVariant.withValues(alpha: 0.85),
@@ -226,7 +230,9 @@ class _HomeSections extends StatelessWidget {
         const SliverToBoxAdapter(child: SectionSpacing(child: DailyAyahCard())),
         const SliverToBoxAdapter(child: SectionSpacing(child: GoalsStrip())),
         const SliverToBoxAdapter(child: SectionSpacing(child: LastReadCard())),
-        const SliverToBoxAdapter(child: SectionSpacing(child: QuickActionsGrid())),
+        const SliverToBoxAdapter(
+          child: SectionSpacing(child: QuickActionsGrid()),
+        ),
         const SliverToBoxAdapter(child: SectionSpacing(child: ShortcutsList())),
         SliverToBoxAdapter(
           child: SizedBox(height: MediaQuery.of(context).padding.bottom + 14),
@@ -235,4 +241,3 @@ class _HomeSections extends StatelessWidget {
     );
   }
 }
-

@@ -44,6 +44,14 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   final _ayahPreviewPlayer = AudioPlayer();
   final GlobalKey<PagedMushafState> _pagedMushafKey = GlobalKey<PagedMushafState>();
 
+  TextStyle _ayahPreviewTextStyle(Color color) => TextStyle(
+    color: color,
+    fontSize: 24,
+    height: 1.9,
+    fontFamily: 'KFGQPC Uthmanic Script',
+    fontFamilyFallback: const ['Hafs', 'Noto Naskh Arabic', 'Scheherazade'],
+  );
+
   @override
   void initState() {
     super.initState();
@@ -196,7 +204,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                   aya.text,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: cs.onSurfaceVariant),
+                  style: _ayahPreviewTextStyle(cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 14),
                 Row(
@@ -378,6 +386,14 @@ class _SelectedAyahPanel extends StatelessWidget {
   final VoidCallback onPlay;
   final VoidCallback onCopy;
 
+  TextStyle _ayahPreviewTextStyle(Color color) => TextStyle(
+    color: color,
+    fontSize: 22,
+    height: 1.8,
+    fontFamily: 'KFGQPC Uthmanic Script',
+    fontFamilyFallback: const ['Hafs', 'Noto Naskh Arabic', 'Scheherazade'],
+  );
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -432,7 +448,7 @@ class _SelectedAyahPanel extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.right,
-                        style: TextStyle(color: cs.onSurfaceVariant),
+                        style: _ayahPreviewTextStyle(cs.onSurfaceVariant),
                       ),
                     ),
                   Row(

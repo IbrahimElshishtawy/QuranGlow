@@ -160,18 +160,19 @@ class QuranService {
   Future<Map<String, dynamic>> getSurahAudio(String ed, int s) =>
       cloud.getSurahAudio(ed, s);
 
-  // search without hitting network; only cache/Hive
+  // Search locally first for speed/offline behavior, then fall back to API.
   Future<List<Map<String, dynamic>>> searchAyat(
     String query, {
     required String editionId,
     int limit = 50,
   }) async {
-    final q = _normalizeArabic(query);
+    final q = _normalizeArabicForSearch(query);
     if (q.isEmpty) return const [];
     final cache = _surahCacheByEdition.putIfAbsent(editionId, () => {});
     final box = await _boxFuture;
 
     final hits = <Map<String, dynamic>>[];
+    var inspectedLocalContent = false;
     for (var s = 1; s <= 114; s++) {
       Surah? surah = cache[s];
       if (surah == null) {
@@ -185,8 +186,9 @@ class QuranService {
         });
         cache[s] = surah!;
       }
+      inspectedLocalContent = true;
       for (final aya in surah.ayat) {
-        if (_normalizeArabic(aya.text).contains(q)) {
+        if (_normalizeArabicForSearch(aya.text).contains(q)) {
           hits.add({
             'surahNumber': surah.number,
             'ayahNumber': aya.number,
@@ -196,6 +198,21 @@ class QuranService {
           if (hits.length >= limit) return hits;
         }
       }
+    }
+
+    if (hits.isNotEmpty) return hits;
+
+    try {
+      final remoteHits = await cloud.searchAyat(query, editionId: editionId);
+      if (remoteHits.isNotEmpty) {
+        return remoteHits.take(limit).toList(growable: false);
+      }
+    } catch (e) {
+      debugPrint('[SRV][SEARCH] remote search failed: $e');
+    }
+
+    if (!inspectedLocalContent) {
+      debugPrint('[SRV][SEARCH] no local Quran cache available for $editionId');
     }
     return hits;
   }
@@ -220,6 +237,18 @@ class QuranService {
     final cached = _imageCache[url];
     if (cached != null) return MemoryImage(cached);
     return NetworkImage(url);
+  }
+
+  String _normalizeArabicForSearch(String input) {
+    var s = input.trim();
+    const diacritics = r'[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]';
+    s = s.replaceAll(RegExp(diacritics), '');
+    s = s.replaceAll('\u0640', '');
+    s = s.replaceAll(RegExp(r'[^\u0600-\u06FF0-9\s]'), '');
+    s = s.replaceAll(RegExp('[\u0623\u0625\u0622\u0671]'), '\u0627');
+    s = s.replaceAll('\u0649', '\u064A');
+    s = s.replaceAll(RegExp(r'\s+'), ' ').trim();
+    return s;
   }
 
   void clearImageCache() => _imageCache.clear();

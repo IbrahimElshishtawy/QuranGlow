@@ -46,7 +46,8 @@ class AlQuranCloudSource {
   }) async {
     final q = query.trim();
     if (q.isEmpty) return const [];
-    final res = await dio.get('$_base/search/$q/$editionId');
+    final encodedQuery = Uri.encodeComponent(q);
+    final res = await dio.get('$_base/search/$encodedQuery/$editionId');
     if (res.statusCode != 200) return const [];
     final data = res.data['data'];
     final matches = (data?['matches'] as List?) ?? const [];
