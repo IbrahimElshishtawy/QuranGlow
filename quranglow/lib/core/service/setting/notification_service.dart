@@ -1,7 +1,8 @@
-import 'dart:io' show Platform;
+﻿import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:quranglow/features/settings/presentation/widgets/settings_providers.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -45,7 +46,7 @@ class NotificationService {
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
           >();
-      // طلب مرة واحدة يكفي للمهام الدقيقة المتكررة
+      // Ø·Ù„Ø¨ Ù…Ø±Ø© ÙˆØ§Ø­Ø¯Ø© ÙŠÙƒÙÙŠ Ù„Ù„Ù…Ù‡Ø§Ù… Ø§Ù„Ø¯Ù‚ÙŠÙ‚Ø© Ø§Ù„Ù…ØªÙƒØ±Ø±Ø©
       try {
         await android?.requestExactAlarmsPermission();
       } catch (_) {}
@@ -99,7 +100,7 @@ class NotificationService {
     }
   }
 
-  // ثابت لتفادي تغيير السلوك عند الجدولة
+  // Ø«Ø§Ø¨Øª Ù„ØªÙØ§Ø¯ÙŠ ØªØºÙŠÙŠØ± Ø§Ù„Ø³Ù„ÙˆÙƒ Ø¹Ù†Ø¯ Ø§Ù„Ø¬Ø¯ÙˆÙ„Ø©
   Future<AndroidScheduleMode> _androidScheduleMode() async =>
       AndroidScheduleMode.exactAllowWhileIdle;
 
@@ -122,6 +123,7 @@ class NotificationService {
   Future<void> scheduleDailyReminder({
     required bool enabled,
     required TimeOfDay time,
+    DailyReminderKind kind = DailyReminderKind.quran,
   }) async {
     await _plugin.cancel(_dailyId);
     if (!enabled || kIsWeb) return;
@@ -130,8 +132,8 @@ class NotificationService {
 
     const android = AndroidNotificationDetails(
       _dailyChannelId,
-      'التذكير اليومي',
-      channelDescription: 'تذكير يومي لقراءة الورد',
+      'Ø§Ù„ØªØ°ÙƒÙŠØ± Ø§Ù„ÙŠÙˆÙ…ÙŠ',
+      channelDescription: 'ØªØ°ÙƒÙŠØ± ÙŠÙˆÙ…ÙŠ Ù„Ù‚Ø±Ø§Ø¡Ø© Ø§Ù„ÙˆØ±Ø¯',
       importance: Importance.max,
       priority: Priority.high,
       showWhen: true,
@@ -142,10 +144,25 @@ class NotificationService {
     const mac = DarwinNotificationDetails();
     const win = WindowsNotificationDetails();
 
+    final (title, body) = switch (kind) {
+      DailyReminderKind.quran => (
+        'Daily Quran Reminder',
+        'Time to read your daily Quran portion.'
+      ),
+      DailyReminderKind.adhan => (
+        'Adhan Reminder',
+        'Prayer time is near. Prepare for Salah.'
+      ),
+      DailyReminderKind.dhikr => (
+        'Dhikr Reminder',
+        'Take a moment now for dhikr and reflection.'
+      ),
+    };
+
     await _plugin.zonedSchedule(
       _dailyId,
-      'ورد اليوم',
-      'حان وقت تلاوة وردك اليومي',
+      title,
+      body,
       _nextInstanceOf(time),
       const NotificationDetails(
         android: android,
@@ -161,6 +178,7 @@ class NotificationService {
   Future<void> scheduleSalawat({
     required bool enabled,
     required TimeOfDay time,
+    DailyReminderKind kind = DailyReminderKind.quran,
   }) async {
     await _plugin.cancel(_salawatId);
     if (!enabled || kIsWeb) return;
@@ -169,8 +187,8 @@ class NotificationService {
 
     const android = AndroidNotificationDetails(
       _salawatChannelId,
-      'تذكير الصلاة على النبي ﷺ',
-      channelDescription: 'تذكير يومي للصلاة على النبي ﷺ',
+      'ØªØ°ÙƒÙŠØ± Ø§Ù„ØµÙ„Ø§Ø© Ø¹Ù„Ù‰ Ø§Ù„Ù†Ø¨ÙŠ ï·º',
+      channelDescription: 'ØªØ°ÙƒÙŠØ± ÙŠÙˆÙ…ÙŠ Ù„Ù„ØµÙ„Ø§Ø© Ø¹Ù„Ù‰ Ø§Ù„Ù†Ø¨ÙŠ ï·º',
       importance: Importance.max,
       priority: Priority.high,
       showWhen: true,
@@ -183,8 +201,8 @@ class NotificationService {
 
     await _plugin.zonedSchedule(
       _salawatId,
-      'الصلاة على النبي ﷺ',
-      'صَلِّ على النبي ﷺ الآن',
+      'Ø§Ù„ØµÙ„Ø§Ø© Ø¹Ù„Ù‰ Ø§Ù„Ù†Ø¨ÙŠ ï·º',
+      'ØµÙŽÙ„Ù‘Ù Ø¹Ù„Ù‰ Ø§Ù„Ù†Ø¨ÙŠ ï·º Ø§Ù„Ø¢Ù†',
       _nextInstanceOf(time),
       const NotificationDetails(
         android: android,
@@ -211,8 +229,8 @@ class NotificationService {
 
     const android = AndroidNotificationDetails(
       _remindersChannelId,
-      'تذكيرات الأذكار',
-      channelDescription: 'تذكيرات الأذكار والمواعيد التي يحددها المستخدم',
+      'ØªØ°ÙƒÙŠØ±Ø§Øª Ø§Ù„Ø£Ø°ÙƒØ§Ø±',
+      channelDescription: 'ØªØ°ÙƒÙŠØ±Ø§Øª Ø§Ù„Ø£Ø°ÙƒØ§Ø± ÙˆØ§Ù„Ù…ÙˆØ§Ø¹ÙŠØ¯ Ø§Ù„ØªÙŠ ÙŠØ­Ø¯Ø¯Ù‡Ø§ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…',
       importance: Importance.max,
       priority: Priority.high,
       category: AndroidNotificationCategory.reminder,
@@ -265,3 +283,5 @@ class NotificationService {
   Future<void> cancel(int id) async => _plugin.cancel(id);
   Future<void> cancelAll() => _plugin.cancelAll();
 }
+
+

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/core/model/book/topic.dart';
@@ -100,7 +100,7 @@ class _PageRichBlockState extends State<PageRichBlock> {
             widget.range.end,
           );
 
-    // مهم: نظف الـ recognizers القديمة قبل بناء spans جديدة
+    // Ù…Ù‡Ù…: Ù†Ø¸Ù Ø§Ù„Ù€ recognizers Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø© Ù‚Ø¨Ù„ Ø¨Ù†Ø§Ø¡ spans Ø¬Ø¯ÙŠØ¯Ø©
     _disposeRecognizers();
 
     final spans = _builder.buildSpans(
@@ -262,3 +262,4 @@ class _NoGlowBehavior extends ScrollBehavior {
     return child;
   }
 }
+

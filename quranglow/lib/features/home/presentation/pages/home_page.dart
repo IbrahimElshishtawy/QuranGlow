@@ -1,4 +1,4 @@
-import 'dart:ui';
+﻿import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:quranglow/features/azkar/presentation/pages/azkar_tasbih_page.dart';
@@ -227,3 +227,4 @@ class _HomeSections extends StatelessWidget {
     );
   }
 }
+
