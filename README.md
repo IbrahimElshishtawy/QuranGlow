@@ -21,7 +21,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 <br>
 
-[تحميل التطبيق](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest/download/app-release.apk) · 
 [آخر إصدار](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest) · 
 [الإبلاغ عن مشكلة](https://github.com/IbrahimElshishtawy/QuranGlow/issues/new) · 
 [اقتراح ميزة](https://github.com/IbrahimElshishtawy/QuranGlow/issues/new?template=feature_request.md)
