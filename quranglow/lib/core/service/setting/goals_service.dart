@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:quranglow/core/model/setting/goal.dart';
 import 'package:quranglow/core/service/setting/notification_service.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
@@ -18,7 +17,8 @@ class GoalsService {
   Future<List<Goal>> listGoals() async {
     if (_cache.isNotEmpty) return _cache;
 
-    final raw = _storage.getString(_kStorageKey) ?? _storage.getString('goals.v1');
+    final raw =
+        _storage.getString(_kStorageKey) ?? _storage.getString('goals.v1');
     if (raw != null && raw.isNotEmpty) {
       try {
         final List<dynamic> list = jsonDecode(raw) as List<dynamic>;
@@ -60,7 +60,8 @@ class GoalsService {
   }
 
   Future<void> deleteGoal(String id) async {
-    final list = List<Goal>.from(await listGoals())..removeWhere((g) => g.id == id);
+    final list = List<Goal>.from(await listGoals())
+      ..removeWhere((g) => g.id == id);
     await NotificationService.instance.cancel(_notificationIdFor(id));
     await saveAll(list);
   }
@@ -88,8 +89,10 @@ class GoalsService {
     await saveAll(list);
   }
 
-  Future<void> trackReading({int verses = 1}) => _bump(GoalType.reading, verses);
-  Future<void> trackListening({int verses = 1}) => _bump(GoalType.listening, verses);
+  Future<void> trackReading({int verses = 1}) =>
+      _bump(GoalType.reading, verses);
+  Future<void> trackListening({int verses = 1}) =>
+      _bump(GoalType.listening, verses);
   Future<void> trackMemorization({int verses = 1}) =>
       _bump(GoalType.memorization, verses);
   Future<void> trackTafsir({int verses = 1}) => _bump(GoalType.tafsir, verses);
@@ -119,13 +122,7 @@ class GoalsService {
         id: id,
         title: 'تذكير هدف: ${goal.title}',
         body: 'متبقي ${goal.target - goal.current} ${goal.unit} لإكمال هدفك.',
-        when: DateTime(
-          2000,
-          1,
-          1,
-          goal.reminderHour,
-          goal.reminderMinute,
-        ),
+        when: DateTime(2000, 1, 1, goal.reminderHour, goal.reminderMinute),
         daily: true,
       );
     }

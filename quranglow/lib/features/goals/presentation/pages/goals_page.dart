@@ -29,10 +29,7 @@ class GoalsPage extends ConsumerWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('الأهداف'),
-          centerTitle: true,
-        ),
+        appBar: AppBar(title: const Text('الأهداف'), centerTitle: true),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () => openGoalEditor(context, ref),
           icon: const Icon(Icons.add),
@@ -96,7 +93,6 @@ class GoalsPage extends ConsumerWidget {
       ),
     );
   }
-
 }
 
 class _GoalCard extends ConsumerWidget {
@@ -292,15 +288,21 @@ class _GoalEditorSheetState extends State<_GoalEditorSheet> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<GoalType>(
-              value: _type,
+              initialValue: _type,
               decoration: const InputDecoration(
                 labelText: 'نوع الهدف',
                 border: OutlineInputBorder(),
               ),
               items: const [
                 DropdownMenuItem(value: GoalType.reading, child: Text('قراءة')),
-                DropdownMenuItem(value: GoalType.listening, child: Text('استماع')),
-                DropdownMenuItem(value: GoalType.memorization, child: Text('حفظ')),
+                DropdownMenuItem(
+                  value: GoalType.listening,
+                  child: Text('استماع'),
+                ),
+                DropdownMenuItem(
+                  value: GoalType.memorization,
+                  child: Text('حفظ'),
+                ),
                 DropdownMenuItem(value: GoalType.tafsir, child: Text('تفسير')),
               ],
               onChanged: (value) {
@@ -367,10 +369,7 @@ class _GoalEditorSheetState extends State<_GoalEditorSheet> {
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
-              child: FilledButton(
-                onPressed: _save,
-                child: const Text('حفظ'),
-              ),
+              child: FilledButton(onPressed: _save, child: const Text('حفظ')),
             ),
           ],
         ),
@@ -425,8 +424,14 @@ class _StatChip extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
-          Text(label, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+          ),
+          Text(
+            label,
+            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+          ),
         ],
       ),
     );
@@ -453,7 +458,10 @@ class _MiniTag extends StatelessWidget {
         children: [
           Icon(icon, size: 16, color: cs.primary),
           const SizedBox(width: 6),
-          Text(text, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+          Text(
+            text,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );

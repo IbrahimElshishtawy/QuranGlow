@@ -31,7 +31,7 @@ class SettingsPage extends ConsumerWidget {
             },
           ),
         ),
-        body: const ListView(
+        body: ListView(
           padding: EdgeInsets.all(12),
           children: [
             GoalsSection(),

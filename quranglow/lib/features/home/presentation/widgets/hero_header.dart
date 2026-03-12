@@ -1,6 +1,3 @@
-// lib/features/ui/pages/home/widgets/hero_header.dart
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 
 class HeroHeader extends StatelessWidget {
@@ -8,56 +5,214 @@ class HeroHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
-    return Material(
-      elevation: 4,
-      shadowColor: cs.shadow.withOpacity(0.2),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [
+            cs.primary.withValues(alpha: 0.22),
+            cs.tertiary.withValues(alpha: 0.14),
+            cs.surface,
+          ],
+        ),
+      ),
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: isDark
-                    ? [cs.surfaceContainerHighest.withOpacity(.28), cs.surface]
-                    : [cs.primaryContainer.withOpacity(.4), cs.surface],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
+          Positioned(
+            top: -48,
+            right: -28,
+            child: _GlowOrb(
+              size: 170,
+              color: cs.primary.withValues(alpha: 0.16),
             ),
           ),
-        Align(
-          alignment: const Alignment(-0.9, -0.3),
-          child: Icon(
-            Icons.star_rounded,
-            size: 42,
-            color: cs.primary.withOpacity(.18),
+          Positioned(
+            bottom: -56,
+            left: -18,
+            child: _GlowOrb(
+              size: 150,
+              color: cs.tertiary.withValues(alpha: 0.14),
+            ),
           ),
-        ),
-        Align(
-          alignment: const Alignment(0.85, -0.4),
-          child: Icon(
-            Icons.nightlight_round,
-            size: 56,
-            color: cs.primary.withOpacity(.16),
+          Positioned(
+            top: 18,
+            left: 18,
+            child: Icon(
+              Icons.auto_awesome_rounded,
+              size: 22,
+              color: cs.primary.withValues(alpha: 0.30),
+            ),
           ),
-        ),
-          Align(
-            alignment: const Alignment(0, .35),
-            child: Text(
-              'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 18,
-                color: cs.primary,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
+          Positioned(
+            top: 24,
+            right: 78,
+            child: Icon(
+              Icons.menu_book_rounded,
+              size: 20,
+              color: cs.primary.withValues(alpha: 0.24),
+            ),
+          ),
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              cs.primary.withValues(alpha: 0.95),
+                              cs.primary.withValues(alpha: 0.72),
+                            ],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: cs.primary.withValues(alpha: 0.22),
+                              blurRadius: 18,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.menu_book_rounded,
+                          color: cs.onPrimary,
+                          size: 28,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'QuranGlow',
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'رحلة يومية أهدأ مع القرآن والتدبر',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 7,
+                        ),
+                        decoration: BoxDecoration(
+                          color: cs.surface.withValues(alpha: 0.72),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: cs.outlineVariant.withValues(alpha: 0.7),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.wb_sunny_outlined,
+                              size: 15,
+                              color: cs.primary,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'ورد اليوم',
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: cs.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: cs.surface.withValues(alpha: 0.78),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: cs.outlineVariant.withValues(alpha: 0.65),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: cs.primary,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'اقرأ، استمع، تابع أهدافك، وانتقل سريعًا إلى أكثر ما تحتاجه من الصفحة الرئيسية.',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            height: 1.5,
+                            color: cs.onSurfaceVariant,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _GlowOrb extends StatelessWidget {
+  const _GlowOrb({required this.size, required this.color});
+
+  final double size;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [color, color.withValues(alpha: 0)],
+          ),
+        ),
       ),
     );
   }
