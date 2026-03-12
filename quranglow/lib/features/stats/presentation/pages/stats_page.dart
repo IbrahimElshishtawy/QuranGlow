@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quranglow/core/widgets/pro_app_bar.dart';
 import 'package:quranglow/features/stats/presentation/providers/stats_controller.dart';
 import 'package:quranglow/features/stats/presentation/widgets/kpi_card.dart';
 import 'package:quranglow/features/stats/presentation/widgets/chart_card.dart';
@@ -23,9 +24,9 @@ class StatsPage extends ConsumerWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('الإحصائيات'),
-          centerTitle: true,
+        appBar: ProAppBar(
+          title: 'الإحصائيات',
+          subtitle: 'ملخص التقدم والالتزام خلال الأيام الماضية',
           actions: [
             IconButton(
               tooltip: 'تحديث',

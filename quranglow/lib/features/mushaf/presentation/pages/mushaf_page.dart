@@ -170,6 +170,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   Future<void> _openAyahActions({
     required int ayahNumber,
     required Aya aya,
+    required List<Aya> ayat,
   }) async {
     setState(() {
       _lastAyahNumber = ayahNumber;
@@ -177,82 +178,119 @@ class _MushafPageState extends ConsumerState<MushafPage> {
     });
 
     final cs = Theme.of(context).colorScheme;
+    var currentIndex = ayahNumber - 1;
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
-        return SafeArea(
-          top: false,
-          child: Container(
-            margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-            padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
-            decoration: BoxDecoration(
-              color: cs.surfaceContainerHigh.withValues(alpha: 0.98),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: cs.outlineVariant),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.20),
-                  blurRadius: 18,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'الآية $ayahNumber',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SelectableText(
-                  aya.text,
-                  textDirection: TextDirection.rtl,
-                  style: _ayahPreviewTextStyle(context, cs.onSurfaceVariant),
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: () async {
-                          Navigator.pop(ctx);
-                          await _playAyahAudio(aya, ayahNumber);
-                        },
-                        icon: const Icon(Icons.play_arrow_rounded),
-                        label: const Text('تشغيل الآية'),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(ctx);
-                          _openTafsirForAyah(ayahNumber);
-                        },
-                        icon: const Icon(Icons.menu_book_rounded),
-                        label: const Text('التفسير'),
-                      ),
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final currentAyah = ayat[currentIndex];
+            final currentAyahNumber = currentAyah.numberInSurah;
+            final canGoPrev = currentIndex > 0;
+            final canGoNext = currentIndex < ayat.length - 1;
+
+            void moveTo(int nextIndex) {
+              setModalState(() => currentIndex = nextIndex);
+              setState(() => _lastAyahNumber = ayat[nextIndex].numberInSurah);
+            }
+
+            return SafeArea(
+              top: false,
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHigh.withValues(alpha: 0.98),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: cs.outlineVariant),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.20),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    _copyAyahText(ayahNumber, aya.text);
-                  },
-                  icon: const Icon(Icons.copy_rounded),
-                  label: const Text('نسخ نص الآية'),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'الآية $currentAyahNumber',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: canGoPrev ? () => moveTo(currentIndex - 1) : null,
+                          tooltip: 'الآية السابقة',
+                          icon: const Icon(Icons.skip_previous_rounded),
+                        ),
+                        IconButton(
+                          onPressed: canGoNext ? () => moveTo(currentIndex + 1) : null,
+                          tooltip: 'الآية التالية',
+                          icon: const Icon(Icons.skip_next_rounded),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    SelectableText(
+                      currentAyah.text,
+                      textDirection: TextDirection.rtl,
+                      style: _ayahPreviewTextStyle(context, cs.onSurfaceVariant),
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FilledButton.icon(
+                            onPressed: () async {
+                              await _playAyahAudio(
+                                currentAyah,
+                                currentAyahNumber,
+                              );
+                            },
+                            icon: const Icon(Icons.play_arrow_rounded),
+                            label: const Text('تشغيل الآية'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.pop(ctx);
+                              _openTafsirForAyah(currentAyahNumber);
+                            },
+                            icon: const Icon(Icons.menu_book_rounded),
+                            label: const Text('التفسير'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () =>
+                                _copyAyahText(currentAyahNumber, currentAyah.text),
+                            icon: const Icon(Icons.copy_rounded),
+                            label: const Text('نسخ نص الآية'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -327,7 +365,11 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                     });
                   },
                   onAyahLongPress: (int ayahNumber, Aya aya) {
-                    _openAyahActions(ayahNumber: ayahNumber, aya: aya);
+                    _openAyahActions(
+                      ayahNumber: ayahNumber,
+                      aya: aya,
+                      ayat: surah.ayat,
+                    );
                   },
                 ),
               ),

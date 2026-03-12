@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart' as di;
 import 'package:quranglow/core/model/setting/goal.dart';
+import 'package:quranglow/core/widgets/pro_app_bar.dart';
 
 Future<void> openGoalEditor(
   BuildContext context,
@@ -29,7 +30,10 @@ class GoalsPage extends ConsumerWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(title: const Text('الأهداف'), centerTitle: true),
+        appBar: const ProAppBar(
+          title: 'الأهداف',
+          subtitle: 'تابع القراءة والاستماع والحفظ في مكان واحد',
+        ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () => openGoalEditor(context, ref),
           icon: const Icon(Icons.add),

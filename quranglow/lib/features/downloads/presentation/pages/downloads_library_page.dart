@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:quranglow/core/widgets/pro_app_bar.dart';
 
 class DownloadsLibraryPage extends ConsumerStatefulWidget {
   final bool embedded;
@@ -222,9 +223,9 @@ class _DownloadsLibraryPageState extends ConsumerState<DownloadsLibraryPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('المكتبة الصوتية'),
-          centerTitle: true,
+        appBar: ProAppBar(
+          title: 'المكتبة الصوتية',
+          subtitle: 'شغّل السور والآيات التي تم تنزيلها محليًا',
           actions: [
             IconButton(onPressed: _scan, icon: const Icon(Icons.refresh)),
           ],

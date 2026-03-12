@@ -46,12 +46,14 @@ ThemeData buildLightTheme({
       onSecondary: Colors.white,
       brightness: Brightness.light,
     ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF3AB749),
-      foregroundColor: Colors.white,
-      centerTitle: true,
-      elevation: 0,
-    ),
+    appBarTheme: _buildAppBarTheme(base.colorScheme.copyWith(
+      primary: const Color.fromARGB(255, 51, 96, 56),
+      secondary: const Color(0xFF2E7D32),
+      surface: Colors.white,
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      brightness: Brightness.light,
+    )),
     cardTheme: const CardThemeData(
       color: Colors.white,
       shape: RoundedRectangleBorder(
@@ -87,12 +89,14 @@ ThemeData buildSepiaTheme({
       onSecondary: Colors.white,
       brightness: Brightness.light,
     ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF704214),
-      foregroundColor: Colors.white,
-      centerTitle: true,
-      elevation: 0,
-    ),
+    appBarTheme: _buildAppBarTheme(base.colorScheme.copyWith(
+      primary: const Color(0xFF704214),
+      secondary: const Color(0xFF8B4513),
+      surface: const Color(0xFFFDF5E6),
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      brightness: Brightness.light,
+    )),
     cardTheme: const CardThemeData(
       color: Color(0xFFFDF5E6),
       shape: RoundedRectangleBorder(
@@ -128,12 +132,14 @@ ThemeData buildBlueTheme({
       onSecondary: Colors.white,
       brightness: Brightness.light,
     ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF1976D2),
-      foregroundColor: Colors.white,
-      centerTitle: true,
-      elevation: 0,
-    ),
+    appBarTheme: _buildAppBarTheme(base.colorScheme.copyWith(
+      primary: const Color(0xFF1976D2),
+      secondary: const Color(0xFF2196F3),
+      surface: Colors.white,
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      brightness: Brightness.light,
+    )),
     cardTheme: const CardThemeData(
       color: Colors.white,
       shape: RoundedRectangleBorder(
@@ -169,18 +175,44 @@ ThemeData buildDarkTheme({
       onSecondary: Colors.black,
       brightness: Brightness.dark,
     ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Color.fromARGB(255, 47, 118, 76),
-      foregroundColor: Colors.black,
-      centerTitle: true,
-      elevation: 0,
-    ),
+    appBarTheme: _buildAppBarTheme(base.colorScheme.copyWith(
+      primary: const Color.fromARGB(166, 35, 134, 35),
+      secondary: const Color.fromARGB(255, 14, 121, 59),
+      surface: const Color(0xFF1A1A1A),
+      onPrimary: Colors.black,
+      onSecondary: Colors.black,
+      brightness: Brightness.dark,
+    )),
     cardTheme: const CardThemeData(
       color: Color(0xFF1E1E1E),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
       elevation: 2,
+    ),
+  );
+}
+
+AppBarTheme _buildAppBarTheme(ColorScheme scheme) {
+  return AppBarTheme(
+    centerTitle: true,
+    elevation: 0,
+    scrolledUnderElevation: 0,
+    toolbarHeight: 82,
+    backgroundColor: scheme.surface,
+    foregroundColor: scheme.onSurface,
+    surfaceTintColor: Colors.transparent,
+    titleTextStyle: TextStyle(
+      color: scheme.onSurface,
+      fontSize: 23,
+      fontWeight: FontWeight.w900,
+    ),
+    iconTheme: IconThemeData(color: scheme.primary),
+    actionsIconTheme: IconThemeData(color: scheme.primary),
+    shape: Border(
+      bottom: BorderSide(
+        color: scheme.outlineVariant.withValues(alpha: 0.55),
+      ),
     ),
   );
 }

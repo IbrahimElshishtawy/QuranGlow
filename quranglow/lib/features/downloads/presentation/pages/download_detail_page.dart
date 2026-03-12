@@ -3,8 +3,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/data/surah_names_ar.dart';
+import 'package:quranglow/core/di/providers.dart';
+import 'package:quranglow/core/widgets/pro_app_bar.dart';
 import 'package:quranglow/features/downloads/presentation/providers/download_controller.dart'
     hide downloadControllerProvider;
 import 'package:quranglow/features/downloads/presentation/pages/surah_files_page.dart';
@@ -94,9 +95,9 @@ class _DownloadDetailPageState extends ConsumerState<DownloadDetailPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('تنزيل سورة'),
-          centerTitle: true,
+        appBar: ProAppBar(
+          title: 'تنزيل السورة',
+          subtitle: 'متابعة تحميل الملفات الصوتية وإدارة التقدم',
           actions: [
             IconButton(
               tooltip: 'المكتبة',

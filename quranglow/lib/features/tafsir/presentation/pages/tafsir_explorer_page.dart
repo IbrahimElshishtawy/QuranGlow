@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/model/book/surah.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
+import 'package:quranglow/core/widgets/pro_app_bar.dart';
 import 'package:quranglow/features/tafsir/presentation/widgets/ayah_card.dart';
 import 'package:quranglow/features/tafsir/presentation/widgets/selection_card.dart';
 import 'package:quranglow/features/tafsir/presentation/widgets/tafsir_card.dart';
@@ -80,7 +81,10 @@ class _TafsirReaderPageState extends ConsumerState<TafsirReaderPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(title: const Text('التفسير'), centerTitle: true),
+        appBar: const ProAppBar(
+          title: 'التفسير',
+          subtitle: 'استكشف السور والآيات واختر التفسير المناسب',
+        ),
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [

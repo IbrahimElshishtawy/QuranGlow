@@ -3,15 +3,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/core/model/book/surah.dart';
 import 'package:quranglow/core/service/quran/quran_service.dart';
-// الصفحات
+import 'package:quranglow/core/widgets/pro_app_bar.dart';
 import 'package:quranglow/features/ayah/presentation/pages/ayah_detail_page.dart';
+import 'package:quranglow/features/azkar/presentation/pages/azkar_tasbih_page.dart';
 import 'package:quranglow/features/bookmarks/presentation/pages/bookmarks_page.dart';
 import 'package:quranglow/features/downloads/presentation/pages/download_detail_page.dart'
     as ddp;
+import 'package:quranglow/features/downloads/presentation/pages/downloads_library_page.dart';
 import 'package:quranglow/features/downloads/presentation/pages/downloads_page.dart'
     as dlp;
 import 'package:quranglow/features/goals/presentation/pages/goals_page.dart';
@@ -20,18 +21,16 @@ import 'package:quranglow/features/mushaf/presentation/pages/mushaf_page.dart';
 import 'package:quranglow/features/mushaf/presentation/pages/paged_mushaf.dart';
 import 'package:quranglow/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:quranglow/features/player/presentation/pages/player_page.dart';
+import 'package:quranglow/features/qibla/presentation/pages/qibla_page.dart';
 import 'package:quranglow/features/search/presentation/pages/search_page.dart';
 import 'package:quranglow/features/settings/presentation/pages/settings_page.dart';
 import 'package:quranglow/features/splash/presentation/pages/splash_screen.dart';
 import 'package:quranglow/features/stats/presentation/pages/stats_page.dart';
 import 'package:quranglow/features/surah/presentation/pages/surah_list_page.dart';
+import 'package:quranglow/features/tafsir/presentation/pages/tafsir_explorer_page.dart';
 import 'package:quranglow/features/tafsir/presentation/pages/tafsir_reader_page.dart';
-import 'package:quranglow/features/azkar/presentation/pages/azkar_tasbih_page.dart';
-
-import 'package:quranglow/features/qibla/presentation/pages/qibla_page.dart';
 import 'app_routes.dart';
 
-// لو عندك provider جاهز استبدل التالي بالاستيراد الصحيح
 final quranServiceProvider = Provider<QuranService>(
   (ref) => throw UnimplementedError(
     'Override quranServiceProvider in ProviderScope',
@@ -44,8 +43,9 @@ class MushafArgs {
     this.chapter = 1,
     this.editionId = 'quran-uthmani',
   });
+
   final int chapter;
-  final int? initialAyah; // 1-based
+  final int? initialAyah;
   final String editionId;
 }
 
@@ -56,14 +56,16 @@ class PagedMushafArgs {
     required this.surahNumber,
     this.initialSelectedAyah,
   });
+
   final List<Aya> ayat;
   final String surahName;
   final int surahNumber;
-  final int? initialSelectedAyah; // 1-based
+  final int? initialSelectedAyah;
 }
 
 class AyahArgs {
   const AyahArgs({required this.aya, required this.surah, this.tafsir});
+
   final Aya aya;
   final Surah surah;
   final String? tafsir;
@@ -140,6 +142,7 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
                     ayahNumber,
                     tafsirEdition,
                   );
+
                   if (!context.mounted) return;
                   Navigator.pushNamed(
                     context,
@@ -157,11 +160,11 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
         },
       );
     }
+
     return _mat(
-      const Scaffold(
-        body: Center(
-          child: Text('mushafPaged يحتاج ayat + surahName + surahNumber'),
-        ),
+      _routeMessagePage(
+        'مسار المصحف',
+        'mushafPaged يحتاج ayat + surahName + surahNumber',
       ),
       s,
     );
@@ -176,7 +179,7 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
       );
     }
     return _mat(
-      const Scaffold(body: Center(child: Text('ayah route يحتاج Aya + Surah'))),
+      _routeMessagePage('تفاصيل الآية', 'ayah route يحتاج Aya + Surah'),
       s,
     );
   } else if (name == AppRoutes.player) {
@@ -199,13 +202,14 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
       }
     }
     return _mat(
-      const Scaffold(
-        body: Center(
-          child: Text('downloadDetail يحتاج {surah:int, reciterId:String}'),
-        ),
+      _routeMessagePage(
+        'التنزيل',
+        'downloadDetail يحتاج {surah:int, reciterId:String}',
       ),
       s,
     );
+  } else if (name == AppRoutes.downloadsLibrary) {
+    return _mat(const DownloadsLibraryPage(), s);
   } else if (name == AppRoutes.setting) {
     return _mat(const SettingsPage(), s);
   } else if (name == AppRoutes.goals) {
@@ -214,18 +218,37 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
     return _mat(const StatsPage(), s);
   } else if (name == AppRoutes.onboarding) {
     return _mat(const OnboardingPage(), s);
-  } else if (name == AppRoutes.tafsir || name == AppRoutes.tafsirReader) {
+  } else if (name == AppRoutes.tafsir) {
+    return _mat(const TafsirExplorerPage(), s);
+  } else if (name == AppRoutes.tafsirReader) {
     return _mat(const TafsirReaderPage(), s);
   } else if (name == AppRoutes.qibla) {
     return _mat(const QiblaPage(), s);
   } else if (name == AppRoutes.azkar) {
     return _mat(const AzkarTasbihPage(), s);
-  } else if (name == AppRoutes.downloadsLibrary) {
-    return _mat(const dlp.DownloadsPage(embedded: true), s);
   }
 
-  return _mat(const Scaffold(body: Center(child: Text('Route not found'))), s);
+  return _mat(_routeMessagePage('المسارات', 'Route not found'), s);
 }
 
-MaterialPageRoute _mat(Widget w, [RouteSettings? s]) =>
-    MaterialPageRoute(builder: (_) => w, settings: s);
+MaterialPageRoute _mat(Widget w, [RouteSettings? s]) {
+  return MaterialPageRoute(builder: (_) => w, settings: s);
+}
+
+Widget _routeMessagePage(String title, String message) {
+  return Directionality(
+    textDirection: TextDirection.rtl,
+    child: Scaffold(
+      appBar: ProAppBar(
+        title: title,
+        subtitle: 'تعذر فتح الصفحة المطلوبة',
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(message, textAlign: TextAlign.center),
+        ),
+      ),
+    ),
+  );
+}

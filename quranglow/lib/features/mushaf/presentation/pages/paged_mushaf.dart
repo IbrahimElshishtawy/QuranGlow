@@ -145,37 +145,66 @@ class PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
       itemCount: _pages.length,
       itemBuilder: (context, pageIndex) {
         final r = _pages[pageIndex];
+        final cs = Theme.of(context).colorScheme;
         return Directionality(
           textDirection: TextDirection.rtl,
           child: SafeArea(
             child: Stack(
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      MushafHeader(surahName: widget.surahName),
-                      const SizedBox(height: 6),
-                      Divider(color: Theme.of(context).colorScheme.outlineVariant),
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: PageRichBlock(
-                          ayat: widget.ayat,
-                          range: r,
-                          showBasmala: widget.showBasmala && pageIndex == 0,
-                          basmalaText: widget.basmalaText,
-                          currentAyahIndex: _currentAyahIdx0,
-                          onTapIndex: _onAyahTap,
-                          onLongPressIndex: _onAyahLongPress,
-                          ayahNumberColor:
-                              widget.ayahNumberColor ??
-                              Theme.of(context).colorScheme.primary,
-                        ),
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 18),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(26),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          cs.surface.withValues(alpha: 0.78),
+                          cs.surfaceContainerLowest.withValues(alpha: 0.96),
+                        ],
                       ),
-                      const SizedBox(height: 8),
-                      PageIndicator(current: pageIndex + 1, total: _pages.length),
-                    ],
+                      border: Border.all(
+                        color: cs.outlineVariant.withValues(alpha: 0.75),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.08),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          MushafHeader(surahName: widget.surahName),
+                          const SizedBox(height: 10),
+                          Divider(color: cs.outlineVariant),
+                          const SizedBox(height: 10),
+                          Expanded(
+                            child: PageRichBlock(
+                              ayat: widget.ayat,
+                              range: r,
+                              showBasmala: widget.showBasmala && pageIndex == 0,
+                              basmalaText: widget.basmalaText,
+                              currentAyahIndex: _currentAyahIdx0,
+                              onTapIndex: _onAyahTap,
+                              onLongPressIndex: _onAyahLongPress,
+                              ayahNumberColor:
+                                  widget.ayahNumberColor ?? cs.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          PageIndicator(
+                            current: pageIndex + 1,
+                            total: _pages.length,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
                 SavedPositionBanner(

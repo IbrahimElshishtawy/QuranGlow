@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quranglow/core/widgets/pro_app_bar.dart';
 import 'package:quranglow/features/qibla/presentation/widgets/qibla_compass.dart';
 
 class QiblaPage extends StatefulWidget {
@@ -117,9 +118,9 @@ class _QiblaPageState extends State<QiblaPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text('اتجاه القبلة'),
+        appBar: ProAppBar(
+          title: 'اتجاه القبلة',
+          subtitle: 'بوصلة دقيقة مع خيارات العرض والمعايرة',
           actions: [
             IconButton(
               tooltip: 'خيارات',

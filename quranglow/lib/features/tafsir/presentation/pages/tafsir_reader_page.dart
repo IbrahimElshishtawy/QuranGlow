@@ -6,6 +6,7 @@ import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/di/tafsir_providers.dart'
     hide quranAllProvider, tafsirForAyahProvider;
 import 'package:quranglow/core/model/aya/aya.dart';
+import 'package:quranglow/core/widgets/pro_app_bar.dart';
 import 'package:quranglow/features/tafsir/presentation/widgets/ayah_card.dart';
 import 'package:quranglow/features/tafsir/presentation/widgets/selection_card.dart';
 import 'package:quranglow/features/tafsir/presentation/widgets/tafsir_card.dart';
@@ -80,9 +81,9 @@ class _TafsirReaderPageState extends ConsumerState<TafsirReaderPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('التفسير'),
-          centerTitle: true,
+        appBar: ProAppBar(
+          title: 'قارئ التفسير',
+          subtitle: 'تنقل بين الآيات مع تفسيرها وتحميلها للاستخدام دون اتصال',
           actions: [
             if (_editionId != null)
               IconButton(
