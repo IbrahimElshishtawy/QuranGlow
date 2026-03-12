@@ -9,7 +9,6 @@
 # QuranGlow
 
 #### تطبيق قرآني متكامل — اقرأ · استمع · تدبّر · تابع
-
 <br>
 
 [![Release](https://img.shields.io/github/v/release/IbrahimElshishtawy/QuranGlow?display_name=tag&style=flat-square&color=c9a84c&labelColor=074f4f&label=Latest)](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest)
@@ -19,6 +18,7 @@
 [![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat-square&logo=firebase&logoColor=black)](https://firebase.google.com)
 [![Android](https://img.shields.io/badge/Android-3DDC84?style=flat-square&logo=android&logoColor=white)](https://github.com/IbrahimElshishtawy/QuranGlow/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+
 <br>
 
 [آخر إصدار](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest) · 
@@ -26,7 +26,6 @@
 [اقتراح ميزة](https://github.com/IbrahimElshishtawy/QuranGlow/issues/new?template=feature_request.md)
 
 <br>
-
 </div>
 
 ---
