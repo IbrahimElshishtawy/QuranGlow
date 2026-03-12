@@ -82,12 +82,15 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
       prev,
       time,
     ) async {
+      if (!mounted) return;
       try {
         await _rescheduleDaily();
+        if (!mounted) return;
         if (ref.read(notificationsEnabledProvider)) {
           _snack('تم تحديث وقت التذكير اليومي إلى ${time.format(context)}');
         }
       } catch (e) {
+        if (!mounted) return;
         _snack(
           'تعذر تحديث الوقت: $e',
           bg: Theme.of(context).colorScheme.error,
@@ -98,12 +101,15 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
     _dailyKindSub = ref.listenManual<DailyReminderKind>(
       dailyReminderKindProvider,
       (prev, next) async {
+        if (!mounted) return;
         try {
           await _rescheduleDaily();
+          if (!mounted) return;
           if (ref.read(notificationsEnabledProvider)) {
             _snack('تم تحديث نوع التذكير اليومي');
           }
         } catch (e) {
+          if (!mounted) return;
           _snack(
             'تعذر تحديث نوع التذكير: $e',
             bg: Theme.of(context).colorScheme.error,
@@ -116,18 +122,21 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
       prev,
       enabled,
     ) async {
+      if (!mounted) return;
       try {
         final interval = ref.read(salawatIntervalMinutesProvider);
         await NotificationService.instance.scheduleSalawat(
           enabled: enabled,
           intervalMinutes: interval,
         );
+        if (!mounted) return;
         _snack(
           enabled
               ? 'تم تفعيل تذكير الصلاة على النبي'
               : 'تم إيقاف تذكير الصلاة على النبي',
         );
       } catch (e) {
+        if (!mounted) return;
         _snack(
           'تعذر تحديث تذكير الصلاة على النبي: $e',
           bg: Theme.of(context).colorScheme.error,
@@ -138,16 +147,19 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
     _salawatIntervalSub = ref.listenManual<int>(
       salawatIntervalMinutesProvider,
       (prev, interval) async {
+        if (!mounted) return;
         try {
           final enabled = ref.read(salawatEnabledProvider);
           await NotificationService.instance.scheduleSalawat(
             enabled: enabled,
             intervalMinutes: interval,
           );
+          if (!mounted) return;
           if (enabled) {
             _snack('تم تحديث تكرار التذكير إلى كل $interval دقائق');
           }
         } catch (e) {
+          if (!mounted) return;
           _snack(
             'تعذر تحديث تكرار التذكير: $e',
             bg: Theme.of(context).colorScheme.error,

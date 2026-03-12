@@ -40,6 +40,7 @@ class _ReminderListState extends ConsumerState<ReminderList> {
   Future<void> _loadPresetStates() async {
     final storage = ref.read(storageProvider);
     await storage.init();
+    if (!mounted) return;
     setState(() {
       _presetStates[_AzkarPreset.morning] =
           (storage.getString(_morningKey) ?? 'false') == 'true';
