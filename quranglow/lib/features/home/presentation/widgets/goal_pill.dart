@@ -27,9 +27,9 @@ class GoalPill extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
 
     return ConstrainedBox(
-      constraints: const BoxConstraints.tightFor(width: 260, height: 132),
+      constraints: const BoxConstraints.tightFor(width: 260, height: 144),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(18),
           gradient: LinearGradient(
@@ -69,7 +69,7 @@ class GoalPill extends ConsumerWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 15,
+                          fontSize: 14,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -77,8 +77,8 @@ class GoalPill extends ConsumerWidget {
                     if (goal.reminderEnabled)
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                          horizontal: 7,
+                          vertical: 3,
                         ),
                         decoration: BoxDecoration(
                           color: cs.primary.withValues(alpha: .12),
@@ -87,7 +87,7 @@ class GoalPill extends ConsumerWidget {
                         child: Text(
                           'تذكير',
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 10,
                             color: cs.primary,
                             fontWeight: FontWeight.w700,
                           ),
@@ -95,48 +95,64 @@ class GoalPill extends ConsumerWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 6),
                 Text(
                   '${goal.current} / ${goal.target} ${goal.unit}',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: cs.onSurfaceVariant,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(30),
                   child: LinearProgressIndicator(
                     value: goal.progress,
-                    minHeight: 9,
+                    minHeight: 8,
                     backgroundColor: cs.primary.withValues(alpha: .12),
                     valueColor: AlwaysStoppedAnimation(
                       goal.completed ? Colors.green : cs.primary,
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 6),
                 Text(
                   hasPos ? '$surahName • آية $ayahNum' : 'ابدأ القراءة لهذا الهدف',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: cs.onSurfaceVariant,
+                  ),
                 ),
                 const Spacer(),
                 Row(
                   children: [
                     Expanded(
                       child: FilledButton.tonal(
+                        style: FilledButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                          minimumSize: const Size(0, 38),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                        ),
                         onPressed: () => onFollow(surahNum, ayahNum),
-                        child: Text(hasPos ? 'تابع' : 'ابدأ'),
+                        child: Text(
+                          hasPos ? 'تابع' : 'ابدأ',
+                          style: const TextStyle(fontSize: 12),
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     IconButton.filled(
                       tooltip: 'زيادة التقدم',
+                      visualDensity: VisualDensity.compact,
+                      constraints: const BoxConstraints.tightFor(
+                        width: 40,
+                        height: 40,
+                      ),
                       onPressed: onIncreaseProgress,
-                      icon: const Icon(Icons.add_rounded),
+                      icon: const Icon(Icons.add_rounded, size: 20),
                     ),
                   ],
                 ),
