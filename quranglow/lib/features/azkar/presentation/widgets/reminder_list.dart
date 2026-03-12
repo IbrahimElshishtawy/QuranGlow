@@ -227,6 +227,7 @@ class _ReminderListState extends ConsumerState<ReminderList> {
         daily: r.daily,
       );
 
+      if (!mounted) return;
       setState(() => r.scheduled = true);
       _snack('تمت جدولة التذكير بنجاح');
     } catch (e) {
@@ -237,6 +238,7 @@ class _ReminderListState extends ConsumerState<ReminderList> {
   Future<void> _cancel(Reminder r) async {
     try {
       await NotificationService.instance.cancel(r.id);
+      if (!mounted) return;
       setState(() => r.scheduled = false);
       _snack('تم إلغاء التذكير');
     } catch (e) {
@@ -247,8 +249,10 @@ class _ReminderListState extends ConsumerState<ReminderList> {
   void _delete(Reminder r) async {
     try {
       NotificationService.instance.cancel(r.id).catchError((_) {});
+      if (!mounted) return;
       setState(() => _items.removeWhere((x) => x.id == r.id));
       await ref.read(remindersServiceProvider).deleteReminder(r.id);
+      if (!mounted) return;
       _snack('تم حذف التذكير');
     } catch (e) {
       _snack('فشل الحذف: $e');
