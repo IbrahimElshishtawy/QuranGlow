@@ -21,12 +21,19 @@ Future<void> main() async {
   GoogleFonts.config.allowRuntimeFetching = false;
   FlutterNativeSplash.preserve(widgetsBinding: binding);
 
-  final firebaseReady = await _safeInit(
-    'firebase',
-    () =>
-        Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
-    timeout: const Duration(seconds: 8),
-  );
+  final firebaseReady = DefaultFirebaseOptions.isConfigured
+      ? await _safeInit(
+          'firebase',
+          () => Firebase.initializeApp(
+            options: DefaultFirebaseOptions.currentPlatform,
+          ),
+          timeout: const Duration(seconds: 8),
+        )
+      : false;
+
+  if (!DefaultFirebaseOptions.isConfigured) {
+    debugPrint('[BOOT] firebase skipped: firebase_options.dart uses placeholders');
+  }
 
   if (firebaseReady) {
     if (!kDebugMode) {

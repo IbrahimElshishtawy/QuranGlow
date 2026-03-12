@@ -163,7 +163,7 @@ class _PrayerTimesCardState extends ConsumerState<PrayerTimesCard> {
                           crossAxisCount: 3,
                           mainAxisSpacing: 8,
                           crossAxisSpacing: 8,
-                          childAspectRatio: 2.25,
+                          childAspectRatio: 1.75,
                         ),
                     itemBuilder: (_, i) {
                       final key = ordered[i];
@@ -246,28 +246,32 @@ class _PrayerTimeTile extends StatelessWidget {
               : cs.outlineVariant,
         ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: highlight ? FontWeight.w800 : FontWeight.w600,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: highlight ? FontWeight.w800 : FontWeight.w600,
+              ),
             ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            time,
-            style: TextStyle(
-              fontSize: 13,
-              color: highlight ? cs.primary : cs.onSurfaceVariant,
-              fontWeight: FontWeight.w700,
+            const SizedBox(height: 3),
+            Text(
+              time,
+              style: TextStyle(
+                fontSize: 13,
+                color: highlight ? cs.primary : cs.onSurfaceVariant,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

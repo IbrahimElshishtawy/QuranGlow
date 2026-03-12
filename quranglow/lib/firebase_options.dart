@@ -15,6 +15,11 @@ import 'package:flutter/foundation.dart'
 /// );
 /// ```
 class DefaultFirebaseOptions {
+  static bool get isConfigured =>
+      android.appId != 'YOUR_APP_ID' &&
+      android.apiKey != 'YOUR_API_KEY' &&
+      android.projectId != 'YOUR_PROJECT_ID';
+
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       throw UnsupportedError(
