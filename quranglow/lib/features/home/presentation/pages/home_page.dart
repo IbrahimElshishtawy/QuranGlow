@@ -64,11 +64,13 @@ class _HomePageState extends State<HomePage> {
             Navigator.pushNamed(context, r);
           },
         ),
-        appBar: AppBar(
-          flexibleSpace: const HeroHeader(),
-          toolbarHeight: 188,
-          centerTitle: true,
-        ),
+        appBar: _tab == 0
+            ? AppBar(
+                flexibleSpace: const HeroHeader(),
+                toolbarHeight: 188,
+                centerTitle: true,
+              )
+            : null,
         bottomNavigationBar: _GlassNavigationBar(
           tabs: _tabs,
           selectedIndex: _tab,
