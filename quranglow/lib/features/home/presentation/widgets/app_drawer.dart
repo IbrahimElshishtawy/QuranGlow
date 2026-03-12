@@ -257,6 +257,12 @@ class AppDrawer extends StatelessWidget {
                             route: AppRoutes.setting,
                           ),
                           tile(
+                            icon: Icons.info_outline_rounded,
+                            title: 'عن التطبيق',
+                            subtitle: 'معلومات التطبيق والمطور ووسائل التواصل',
+                            route: AppRoutes.about,
+                          ),
+                          tile(
                             icon: Icons.library_music_rounded,
                             title: 'مكتبة التنزيلات',
                             subtitle: 'الملفات الصوتية التي تم حفظها',

@@ -7,6 +7,7 @@ import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/core/model/book/surah.dart';
 import 'package:quranglow/core/service/quran/quran_service.dart';
 import 'package:quranglow/core/widgets/pro_app_bar.dart';
+import 'package:quranglow/features/about/presentation/pages/about_page.dart';
 import 'package:quranglow/features/ayah/presentation/pages/ayah_detail_page.dart';
 import 'package:quranglow/features/azkar/presentation/pages/azkar_tasbih_page.dart';
 import 'package:quranglow/features/bookmarks/presentation/pages/bookmarks_page.dart';
@@ -210,6 +211,8 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
     );
   } else if (name == AppRoutes.downloadsLibrary) {
     return _mat(const DownloadsLibraryPage(), s);
+  } else if (name == AppRoutes.about) {
+    return _mat(const AboutPage(), s);
   } else if (name == AppRoutes.setting) {
     return _mat(const SettingsPage(), s);
   } else if (name == AppRoutes.goals) {

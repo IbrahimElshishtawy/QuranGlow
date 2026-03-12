@@ -11,6 +11,7 @@ class AppRoutes {
   static const downloads = '/downloads';
   static const downloadDetail = '/downloadDetail';
   static const downloadsLibrary = '/downloadsLibrary';
+  static const about = '/about';
   static const setting = '/setting';
   static const goals = '/goals';
   static const stats = '/stats';
