@@ -95,8 +95,6 @@ class _PageRichBlockState extends ConsumerState<PageRichBlock> {
 
     final spans = builder.buildSpans(
       ayat: subAyat,
-      showBasmala: widget.showBasmala,
-      basmala: widget.basmalaText,
       currentAyahIndex: localCurrentIndex,
       ayahNumberColor: widget.ayahNumberColor,
       recognizersBucket: _recognizers,
@@ -178,6 +176,26 @@ class _PageRichBlockState extends ConsumerState<PageRichBlock> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        if (widget.showBasmala) ...[
+                          Text(
+                            widget.basmalaText,
+                            textAlign: TextAlign.center,
+                            textDirection: TextDirection.rtl,
+                            style: TextStyle(
+                              color: textColor,
+                              fontFamily: 'KFGQPC Uthmanic Script',
+                              fontFamilyFallback: const [
+                                'Hafs',
+                                'Noto Naskh Arabic',
+                                'Scheherazade',
+                              ],
+                              height: 1.9,
+                              fontSize: 28 * fontScale,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
                         RichText(
                           textAlign: TextAlign.justify,
                           textDirection: TextDirection.rtl,

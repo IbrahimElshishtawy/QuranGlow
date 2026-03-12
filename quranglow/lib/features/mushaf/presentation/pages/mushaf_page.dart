@@ -51,7 +51,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   void initState() {
     super.initState();
     _chapter = widget.chapter.clamp(1, 114);
-    _lastAyahNumber = widget.initialAyah;
+    _lastAyahNumber = null;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
       await SystemChrome.setPreferredOrientations([
@@ -129,12 +129,22 @@ class _MushafPageState extends ConsumerState<MushafPage> {
     try {
       String? url = aya.audioUrl;
       if (url == null || url.trim().isEmpty) {
-        final urls = await ref
-            .read(quranServiceProvider)
-            .getSurahAudioUrls(_audioEditionId(), _chapter);
-        final idx = ayahNumber - 1;
-        if (idx >= 0 && idx < urls.length) {
-          url = urls[idx];
+        final service = ref.read(quranServiceProvider);
+        final audioMap = await service.getSurahAudioUrlMap(
+          _audioEditionId(),
+          _chapter,
+        );
+        url = audioMap[ayahNumber];
+
+        if (url == null || url.trim().isEmpty) {
+          final urls = await service.getSurahAudioUrls(
+            _audioEditionId(),
+            _chapter,
+          );
+          final idx = ayahNumber - 1;
+          if (idx >= 0 && idx < urls.length) {
+            url = urls[idx];
+          }
         }
       }
 

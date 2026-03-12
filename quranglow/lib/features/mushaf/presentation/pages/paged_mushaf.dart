@@ -186,8 +186,6 @@ class PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
         );
       },
       onPageChanged: (newPageIndex) {
-        final pr = _pages[newPageIndex];
-        setState(() => _currentAyahIdx0 = pr.start);
         _saveCurrentIfAny();
       },
     );

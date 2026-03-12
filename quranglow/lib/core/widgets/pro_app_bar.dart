@@ -27,6 +27,39 @@ class ProAppBar extends StatelessWidget implements PreferredSizeWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
+    final backButton = showBack
+        ? Padding(
+            padding: const EdgeInsetsDirectional.only(end: 12),
+            child: IconButton.filledTonal(
+              tooltip: 'رجوع',
+              onPressed:
+                  onBack ??
+                  () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).maybePop();
+                    } else {
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        AppRoutes.home,
+                        (route) => false,
+                      );
+                    }
+                  },
+              style: IconButton.styleFrom(
+                backgroundColor: cs.surface.withValues(alpha: 0.82),
+                foregroundColor: cs.primary,
+                side: BorderSide(
+                  color: cs.outlineVariant.withValues(alpha: 0.7),
+                ),
+              ),
+              icon: Icon(
+                Directionality.of(context) == TextDirection.rtl
+                    ? Icons.arrow_forward_rounded
+                    : Icons.arrow_back_rounded,
+              ),
+            ),
+          )
+        : null;
+
     return AppBar(
       toolbarHeight: height,
       elevation: 0,
@@ -34,39 +67,6 @@ class ProAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       automaticallyImplyLeading: false,
-      leadingWidth: showBack ? 64 : 16,
-      leading: showBack
-          ? Padding(
-              padding: const EdgeInsetsDirectional.only(start: 12),
-              child: IconButton.filledTonal(
-                tooltip: 'رجوع',
-                onPressed:
-                    onBack ??
-                    () {
-                      if (Navigator.of(context).canPop()) {
-                        Navigator.of(context).maybePop();
-                      } else {
-                        Navigator.of(context).pushNamedAndRemoveUntil(
-                          AppRoutes.home,
-                          (route) => false,
-                        );
-                      }
-                    },
-                style: IconButton.styleFrom(
-                  backgroundColor: cs.surface.withValues(alpha: 0.82),
-                  foregroundColor: cs.primary,
-                  side: BorderSide(
-                    color: cs.outlineVariant.withValues(alpha: 0.7),
-                  ),
-                ),
-                icon: Icon(
-                  Directionality.of(context) == TextDirection.rtl
-                      ? Icons.arrow_forward_rounded
-                      : Icons.arrow_back_rounded,
-                ),
-              ),
-            )
-          : null,
       titleSpacing: 10,
       flexibleSpace: DecoratedBox(
         decoration: BoxDecoration(
@@ -112,14 +112,14 @@ class ProAppBar extends StatelessWidget implements PreferredSizeWidget {
           ],
         ],
       ),
-      actions: actions == null
-          ? null
-          : [
-              Padding(
-                padding: const EdgeInsetsDirectional.only(end: 8),
-                child: Row(mainAxisSize: MainAxisSize.min, children: actions!),
-              ),
-            ],
+      actions: [
+        if (actions != null)
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 8),
+            child: Row(mainAxisSize: MainAxisSize.min, children: actions!),
+          ),
+        if (backButton != null) backButton,
+      ],
     );
   }
 }

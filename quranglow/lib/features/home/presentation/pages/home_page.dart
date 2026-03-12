@@ -55,10 +55,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final isCompactWidth = mediaQuery.size.width < 380;
-    final heroToolbarHeight = isCompactWidth ? 320.0 : 300.0;
-
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -68,18 +64,6 @@ class _HomePageState extends State<HomePage> {
             Navigator.pushNamed(context, route);
           },
         ),
-        appBar: _tab == 0
-            ? AppBar(
-                automaticallyImplyLeading: false,
-                backgroundColor: Colors.transparent,
-                surfaceTintColor: Colors.transparent,
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                flexibleSpace: const HeroHeader(),
-                toolbarHeight: heroToolbarHeight,
-                centerTitle: true,
-              )
-            : null,
         bottomNavigationBar: _GlassNavigationBar(
           tabs: _tabs,
           selectedIndex: _tab,
@@ -240,6 +224,9 @@ class _HomeSections extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final mediaQuery = MediaQuery.of(context);
+    final isCompactWidth = mediaQuery.size.width < 380;
+    final heroHeight = isCompactWidth ? 320.0 : 300.0;
 
     return Stack(
       children: [
@@ -269,6 +256,12 @@ class _HomeSections extends StatelessWidget {
         CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: heroHeight,
+                child: HeroHeader(),
+              ),
+            ),
             const SliverToBoxAdapter(
               child: SectionSpacing(child: PrayerTimesCard()),
             ),

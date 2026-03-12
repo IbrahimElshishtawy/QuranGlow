@@ -23,8 +23,6 @@ class AyahSpanBuilder {
 
   List<InlineSpan> buildSpans({
     required List<Aya> ayat,
-    required bool showBasmala,
-    required String basmala,
     required int? currentAyahIndex,
     Color? ayahNumberColor,
     required List<GestureRecognizer> recognizersBucket,
@@ -32,7 +30,6 @@ class AyahSpanBuilder {
     final cacheKey = Object.hash(
       ayat.first.number,
       ayat.last.number,
-      showBasmala,
       currentAyahIndex,
     );
     if (_cache.containsKey(cacheKey)) {
@@ -40,9 +37,6 @@ class AyahSpanBuilder {
     }
 
     final out = <InlineSpan>[];
-    if (showBasmala) {
-      out.add(TextSpan(text: '$basmala  ', style: _base));
-    }
     for (final r in recognizersBucket) {
       r.dispose();
     }

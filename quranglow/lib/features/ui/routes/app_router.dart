@@ -224,7 +224,16 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
   } else if (name == AppRoutes.tafsir) {
     return _mat(const TafsirExplorerPage(), s);
   } else if (name == AppRoutes.tafsirReader) {
-    return _mat(const TafsirReaderPage(), s);
+    final a = s.arguments;
+    final args = a is TafsirArgs ? a : null;
+    return _mat(
+      TafsirReaderPage(
+        initialEditionId: args?.sourceId,
+        initialSurah: args?.chapter ?? 1,
+        initialAyah: args?.ayah ?? 1,
+      ),
+      s,
+    );
   } else if (name == AppRoutes.qibla) {
     return _mat(const QiblaPage(), s);
   } else if (name == AppRoutes.azkar) {

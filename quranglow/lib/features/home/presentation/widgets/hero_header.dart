@@ -1,22 +1,32 @@
-import 'dart:math' as math;
+// ignore_for_file: prefer_const_constructors_in_immutables
 
 import 'package:flutter/material.dart';
 
 class HeroHeader extends StatelessWidget {
-  const HeroHeader({super.key});
+  HeroHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
     final compact = MediaQuery.sizeOf(context).width < 380;
 
-    final mint = Color.alphaBlend(
-      cs.primary.withValues(alpha: 0.12),
-      Colors.white,
+    final startColor = Color.alphaBlend(
+      cs.primary.withValues(alpha: isDark ? 0.16 : 0.10),
+      cs.surface,
     );
-    final softMint = Color.alphaBlend(
-      cs.tertiary.withValues(alpha: 0.08),
-      const Color(0xFFF7FCF8),
+    final middleColor = Color.alphaBlend(
+      cs.tertiary.withValues(alpha: isDark ? 0.10 : 0.06),
+      cs.surfaceContainerLow,
+    );
+    final cardStart = Color.alphaBlend(
+      cs.surface.withValues(alpha: isDark ? 0.88 : 0.94),
+      cs.surfaceContainerLow,
+    );
+    final cardEnd = Color.alphaBlend(
+      cs.primary.withValues(alpha: isDark ? 0.12 : 0.05),
+      cs.surfaceContainer,
     );
 
     return DecoratedBox(
@@ -24,31 +34,26 @@ class HeroHeader extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            mint.withValues(alpha: 0.96),
-            softMint.withValues(alpha: 0.94),
-            Colors.white.withValues(alpha: 0.90),
-          ],
+          colors: [startColor, middleColor, cs.surfaceContainerLowest],
         ),
       ),
       child: Stack(
         fit: StackFit.expand,
         children: [
-          const Positioned.fill(child: _PatternLayer()),
           Positioned(
-            top: -36,
-            right: -24,
+            top: -40,
+            right: -30,
             child: _GlowOrb(
               size: compact ? 120 : 160,
-              color: cs.primary.withValues(alpha: 0.08),
+              color: cs.primary.withValues(alpha: isDark ? 0.16 : 0.08),
             ),
           ),
           Positioned(
-            bottom: -34,
-            left: -18,
+            bottom: -36,
+            left: -24,
             child: _GlowOrb(
-              size: compact ? 90 : 120,
-              color: cs.tertiary.withValues(alpha: 0.06),
+              size: compact ? 96 : 128,
+              color: cs.tertiary.withValues(alpha: isDark ? 0.14 : 0.06),
             ),
           ),
           SafeArea(
@@ -57,143 +62,139 @@ class HeroHeader extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(16, compact ? 10 : 12, 16, 14),
               child: Column(
                 children: [
-                  _HeaderTopRow(compact: compact),
-                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      const _MenuButton(),
+                      const SizedBox(width: 12),
+                      const Expanded(child: _BrandBlock()),
+                      if (!compact) ...[
+                        const SizedBox(width: 10),
+                        const _DailyWirdPill(),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 10),
                   Expanded(
-                    child: _HeroCard(compact: compact),
+                    child: Container(
+                      padding: EdgeInsets.all(compact ? 12 : 14),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(28),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [cardStart, cardEnd],
+                        ),
+                        border: Border.all(
+                          color: cs.primary.withValues(
+                            alpha: isDark ? 0.20 : 0.10,
+                          ),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(
+                              alpha: isDark ? 0.20 : 0.05,
+                            ),
+                            blurRadius: 14,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(999),
+                              color: cs.primary.withValues(
+                                alpha: isDark ? 0.18 : 0.07,
+                              ),
+                              border: Border.all(
+                                color: cs.primary.withValues(
+                                  alpha: isDark ? 0.24 : 0.10,
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              'بسم الله الرحمن الرحيم',
+                              style: TextStyle(
+                                color: cs.primary,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: compact ? 8 : 10),
+                          Text(
+                            'ابدأ يومك مع القرآن',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: cs.onSurface,
+                              fontSize: compact ? 20 : 22,
+                              fontWeight: FontWeight.w900,
+                              height: 1.05,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'واجهة هادئة وواضحة للقراءة والاستماع والرجوع السريع إلى ما يهمك يوميًا.',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: cs.onSurfaceVariant,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              height: 1.25,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          const Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: [
+                              _InfoChip(
+                                icon: Icons.menu_book_rounded,
+                                label: 'مصحف',
+                              ),
+                              _InfoChip(
+                                icon: Icons.headphones_rounded,
+                                label: 'استماع',
+                              ),
+                              _InfoChip(
+                                icon: Icons.auto_stories_rounded,
+                                label: 'تفسير',
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          const Row(
+                            children: [
+                              Expanded(
+                                child: _StatChip(
+                                  icon: Icons.visibility_rounded,
+                                  label: 'قراءة أوضح',
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: _StatChip(
+                                  icon: Icons.bolt_rounded,
+                                  label: 'وصول أسرع',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeaderTopRow extends StatelessWidget {
-  const _HeaderTopRow({required this.compact});
-
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const _MenuButton(),
-        const SizedBox(width: 12),
-        const Expanded(child: _BrandBlock()),
-        if (!compact) ...[
-          const SizedBox(width: 10),
-          const _DailyWirdPill(),
-        ],
-      ],
-    );
-  }
-}
-
-class _HeroCard extends StatelessWidget {
-  const _HeroCard({required this.compact});
-
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Container(
-      padding: EdgeInsets.all(compact ? 14 : 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withValues(alpha: 0.86),
-            cs.primary.withValues(alpha: 0.05),
-          ],
-        ),
-        border: Border.all(color: cs.primary.withValues(alpha: 0.10)),
-        boxShadow: [
-          BoxShadow(
-            color: cs.primary.withValues(alpha: 0.04),
-            blurRadius: 14,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(999),
-              color: cs.primary.withValues(alpha: 0.07),
-              border: Border.all(color: cs.primary.withValues(alpha: 0.10)),
-            ),
-            child: Text(
-              'بسم الله الرحمن الرحيم',
-              style: TextStyle(
-                color: cs.primary,
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                height: 1.1,
-              ),
-            ),
-          ),
-          SizedBox(height: compact ? 10 : 12),
-          const Text(
-            'ابدأ يومك مع القرآن',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Color(0xFF224633),
-              fontSize: 23,
-              fontWeight: FontWeight.w900,
-              height: 1.1,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'واجهة هادئة وواضحة للقراءة، الاستماع، والرجوع السريع إلى ما يهمك يوميًا.',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Color(0xFF607B6B),
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              height: 1.35,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: const [
-              _InfoChip(icon: Icons.menu_book_rounded, label: 'مصحف'),
-              _InfoChip(icon: Icons.headphones_rounded, label: 'استماع'),
-              _InfoChip(icon: Icons.auto_stories_rounded, label: 'تفسير'),
-            ],
-          ),
-          const Spacer(),
-          const Row(
-            children: [
-              Expanded(
-                child: _StatChip(
-                  icon: Icons.visibility_rounded,
-                  label: 'قراءة أوضح',
-                ),
-              ),
-              SizedBox(width: 8),
-              Expanded(
-                child: _StatChip(
-                  icon: Icons.bolt_rounded,
-                  label: 'وصول أسرع',
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -223,13 +224,6 @@ class _BrandBlock extends StatelessWidget {
                 cs.tertiary.withValues(alpha: 0.62),
               ],
             ),
-            boxShadow: [
-              BoxShadow(
-                color: cs.primary.withValues(alpha: 0.08),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
           ),
           child: const Icon(
             Icons.auto_stories_rounded,
@@ -238,7 +232,7 @@ class _BrandBlock extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        const Expanded(
+        Expanded(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,22 +242,20 @@ class _BrandBlock extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: Color(0xFF214734),
+                  color: cs.onSurface,
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
-                  height: 1.1,
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 'رفيق يومي لقراءة القرآن والاستماع والتدبر',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: Color(0xFF5F7D6B),
+                  color: cs.onSurfaceVariant,
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  height: 1.2,
                 ),
               ),
             ],
@@ -279,14 +271,18 @@ class _DailyWirdPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
-        color: Colors.white.withValues(alpha: 0.66),
-        border: Border.all(color: cs.primary.withValues(alpha: 0.14)),
+        color: cs.surface.withValues(alpha: isDark ? 0.56 : 0.74),
+        border: Border.all(
+          color: cs.primary.withValues(alpha: isDark ? 0.22 : 0.14),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -299,7 +295,6 @@ class _DailyWirdPill extends StatelessWidget {
               color: cs.primary,
               fontSize: 11,
               fontWeight: FontWeight.w800,
-              height: 1.1,
             ),
           ),
         ],
@@ -313,15 +308,19 @@ class _MenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       width: 46,
       height: 46,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
-        color: Colors.white.withValues(alpha: 0.56),
-        border: Border.all(color: cs.primary.withValues(alpha: 0.12)),
+        color: cs.surface.withValues(alpha: isDark ? 0.54 : 0.66),
+        border: Border.all(
+          color: cs.primary.withValues(alpha: isDark ? 0.22 : 0.12),
+        ),
       ),
       child: Builder(
         builder: (ctx) => IconButton(
@@ -345,24 +344,23 @@ class _InfoChip extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: BoxDecoration(
-        color: cs.primary.withValues(alpha: 0.06),
+        color: cs.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: cs.primary.withValues(alpha: 0.08)),
+        border: Border.all(color: cs.primary.withValues(alpha: 0.10)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 13, color: cs.primary),
-          const SizedBox(width: 6),
+          Icon(icon, size: 12, color: cs.primary),
+          const SizedBox(width: 5),
           Text(
             label,
-            style: const TextStyle(
-              color: Color(0xFF2D6449),
-              fontSize: 10,
+            style: TextStyle(
+              color: cs.onSurface,
+              fontSize: 9,
               fontWeight: FontWeight.w800,
-              height: 1.1,
             ),
           ),
         ],
@@ -379,29 +377,32 @@ class _StatChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
-        color: Colors.white.withValues(alpha: 0.74),
-        border: Border.all(color: cs.primary.withValues(alpha: 0.08)),
+        color: cs.surface.withValues(alpha: isDark ? 0.58 : 0.78),
+        border: Border.all(
+          color: cs.primary.withValues(alpha: isDark ? 0.18 : 0.08),
+        ),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 14, color: cs.primary),
-          const SizedBox(width: 6),
+          Icon(icon, size: 13, color: cs.primary),
+          const SizedBox(width: 5),
           Expanded(
             child: Text(
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Color(0xFF2A5C43),
-                fontSize: 10,
+              style: TextStyle(
+                color: cs.onSurface,
+                fontSize: 9,
                 fontWeight: FontWeight.w800,
-                height: 1.1,
               ),
             ),
           ),
@@ -409,54 +410,6 @@ class _StatChip extends StatelessWidget {
       ),
     );
   }
-}
-
-class _PatternLayer extends StatelessWidget {
-  const _PatternLayer();
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(painter: _PatternPainter());
-  }
-}
-
-class _PatternPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF7DB38E).withValues(alpha: 0.06)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.7;
-
-    const step = 56.0;
-    for (double x = 0; x < size.width + step; x += step) {
-      for (double y = 0; y < size.height + step; y += step) {
-        _drawStar(canvas, Offset(x, y), 14, paint);
-      }
-    }
-  }
-
-  void _drawStar(Canvas canvas, Offset center, double radius, Paint paint) {
-    const points = 8;
-    const inner = 0.42;
-    final path = Path();
-    for (int i = 0; i < points * 2; i++) {
-      final angle = (i * math.pi / points) - math.pi / 2;
-      final currentRadius = i.isEven ? radius : radius * inner;
-      final x = center.dx + currentRadius * math.cos(angle);
-      final y = center.dy + currentRadius * math.sin(angle);
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-    path.close();
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _GlowOrb extends StatelessWidget {
@@ -473,9 +426,7 @@ class _GlowOrb extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [color, color.withValues(alpha: 0)],
-          ),
+          gradient: RadialGradient(colors: [color, color.withValues(alpha: 0)]),
         ),
       ),
     );

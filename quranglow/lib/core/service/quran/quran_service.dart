@@ -127,6 +127,13 @@ class QuranService {
       return Aya.fromMap({
         'global': m['global'] ?? m['globalId'] ?? m['id'] ?? m['number'],
         'surah': chapter,
+        'numberInSurah':
+            m['numberInSurah'] ??
+            m['number_in_surah'] ??
+            m['verse'] ??
+            m['verse_number'] ??
+            m['ayah'] ??
+            m['aya'],
         'number':
             m['number'] ??
             m['numberInSurah'] ??
@@ -282,5 +289,36 @@ class QuranService {
           .toList();
     }
     return <String>[];
+  }
+
+  Future<Map<int, String>> getSurahAudioUrlMap(String editionId, int surah) async {
+    final map = await cloud.getSurahAudio(editionId, surah);
+    final data = map['data'];
+    if (data is! Map || data['ayahs'] is! List) {
+      return <int, String>{};
+    }
+
+    final out = <int, String>{};
+    for (final item in data['ayahs'] as List) {
+      if (item is! Map) continue;
+      final rawAyahNumber =
+          item['numberInSurah'] ??
+          item['number_in_surah'] ??
+          item['ayah'] ??
+          item['aya'] ??
+          item['verseNumber'];
+      final ayahNumber = switch (rawAyahNumber) {
+        int value => value,
+        num value => value.toInt(),
+        String value => int.tryParse(value),
+        _ => null,
+      };
+      final audio = item['audio']?.toString();
+      if (ayahNumber == null || audio == null || audio.trim().isEmpty) {
+        continue;
+      }
+      out[ayahNumber] = audio;
+    }
+    return out;
   }
 }
