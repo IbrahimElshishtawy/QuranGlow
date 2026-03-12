@@ -254,7 +254,7 @@ class PlayerUiState extends PlaylistState {
 }
 
 final playerControllerProvider =
-    StateNotifierProvider<PlayerController, AsyncValue<PlayerUiState>>(
+    StateNotifierProvider.autoDispose<PlayerController, AsyncValue<PlayerUiState>>(
       (ref) => PlayerController(ref),
     );
 

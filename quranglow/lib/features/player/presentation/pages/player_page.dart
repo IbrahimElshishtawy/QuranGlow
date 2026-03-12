@@ -26,13 +26,15 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
   ProviderSubscription? _playbackSub;
   DateTime? _listeningStartedAt;
   bool _trackingSessionStarted = false;
+  late final dynamic _trackingService;
 
   @override
   void initState() {
     super.initState();
+    _trackingService = ref.read(trackingServiceProvider);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
-      await ref.read(trackingServiceProvider).startSession();
+      await _trackingService.startSession();
       if (!mounted) return;
       _trackingSessionStarted = true;
     });
@@ -70,7 +72,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
   void dispose() {
     _flushListeningTime();
     if (_trackingSessionStarted) {
-      ref.read(trackingServiceProvider).endSession();
+      _trackingService.endSession();
     }
     _playbackSub?.close();
     super.dispose();
@@ -91,7 +93,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
     final seconds = DateTime.now().difference(startedAt).inSeconds;
     _listeningStartedAt = null;
     if (seconds > 0) {
-      ref.read(trackingServiceProvider).addListeningTime(seconds);
+      _trackingService.addListeningTime(seconds);
     }
   }
 

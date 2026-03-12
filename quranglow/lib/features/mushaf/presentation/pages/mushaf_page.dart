@@ -42,6 +42,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   late int _chapter;
   int? _lastAyahNumber;
   bool _trackingSessionStarted = false;
+  late final dynamic _trackingService;
 
   final _pos = PositionStore();
   final _ayahPreviewPlayer = AudioPlayer();
@@ -51,15 +52,19 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   @override
   void initState() {
     super.initState();
+    _trackingService = ref.read(trackingServiceProvider);
     _chapter = widget.chapter.clamp(1, 114);
     _lastAyahNumber = null;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
       await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
       await SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
       ]);
       await WakelockPlus.enable();
-      await ref.read(trackingServiceProvider).startSession();
+      if (!mounted) return;
+      await _trackingService.startSession();
+      if (!mounted) return;
       _trackingSessionStarted = true;
     });
   }
@@ -67,7 +72,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   @override
   void dispose() {
     if (_trackingSessionStarted) {
-      ref.read(trackingServiceProvider).endSession();
+      _trackingService.endSession();
     }
     _ayahPreviewPlayer.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
@@ -271,7 +276,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                       _lastAyahNumber = ayahNumber;
                       _uiVisible = true;
                     });
-                    ref.read(trackingServiceProvider).incAyat(1);
+                    _trackingService.incAyat(1);
                   },
                   onAyahLongPress: (int ayahNumber, Aya aya) {
                     _openAyahActions(
