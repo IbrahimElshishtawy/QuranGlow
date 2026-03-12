@@ -1,173 +1,237 @@
+// ignore_for_file: deprecated_member_use
+
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 class HeroHeader extends StatelessWidget {
   const HeroHeader({super.key});
 
+  // ── Brand palette (override with your ThemeData) ──
+  static const Color _gold = Color(0xFFD4A847);
+  static const Color _goldLight = Color(0xFFF0CC72);
+  static const Color _midnight = Color(0xFF0D1117);
+  static const Color _surface1 = Color(0xFF161C26);
+  static const Color _surface2 = Color(0xFF1E2736);
+  static const Color _textPrimary = Color(0xFFF0EDE6);
+  static const Color _textSecondary = Color(0xFF8A96A8);
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
+    return ClipRRect(
+      child: SizedBox(
+        width: double.infinity,
+        child: DecoratedBox(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [_midnight, _surface1, Color(0xFF12182B)],
+              stops: [0.0, 0.55, 1.0],
+            ),
+          ),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // ── Background: Islamic star pattern ──
+              const Positioned.fill(child: _IslamicPatternBackground()),
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            cs.primary.withValues(alpha: 0.22),
-            cs.tertiary.withValues(alpha: 0.14),
-            cs.surface,
-          ],
-        ),
-      ),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Positioned(
-            top: -64,
-            right: -28,
-            child: _GlowOrb(
-              size: 210,
-              color: cs.primary.withValues(alpha: 0.16),
-            ),
-          ),
-          Positioned(
-            top: 34,
-            left: 22,
-            child: _PatternDot(color: cs.primary.withValues(alpha: 0.18)),
-          ),
-          Positioned(
-            bottom: -72,
-            left: -18,
-            child: _GlowOrb(
-              size: 186,
-              color: cs.tertiary.withValues(alpha: 0.14),
-            ),
-          ),
-          Positioned(
-            top: 28,
-            right: 92,
-            child: Icon(
-              Icons.auto_awesome_rounded,
-              size: 18,
-              color: cs.primary.withValues(alpha: 0.30),
-            ),
-          ),
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
-              child: Column(
-                children: [
-                  Row(
+              // ── Glow orbs ──
+              Positioned(
+                top: -50,
+                right: -40,
+                child: _GlowOrb(
+                  size: 220,
+                  color: _gold.withValues(alpha: 0.10),
+                ),
+              ),
+              Positioned(
+                bottom: -60,
+                left: -30,
+                child: _GlowOrb(
+                  size: 180,
+                  color: const Color(0xFF3A6EA8).withValues(alpha: 0.12),
+                ),
+              ),
+
+              // ── Gold shimmer line (top border) ──
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 1.5,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.transparent,
+                        _gold,
+                        _goldLight,
+                        _gold,
+                        Colors.transparent,
+                      ],
+                      stops: [0.0, 0.25, 0.5, 0.75, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+
+              // ── Content ──
+              SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Builder(
-                        builder: (context) {
-                          return _HeaderActionButton(
-                            icon: Icons.menu_rounded,
-                            tooltip: 'القائمة',
-                            onPressed: () => Scaffold.of(context).openDrawer(),
-                          );
-                        },
+                      // Top bar
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          _MenuButton(),
+                          const SizedBox(width: 12),
+                          const Expanded(child: _BrandBlock()),
+                          const SizedBox(width: 10),
+                          const _DailyWirdPill(),
+                        ],
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _BrandBlock(theme: theme, colorScheme: cs),
-                      ),
-                      const SizedBox(width: 10),
-                      _StatusPill(
-                        icon: Icons.wb_sunny_outlined,
-                        label: 'ورد اليوم',
-                        colorScheme: cs,
+                      const SizedBox(height: 14),
+
+                      // Hero cards row
+                      IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: const [
+                            Expanded(flex: 11, child: _MainHeroCard()),
+                            SizedBox(width: 10),
+                            Expanded(flex: 7, child: _SideHeroCard()),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 7,
-                          child: _MainHeroCard(theme: theme, colorScheme: cs),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          flex: 4,
-                          child: _SideHeroCard(theme: theme, colorScheme: cs),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _BrandBlock extends StatelessWidget {
-  const _BrandBlock({required this.theme, required this.colorScheme});
+// ── Islamic Geometric Pattern (pure Canvas) ──────────────────────────────────
 
-  final ThemeData theme;
-  final ColorScheme colorScheme;
+class _IslamicPatternBackground extends StatelessWidget {
+  const _IslamicPatternBackground();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(painter: _IslamicPatternPainter());
+  }
+}
+
+class _IslamicPatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFFD4A847).withOpacity(0.045)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.7;
+
+    const step = 52.0;
+    for (double x = 0; x < size.width + step; x += step) {
+      for (double y = 0; y < size.height + step; y += step) {
+        _drawStar(canvas, Offset(x, y), 16, paint);
+      }
+    }
+  }
+
+  void _drawStar(Canvas canvas, Offset center, double r, Paint paint) {
+    const points = 8;
+    const inner = 0.42;
+    final path = Path();
+    for (int i = 0; i < points * 2; i++) {
+      final angle = (i * math.pi / points) - math.pi / 2;
+      final radius = i.isEven ? r : r * inner;
+      final x = center.dx + radius * math.cos(angle);
+      final y = center.dy + radius * math.sin(angle);
+      i == 0 ? path.moveTo(x, y) : path.lineTo(x, y);
+    }
+    path.close();
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter old) => false;
+}
+
+// ── Brand Block ───────────────────────────────────────────────────────────────
+
+class _BrandBlock extends StatelessWidget {
+  const _BrandBlock();
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
+        // Logo mark
         Container(
-          width: 50,
-          height: 50,
+          width: 46,
+          height: 46,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                colorScheme.primary.withValues(alpha: 0.96),
-                colorScheme.primary.withValues(alpha: 0.74),
-              ],
+            borderRadius: BorderRadius.circular(14),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFFD4A847), Color(0xFF9E7520)],
             ),
             boxShadow: [
               BoxShadow(
-                color: colorScheme.primary.withValues(alpha: 0.24),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
+                color: const Color(0xFFD4A847).withValues(alpha: 0.35),
+                blurRadius: 18,
+                offset: const Offset(0, 6),
               ),
             ],
           ),
-          child: Icon(
+          child: const Icon(
             Icons.menu_book_rounded,
-            color: colorScheme.onPrimary,
-            size: 27,
+            color: Colors.white,
+            size: 24,
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 11),
         Expanded(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'QuranGlow',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.3,
+              ShaderMask(
+                blendMode: BlendMode.srcIn,
+                shaderCallback: (bounds) => const LinearGradient(
+                  colors: [Color(0xFFF0CC72), Color(0xFFD4A847)],
+                ).createShader(bounds),
+                child: const Text(
+                  'QuranGlow',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 18,
+                    letterSpacing: 0.5,
+                    color: Colors.white, // masked by shader
+                  ),
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
-                'قراءة أهدأ، استماع أسهل، وتنقل أسرع',
+              const Text(
+                'قراءة أهدأ • استماع أسهل • تنقل أسرع',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w700,
+                style: TextStyle(
+                  color: HeroHeader._textSecondary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.2,
                 ),
               ),
             ],
@@ -178,94 +242,181 @@ class _BrandBlock extends StatelessWidget {
   }
 }
 
-class _MainHeroCard extends StatelessWidget {
-  const _MainHeroCard({required this.theme, required this.colorScheme});
+// ── Daily Wird Pill ───────────────────────────────────────────────────────────
 
-  final ThemeData theme;
-  final ColorScheme colorScheme;
+class _DailyWirdPill extends StatelessWidget {
+  const _DailyWirdPill();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            colorScheme.surface.withValues(alpha: 0.92),
-            colorScheme.surface.withValues(alpha: 0.78),
-          ],
-        ),
+        borderRadius: BorderRadius.circular(999),
         border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.65),
+          color: HeroHeader._gold.withValues(alpha: 0.45),
+          width: 1,
+        ),
+        color: HeroHeader._gold.withValues(alpha: 0.08),
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.wb_sunny_outlined, size: 13, color: HeroHeader._gold),
+          SizedBox(width: 5),
+          Text(
+            'ورد اليوم',
+            style: TextStyle(
+              color: HeroHeader._gold,
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Menu Button ───────────────────────────────────────────────────────────────
+
+class _MenuButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: HeroHeader._gold.withValues(alpha: 0.25),
+          width: 1,
+        ),
+        color: HeroHeader._surface2.withValues(alpha: 0.6),
+      ),
+      child: Builder(
+        builder: (ctx) => IconButton(
+          tooltip: 'القائمة',
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
+          icon: const Icon(
+            Icons.menu_rounded,
+            color: HeroHeader._gold,
+            size: 20,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Main Hero Card ────────────────────────────────────────────────────────────
+
+class _MainHeroCard extends StatelessWidget {
+  const _MainHeroCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: HeroHeader._gold.withValues(alpha: 0.20),
+          width: 1,
+        ),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            HeroHeader._surface2.withValues(alpha: 0.85),
+            HeroHeader._surface1.withValues(alpha: 0.70),
+          ],
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withValues(alpha: 0.30),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: HeroHeader._gold.withValues(alpha: 0.06),
+            blurRadius: 40,
+            offset: const Offset(0, 0),
           ),
         ],
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Bismillah badge
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(999),
+              gradient: LinearGradient(
+                colors: [
+                  HeroHeader._gold.withValues(alpha: 0.18),
+                  HeroHeader._gold.withValues(alpha: 0.08),
+                ],
+              ),
+              border: Border.all(
+                color: HeroHeader._gold.withValues(alpha: 0.30),
+                width: 0.8,
+              ),
             ),
-            child: Text(
+            child: const Text(
               'بسم الله الرحمن الرحيم',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: colorScheme.primary,
+              style: TextStyle(
+                color: HeroHeader._gold,
                 fontWeight: FontWeight.w900,
                 fontSize: 10,
+                letterSpacing: 0.5,
               ),
             ),
           ),
-          Text(
-            'ابدأ يومك مع القرآن بوضوح وهدوء.',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w900,
-              height: 1.1,
-              fontSize: 14,
+          const SizedBox(height: 12),
+
+          // Main headline
+          const Text(
+            'ابدأ يومك\nمع القرآن',
+            style: TextStyle(
+              color: HeroHeader._textPrimary,
+              fontWeight: FontWeight.w900,
+              fontSize: 20,
+              height: 1.15,
+              letterSpacing: 0.2,
             ),
           ),
-          Text(
+          const SizedBox(height: 6),
+
+          // Sub headline
+          const Text(
             'اقرأ واستمع وتابع أهدافك من مكان واحد.',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.bodySmall?.copyWith(
-              height: 1.2,
-              color: colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-              fontSize: 10,
+            style: TextStyle(
+              color: HeroHeader._textSecondary,
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              height: 1.4,
             ),
           ),
-          Row(
+          const SizedBox(height: 14),
+
+          // Stat chips row
+          const Row(
             children: [
               Expanded(
-                child: _MiniStatChip(
+                child: _StatChip(
                   icon: Icons.headphones_rounded,
                   label: 'استماع أسرع',
-                  colorScheme: colorScheme,
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Expanded(
-                child: _MiniStatChip(
+                child: _StatChip(
                   icon: Icons.track_changes_rounded,
                   label: 'تقدم يومي',
-                  colorScheme: colorScheme,
                 ),
               ),
             ],
@@ -276,31 +427,27 @@ class _MainHeroCard extends StatelessWidget {
   }
 }
 
-class _SideHeroCard extends StatelessWidget {
-  const _SideHeroCard({required this.theme, required this.colorScheme});
+// ── Side Hero Card ────────────────────────────────────────────────────────────
 
-  final ThemeData theme;
-  final ColorScheme colorScheme;
+class _SideHeroCard extends StatelessWidget {
+  const _SideHeroCard();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            colorScheme.primary.withValues(alpha: 0.96),
-            colorScheme.primary.withValues(alpha: 0.74),
-          ],
+        borderRadius: BorderRadius.circular(22),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFD4A847), Color(0xFF8A5E10)],
         ),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.primary.withValues(alpha: 0.22),
-            blurRadius: 22,
-            offset: const Offset(0, 12),
+            color: const Color(0xFFD4A847).withValues(alpha: 0.30),
+            blurRadius: 28,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -308,39 +455,48 @@ class _SideHeroCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Icon container
           Container(
-            width: 34,
-            height: 34,
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
-              color: colorScheme.onPrimary.withValues(alpha: 0.16),
-              borderRadius: BorderRadius.circular(14),
+              color: Colors.black.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.15),
+                width: 1,
+              ),
             ),
-            child: Icon(
+            child: const Icon(
               Icons.bolt_rounded,
-              color: colorScheme.onPrimary,
-              size: 18,
+              color: Colors.white,
+              size: 20,
             ),
           ),
-          Text(
+          const SizedBox(height: 14),
+
+          // Title
+          const Text(
             'ابدأ الآن',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.titleSmall?.copyWith(
-              color: colorScheme.onPrimary,
+            style: TextStyle(
+              color: Colors.white,
               fontWeight: FontWeight.w900,
-              fontSize: 13,
+              fontSize: 16,
+              letterSpacing: 0.3,
             ),
           ),
-          Text(
-            'مصحف • بحث • مشغل',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onPrimary.withValues(alpha: 0.92),
-              fontWeight: FontWeight.w700,
-              height: 1.15,
-              fontSize: 10.5,
-            ),
+          const SizedBox(height: 4),
+
+          // Tags
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _GoldTag(label: 'مصحف'),
+              const SizedBox(height: 4),
+              _GoldTag(label: 'بحث'),
+              const SizedBox(height: 4),
+              _GoldTag(label: 'مشغل'),
+            ],
           ),
         ],
       ),
@@ -348,39 +504,71 @@ class _SideHeroCard extends StatelessWidget {
   }
 }
 
-class _MiniStatChip extends StatelessWidget {
-  const _MiniStatChip({
-    required this.icon,
-    required this.label,
-    required this.colorScheme,
-  });
+// ── Gold Tag (inside side card) ───────────────────────────────────────────────
 
-  final IconData icon;
+class _GoldTag extends StatelessWidget {
+  const _GoldTag({required this.label});
   final String label;
-  final ColorScheme colorScheme;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.85),
+        color: Colors.black.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.25),
+          width: 0.8,
+        ),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.4,
+        ),
+      ),
+    );
+  }
+}
+
+// ── Stat Chip ─────────────────────────────────────────────────────────────────
+
+class _StatChip extends StatelessWidget {
+  const _StatChip({required this.icon, required this.label});
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: HeroHeader._gold.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: HeroHeader._gold.withValues(alpha: 0.20),
+          width: 0.8,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: colorScheme.primary),
-          const SizedBox(width: 3),
+          Icon(icon, size: 12, color: HeroHeader._gold),
+          const SizedBox(width: 5),
           Expanded(
             child: Text(
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: colorScheme.primary,
+              style: const TextStyle(
+                color: HeroHeader._gold,
                 fontSize: 9.5,
                 fontWeight: FontWeight.w800,
+                letterSpacing: 0.2,
               ),
             ),
           ),
@@ -390,75 +578,10 @@ class _MiniStatChip extends StatelessWidget {
   }
 }
 
-class _StatusPill extends StatelessWidget {
-  const _StatusPill({
-    required this.icon,
-    required this.label,
-    required this.colorScheme,
-  });
-
-  final IconData icon;
-  final String label;
-  final ColorScheme colorScheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
-      decoration: BoxDecoration(
-        color: colorScheme.surface.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.72),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 15, color: colorScheme.primary),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: colorScheme.primary,
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PatternDot extends StatelessWidget {
-  const _PatternDot({required this.color});
-
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: List.generate(
-        3,
-        (_) => Padding(
-          padding: const EdgeInsetsDirectional.only(end: 5),
-          child: Container(
-            width: 5,
-            height: 5,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// ── Glow Orb ──────────────────────────────────────────────────────────────────
 
 class _GlowOrb extends StatelessWidget {
   const _GlowOrb({required this.size, required this.color});
-
   final double size;
   final Color color;
 
@@ -470,44 +593,8 @@ class _GlowOrb extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [color, color.withValues(alpha: 0)],
-          ),
+          gradient: RadialGradient(colors: [color, color.withValues(alpha: 0)]),
         ),
-      ),
-    );
-  }
-}
-
-class _HeaderActionButton extends StatelessWidget {
-  const _HeaderActionButton({
-    required this.icon,
-    required this.tooltip,
-    required this.onPressed,
-  });
-
-  final IconData icon;
-  final String tooltip;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Container(
-      width: 46,
-      height: 46,
-      decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.78),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: cs.outlineVariant.withValues(alpha: 0.72),
-        ),
-      ),
-      child: IconButton(
-        tooltip: tooltip,
-        onPressed: onPressed,
-        icon: Icon(icon, color: cs.primary),
       ),
     );
   }

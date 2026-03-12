@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:quranglow/core/widgets/pro_app_bar.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:quranglow/features/about/presentation/widgets/about_contact_tile.dart';
+import 'package:quranglow/features/about/presentation/widgets/about_feature_tile.dart';
+import 'package:quranglow/features/about/presentation/widgets/about_hero_card.dart';
+import 'package:quranglow/features/about/presentation/widgets/about_section_card.dart';
+import 'package:quranglow/features/about/presentation/widgets/about_share_card.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -17,9 +22,6 @@ class AboutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -30,41 +32,46 @@ class AboutPage extends StatelessWidget {
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _HeroCard(colorScheme: cs, theme: theme),
+            const AboutHeroCard(),
             const SizedBox(height: 14),
-            _SectionCard(
+            const AboutSectionCard(
               title: 'QuranGlow',
-              subtitle: 'تطبيق قرآني يومي مصمم لتجربة قراءة واستماع أكثر هدوءًا وتنظيمًا.',
+              subtitle:
+                  'تطبيق قرآني يومي مصمم لتجربة قراءة واستماع أكثر هدوءًا وتنظيمًا.',
               child: Column(
-                children: const [
-                  _FeatureTile(
+                children: [
+                  AboutFeatureTile(
                     icon: Icons.menu_book_rounded,
                     title: 'قراءة المصحف',
-                    subtitle: 'تصفح السور، التنقل بين الآيات، وحفظ موضع القراءة.',
+                    subtitle:
+                        'تصفح السور، التنقل بين الآيات، وحفظ موضع القراءة.',
                   ),
-                  _FeatureTile(
+                  AboutFeatureTile(
                     icon: Icons.headphones_rounded,
                     title: 'الاستماع والتنزيل',
-                    subtitle: 'تشغيل السور والآيات مع مكتبة صوتية داخلية للتنزيلات.',
+                    subtitle:
+                        'تشغيل السور والآيات مع مكتبة صوتية داخلية للتنزيلات.',
                   ),
-                  _FeatureTile(
+                  AboutFeatureTile(
                     icon: Icons.auto_stories_rounded,
                     title: 'التفسير والبحث',
-                    subtitle: 'الوصول السريع إلى التفسير والبحث داخل الآيات والسور.',
+                    subtitle:
+                        'الوصول السريع إلى التفسير والبحث داخل الآيات والسور.',
                   ),
-                  _FeatureTile(
+                  AboutFeatureTile(
                     icon: Icons.flag_rounded,
                     title: 'الأهداف والمتابعة',
-                    subtitle: 'متابعة الورد اليومي، الإحصائيات، والعادات القرآنية.',
+                    subtitle:
+                        'متابعة الورد اليومي، الإحصائيات، والعادات القرآنية.',
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 14),
-            _SectionCard(
+            AboutSectionCard(
               title: 'المطور',
               subtitle: 'تم تطوير التطبيق بواسطة:',
-              child: _ContactTile(
+              child: AboutContactTile(
                 icon: Icons.person_rounded,
                 title: _developerName,
                 value: 'Flutter Developer',
@@ -72,83 +79,52 @@ class AboutPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            _SectionCard(
+            AboutSectionCard(
               title: 'التواصل',
-              subtitle: 'تقدر تنسخ أي وسيلة تواصل أو تشارك بيانات المطور مباشرة.',
+              subtitle:
+                  'يمكنك نسخ أي وسيلة تواصل أو الضغط على الزر للانتقال للرابط مباشرة.',
               child: Column(
                 children: [
-                  _ContactTile(
+                  AboutContactTile(
                     icon: Icons.phone_rounded,
                     title: 'رقم الهاتف',
                     value: _phone,
                     onCopy: () => _copy(context, _phone, 'رقم الهاتف'),
                   ),
-                  _ContactTile(
+                  AboutContactTile(
                     icon: Icons.facebook_rounded,
                     title: 'Facebook',
                     value: _facebook,
                     onCopy: () => _copy(context, _facebook, 'رابط Facebook'),
+                    onOpen: () => _openLink(context, _facebook, 'Facebook'),
                   ),
-                  _ContactTile(
+                  AboutContactTile(
                     icon: Icons.work_rounded,
                     title: 'LinkedIn',
                     value: _linkedin,
                     onCopy: () => _copy(context, _linkedin, 'رابط LinkedIn'),
+                    onOpen: () => _openLink(context, _linkedin, 'LinkedIn'),
                   ),
-                  _ContactTile(
+                  AboutContactTile(
                     icon: Icons.camera_alt_rounded,
                     title: 'Instagram',
                     value: _instagram,
                     onCopy: () => _copy(context, _instagram, 'رابط Instagram'),
+                    onOpen: () => _openLink(context, _instagram, 'Instagram'),
                   ),
-                  _ContactTile(
+                  AboutContactTile(
                     icon: Icons.code_rounded,
                     title: 'GitHub',
                     value: _github,
                     onCopy: () => _copy(context, _github, 'رابط GitHub'),
+                    onOpen: () => _openLink(context, _github, 'GitHub'),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 14),
-            Card(
-              elevation: 0,
-              color: cs.surfaceContainerLow,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-                side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.7)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'مشاركة بيانات المطور',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'مفيد لو حابب ترسل صفحة التواصل أو بيانات المطور لشخص آخر.',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: cs.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: () => Share.share(_shareText),
-                        icon: const Icon(Icons.share_rounded),
-                        label: const Text('مشاركة المعلومات'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            AboutShareCard(
+              shareText: _shareText,
             ),
           ],
         ),
@@ -173,273 +149,30 @@ class AboutPage extends StatelessWidget {
   ) async {
     await Clipboard.setData(ClipboardData(text: value));
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('تم نسخ $label')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('تم نسخ $label')));
   }
-}
 
-class _HeroCard extends StatelessWidget {
-  const _HeroCard({required this.colorScheme, required this.theme});
+  static Future<void> _openLink(
+    BuildContext context,
+    String value,
+    String label,
+  ) async {
+    final uri = Uri.tryParse(value);
+    if (uri == null) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('تعذر فتح $label')));
+      return;
+    }
 
-  final ColorScheme colorScheme;
-  final ThemeData theme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            colorScheme.primary.withValues(alpha: 0.18),
-            colorScheme.tertiary.withValues(alpha: 0.10),
-            colorScheme.surface,
-          ],
-        ),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.65),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 62,
-            height: 62,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  colorScheme.primary.withValues(alpha: 0.96),
-                  colorScheme.primary.withValues(alpha: 0.74),
-                ],
-              ),
-            ),
-            child: Icon(
-              Icons.auto_stories_rounded,
-              color: colorScheme.onPrimary,
-              size: 30,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'QuranGlow',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'تجربة قرآنية تجمع بين المصحف، الاستماع، التفسير، الأهداف، والتنزيلات في واجهة واحدة.',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SectionCard extends StatelessWidget {
-  const _SectionCard({
-    required this.title,
-    required this.subtitle,
-    required this.child,
-  });
-
-  final String title;
-  final String subtitle;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-
-    return Card(
-      elevation: 0,
-      color: cs.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.7)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: cs.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 14),
-            child,
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _FeatureTile extends StatelessWidget {
-  const _FeatureTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: cs.primary.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(icon, color: cs.primary),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      color: cs.onSurfaceVariant,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ContactTile extends StatelessWidget {
-  const _ContactTile({
-    required this.icon,
-    required this.title,
-    required this.value,
-    required this.onCopy,
-  });
-
-  final IconData icon;
-  final String title;
-  final String value;
-  final VoidCallback onCopy;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: cs.primary.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(icon, color: cs.primary),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  SelectableText(
-                    value,
-                    style: TextStyle(
-                      color: cs.onSurfaceVariant,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            IconButton.filledTonal(
-              tooltip: 'نسخ',
-              onPressed: onCopy,
-              icon: const Icon(Icons.content_copy_rounded),
-            ),
-          ],
-        ),
-      ),
-    );
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!opened && context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('تعذر فتح $label')));
+    }
   }
 }
