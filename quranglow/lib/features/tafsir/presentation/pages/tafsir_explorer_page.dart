@@ -63,19 +63,20 @@ class _TafsirExplorerPageState extends ConsumerState<TafsirExplorerPage> {
         : ref.watch(tafsirForAyahProvider((_surah, _ayah, _editionId!)));
 
     // سورة واحدة فقط
-    final surahAsync = (_editionId == null)
-        ? const AsyncValue<Surah>.loading()
-        : ref.watch(quranSurahProvider((_surah, 'quran-uthmani')));
+    final quranAll = ref.watch(quranAllProvider('quran-uthmani'));
 
     String surahName = 'سورة $_surah';
     String ayahText = '';
     int maxAyat = 286; // افتراضي
-    surahAsync.whenData((s) {
-      surahName = s.name;
-      maxAyat = s.ayat.length;
-      if (_ayah >= 1 && _ayah <= s.ayat.length) {
-        final Aya a = s.ayat[_ayah - 1];
-        ayahText = a.text;
+    quranAll.whenData((all) {
+      if (_surah >= 1 && _surah <= all.length) {
+        final s = all[_surah - 1];
+        surahName = s.name;
+        maxAyat = s.ayat.length;
+        if (_ayah >= 1 && _ayah <= s.ayat.length) {
+          final Aya a = s.ayat[_ayah - 1];
+          ayahText = a.text;
+        }
       }
     });
 
@@ -91,7 +92,7 @@ class _TafsirExplorerPageState extends ConsumerState<TafsirExplorerPage> {
           children: [
             SelectionCard(
               editions: editions,
-              quranAll: surahAsync.whenData((s) => [s]),
+              quranAll: quranAll,
               editionId: _editionId,
               surah: _surah,
               ayah: _ayah,
@@ -101,9 +102,6 @@ class _TafsirExplorerPageState extends ConsumerState<TafsirExplorerPage> {
                   _editionName = name;
                 });
                 ref.refresh(tafsirForAyahProvider((_surah, _ayah, id)).future);
-                ref.refresh(
-                  quranSurahProvider((_surah, 'quran-uthmani')).future,
-                );
               },
               onSurahChange: (v, _) {
                 setState(() {
@@ -111,9 +109,6 @@ class _TafsirExplorerPageState extends ConsumerState<TafsirExplorerPage> {
                   _ayah = 1;
                 });
                 if (_editionId != null) {
-                  ref.refresh(
-                    quranSurahProvider((_surah, 'quran-uthmani')).future,
-                  );
                   ref.refresh(
                     tafsirForAyahProvider((_surah, _ayah, _editionId!)).future,
                   );
