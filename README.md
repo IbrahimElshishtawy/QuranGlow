@@ -1,98 +1,196 @@
 <div align="center">
 
+<br>
+
 <img src="quranglow/assets/iosn/icongrowquran.jpg" alt="QuranGlow Logo" width="120" />
+
+<br><br>
 
 # QuranGlow
 
-**تطبيق قرآني متكامل يجمع بين القراءة، الاستماع، التفسير، الأذكار، القبلة، والتنزيلات في تجربة واحدة أنيقة وسريعة.**
+#### تطبيق قرآني متكامل — اقرأ · استمع · تدبّر · تابع
 
-[![Latest Release](https://img.shields.io/github/v/release/IbrahimElshishtawy/QuranGlow?display_name=tag&style=for-the-badge&color=c9a84c&labelColor=074f4f)](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest)
-[![Download APK](https://img.shields.io/badge/Download-APK-0f766e?style=for-the-badge&logo=android&logoColor=white)](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest/download/app-release.apk)
-[![Flutter](https://img.shields.io/badge/Built%20with-Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
-[![Platform](https://img.shields.io/badge/Platform-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/IbrahimElshishtawy/QuranGlow/releases)
+<br>
+
+[![Release](https://img.shields.io/github/v/release/IbrahimElshishtawy/QuranGlow?display_name=tag&style=flat-square&color=c9a84c&labelColor=074f4f&label=Latest)](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest)
+[![Download APK](https://img.shields.io/badge/Download_APK-0f766e?style=flat-square&logo=android&logoColor=white)](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest/download/app-release.apk)
+[![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat-square&logo=flutter&logoColor=white)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat-square&logo=dart&logoColor=white)](https://dart.dev)
+[![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat-square&logo=firebase&logoColor=black)](https://firebase.google.com)
+[![Android](https://img.shields.io/badge/Android-3DDC84?style=flat-square&logo=android&logoColor=white)](https://github.com/IbrahimElshishtawy/QuranGlow/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+
+<br>
+
+[تحميل التطبيق](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest/download/app-release.apk) · [آخر إصدار](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest) · [الإبلاغ عن مشكلة](https://github.com/IbrahimElshishtawy/QuranGlow/issues/new) · [اقتراح ميزة](https://github.com/IbrahimElshishtawy/QuranGlow/issues/new?template=feature_request.md)
+
+<br>
 
 </div>
 
 ---
 
-## 📖 عن التطبيق
+## 📌 نظرة عامة
 
-**QuranGlow** ليس مجرد قارئ للمصحف، بل مساحة يومية متكاملة تساعد المستخدم على القراءة والتدبر والاستماع والمتابعة بشكل منظم وسهل.
+**QuranGlow** ليس مجرد قارئ للمصحف — بل مساحة يومية متكاملة تُرافقك في رحلتك مع القرآن الكريم.
 
----
-
-## ✨ المميزات الرئيسية
-
-| الميزة | الوصف |
-|--------|-------|
-| 📖 **المصحف** | تصفح وقراءة القرآن بواجهة عربية حديثة |
-| 💡 **التفسير** | استعراض تفسير الآيات من داخل التطبيق |
-| 🎵 **الصوتيات** | تشغيل التلاوات وإدارة التنزيلات |
-| 🔍 **البحث** | الوصول السريع إلى السور والآيات والمحتوى |
-| 📿 **الأذكار** | أذكار يومية مع سبحة رقمية |
-| 🧭 **القبلة** | تحديد اتجاه القبلة من داخل التطبيق |
-| 📊 **الإحصاءات** | متابعة الأهداف والتقدم والاستخدام |
-| 🔔 **الإشعارات** | تذكيرات وتنبيهات قابلة للإدارة |
-
----
-
-## 📥 التحميل
-
-حمّل آخر نسخة مباشرة من GitHub Releases:
-
-- [**تحميل APK مباشرة**](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest/download/app-release.apk)
-- [**فتح صفحة آخر إصدار**](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest)
-
-> **ملاحظة:** ارفع ملف الـ APK في كل Release باسم `app-release.apk` حتى يعمل رابط التحميل المباشر تلقائياً.
-
----
-
-## 🚀 التشغيل محلياً
-
-```bash
-# تثبيت المكتبات
-flutter pub get
-
-# تشغيل التطبيق
-flutter run
-```
-
-### نشر نسخة Release على GitHub
-
-```bash
-# بناء نسخة الإصدار
-flutter build apk --release
-```
-
-ثم:
-
-1. افتح صفحة **Releases** في GitHub
-2. أنشئ **New release**
-3. ارفع الملف من `build/app/outputs/flutter-apk/app-release.apk`
-4. اتركه باسم `app-release.apk` دون تغيير
-5. انشر الـ Release
-
----
-
-## 🛠️ التقنيات المستخدمة
-
-- [Flutter](https://flutter.dev)
-- [Riverpod](https://riverpod.dev)
-- [Hive](https://docs.hivedb.dev)
-- [Firebase](https://firebase.google.com)
-- [Just Audio](https://pub.dev/packages/just_audio)
-- [Flutter Local Notifications](https://pub.dev/packages/flutter_local_notifications)
+صُمّم ليجمع كل ما تحتاجه في مكان واحد: قراءة سلسة، تلاوات عالية الجودة، تفسير فوري، أذكار يومية، اتجاه القبلة، وإحصاءات ذكية لمتابعة تقدّمك كل يوم — كل ذلك بتجربة أنيقة وسريعة.
 
 ---
 
 ## 📸 لقطات الشاشة
 
-*قريباً — يمكن إضافة الصور داخل مجلد `docs/screenshots/`*
+<div align="center">
+
+| الرئيسية | المصحف | التفسير | المشغل | الأذكار |
+|:---:|:---:|:---:|:---:|:---:|
+| *قريباً* | *قريباً* | *قريباً* | *قريباً* | *قريباً* |
+
+> 📂 لإضافة الصور: ضعها في `docs/screenshots/` ثم استبدل *قريباً* بـ `<img src="docs/screenshots/home.jpg" width="160"/>`
+
+</div>
+
+---
+
+## ✨ المميزات
+
+<table>
+<tr>
+<td width="50%">
+
+### 📖 المصحف
+واجهة قراءة عربية حديثة وسلسة مع دعم كامل للتنقل بين السور والآيات وحفظ المحفوظات.
+
+### 💡 التفسير
+اعرض تفسير أي آية فوراً من داخل شاشة القراءة مباشرةً دون أي انتقال.
+
+### 🎵 الصوتيات
+استمع لتلاوات عالية الجودة مع إمكانية التنزيل للاستماع بدون إنترنت.
+
+### 🔍 البحث
+وصول سريع للسور والآيات والمحتوى مع محفوظات للرجوع السريع.
+
+</td>
+<td width="50%">
+
+### 📿 الأذكار
+أذكار الصباح والمساء مع سبحة رقمية تفاعلية.
+
+### 🧭 اتجاه القبلة
+تحديد اتجاه القبلة بدقة ومواقيت الصلاة من داخل التطبيق.
+
+### 📊 الأهداف والإحصاءات
+تابع تقدّمك اليومي وحقق أهدافك مع نظام ذكي للإحصاءات والمتابعة.
+
+### 🔔 الإشعارات الذكية
+تذكيرات قابلة للتخصيص الكامل مدعومة بـ Firebase لضمان الاستمرارية.
+
+</td>
+</tr>
+</table>
+
+---
+
+## 📥 التحميل
+
+| الطريقة | الرابط |
+|---------|--------|
+| ⬇️ تحميل APK مباشرة | [app-release.apk](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest/download/app-release.apk) |
+| 🏷️ صفحة الإصدارات | [GitHub Releases](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest) |
+
+> **تنبيه:** عند رفع إصدار جديد، تأكد من تسمية الملف `app-release.apk` بالضبط حتى يعمل رابط التحميل تلقائياً.
+
+---
+
+## 🛠️ التقنيات المستخدمة
+
+| التقنية | الاستخدام |
+|---------|-----------|
+| [Flutter](https://flutter.dev) | إطار العمل الأساسي للتطبيق |
+| [Riverpod](https://riverpod.dev) | إدارة الحالة |
+| [Hive](https://docs.hivedb.dev) | التخزين المحلي السريع |
+| [Firebase](https://firebase.google.com) | الإشعارات والمزامنة السحابية |
+| [Just Audio](https://pub.dev/packages/just_audio) | تشغيل التلاوات الصوتية |
+| [Flutter Local Notifications](https://pub.dev/packages/flutter_local_notifications) | الإشعارات المحلية |
+
+---
+
+## 🚀 التشغيل محلياً
+
+### المتطلبات
+
+- Flutter SDK `>=3.0.0`
+- Dart `>=3.0.0`
+- Android SDK
+
+### الخطوات
+
+```bash
+# 1. استنساخ المستودع
+git clone https://github.com/IbrahimElshishtawy/QuranGlow.git
+cd QuranGlow
+
+# 2. تثبيت المكتبات
+flutter pub get
+
+# 3. تشغيل التطبيق
+flutter run
+```
+
+### بناء نسخة الإصدار
+
+```bash
+flutter build apk --release
+```
+
+الملف الناتج في:
+```
+build/app/outputs/flutter-apk/app-release.apk
+```
+
+---
+
+## 📦 نشر إصدار جديد على GitHub
+
+```bash
+flutter build apk --release
+```
+
+1. افتح صفحة **Releases** في المستودع
+2. أنشئ **New release** وحدد الـ tag
+3. ارفع الملف من `build/app/outputs/flutter-apk/` باسم `app-release.apk`
+4. انشر الـ Release ✅
+
+---
+
+## 🤝 المساهمة
+
+المساهمات مرحّب بها! إليك كيفية المشاركة:
+
+1. **Fork** المستودع
+2. أنشئ branch جديد: `git checkout -b feature/اسم-الميزة`
+3. طبّق تغييراتك وـ commit: `git commit -m 'إضافة ميزة جديدة'`
+4. ادفع التغييرات: `git push origin feature/اسم-الميزة`
+5. افتح **Pull Request**
+
+> يُرجى فتح [Issue](https://github.com/IbrahimElshishtawy/QuranGlow/issues) أولاً لمناقشة أي تغيير جوهري.
+
+---
+
+## 📄 الترخيص
+
+هذا المشروع مرخّص تحت رخصة [MIT](LICENSE) — يمكنك الاستخدام والتعديل والتوزيع بحرية.
 
 ---
 
 <div align="center">
 
-صُنع بـ ❤️ باستخدام Flutter
+<br>
+
+صُنع بـ ❤️ و [Flutter](https://flutter.dev)
+
+<br>
+
+⭐ أعجبك المشروع؟ لا تنسَ تضغط Star!
 
 </div>
