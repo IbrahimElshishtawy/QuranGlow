@@ -6,14 +6,12 @@ class AboutContactTile extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.value,
-    required this.onCopy,
     this.onOpen,
   });
 
   final IconData icon;
   final String title;
   final String value;
-  final VoidCallback onCopy;
   final VoidCallback? onOpen;
 
   @override
@@ -30,7 +28,7 @@ class AboutContactTile extends StatelessWidget {
           border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
               width: 46,
@@ -55,8 +53,10 @@ class AboutContactTile extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  SelectableText(
+                  Text(
                     value,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: cs.onSurfaceVariant,
                       fontSize: 12,
@@ -64,23 +64,17 @@ class AboutContactTile extends StatelessWidget {
                       height: 1.45,
                     ),
                   ),
-                  if (onOpen != null) ...[
-                    const SizedBox(height: 10),
-                    FilledButton.tonalIcon(
-                      onPressed: onOpen,
-                      icon: const Icon(Icons.open_in_new_rounded),
-                      label: const Text('فتح الرابط'),
-                    ),
-                  ],
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            IconButton.filledTonal(
-              tooltip: 'نسخ',
-              onPressed: onCopy,
-              icon: const Icon(Icons.content_copy_rounded),
-            ),
+            if (onOpen != null) ...[
+              const SizedBox(width: 8),
+              IconButton.filledTonal(
+                tooltip: 'فتح',
+                onPressed: onOpen,
+                icon: const Icon(Icons.open_in_new_rounded),
+              ),
+            ],
           ],
         ),
       ),

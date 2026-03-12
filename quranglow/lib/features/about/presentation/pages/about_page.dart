@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:quranglow/core/widgets/pro_app_bar.dart';
 import 'package:quranglow/features/about/presentation/widgets/about_contact_tile.dart';
 import 'package:quranglow/features/about/presentation/widgets/about_feature_tile.dart';
@@ -74,54 +73,48 @@ class AboutPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              AboutSectionCard(
+              const AboutSectionCard(
                 title: 'عن المطور',
                 subtitle: 'تم تطوير QuranGlow بعناية ليكون قريبًا من روح التطبيق وهدوئه.',
                 child: AboutContactTile(
                   icon: Icons.person_rounded,
                   title: _developerName,
                   value: 'Flutter Developer',
-                  onCopy: () => _copy(context, _developerName, 'اسم المطور'),
                 ),
               ),
               const SizedBox(height: 16),
               AboutSectionCard(
                 title: 'التواصل',
-                subtitle: 'يمكنك نسخ البيانات أو فتح الروابط مباشرة من داخل التطبيق.',
+                subtitle: 'افتح صفحات التواصل مباشرة من الأيقونات الجانبية.',
                 child: Column(
                   children: [
-                    AboutContactTile(
+                    const AboutContactTile(
                       icon: Icons.phone_rounded,
                       title: 'رقم الهاتف',
                       value: _phone,
-                      onCopy: () => _copy(context, _phone, 'رقم الهاتف'),
                     ),
                     AboutContactTile(
                       icon: Icons.facebook_rounded,
                       title: 'Facebook',
                       value: _facebook,
-                      onCopy: () => _copy(context, _facebook, 'رابط Facebook'),
                       onOpen: () => _openLink(context, _facebook, 'Facebook'),
                     ),
                     AboutContactTile(
                       icon: Icons.work_rounded,
                       title: 'LinkedIn',
                       value: _linkedin,
-                      onCopy: () => _copy(context, _linkedin, 'رابط LinkedIn'),
                       onOpen: () => _openLink(context, _linkedin, 'LinkedIn'),
                     ),
                     AboutContactTile(
                       icon: Icons.camera_alt_rounded,
                       title: 'Instagram',
                       value: _instagram,
-                      onCopy: () => _copy(context, _instagram, 'رابط Instagram'),
                       onOpen: () => _openLink(context, _instagram, 'Instagram'),
                     ),
                     AboutContactTile(
                       icon: Icons.code_rounded,
                       title: 'GitHub',
                       value: _github,
-                      onCopy: () => _copy(context, _github, 'رابط GitHub'),
                       onOpen: () => _openLink(context, _github, 'GitHub'),
                     ),
                   ],
@@ -145,18 +138,6 @@ class AboutPage extends StatelessWidget {
         'Instagram: $_instagram',
         'GitHub: $_github',
       ].join('\n');
-
-  static Future<void> _copy(
-    BuildContext context,
-    String value,
-    String label,
-  ) async {
-    await Clipboard.setData(ClipboardData(text: value));
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('تم نسخ $label')));
-  }
 
   static Future<void> _openLink(
     BuildContext context,
