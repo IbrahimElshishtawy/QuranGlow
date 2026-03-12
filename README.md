@@ -1,103 +1,819 @@
-# QuranGlow
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuranGlow</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@300;400;600;700;900&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-pale: #f5e6b8;
+    --teal: #0d6e6e;
+    --teal-deep: #074f4f;
+    --teal-light: #1a9898;
+    --ink: #0a0f0f;
+    --cream: #faf7f0;
+    --cream-dark: #f0ebe0;
+    --text-main: #1a1a2e;
+    --text-muted: #5a6472;
+  }
 
-<div align="center">
-  <img src="assets/iosn/icongrowquran.jpg" alt="QuranGlow Logo" width="120" />
-  <h1>QuranGlow</h1>
-  <p>تطبيق قرآني حديث يجمع بين القراءة، الاستماع، التفسير، الأذكار، القبلة، والتنزيلات في تجربة واحدة أنيقة وسريعة.</p>
-  <p>
-    <a href="https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest"><img alt="Latest Release" src="https://img.shields.io/github/v/release/IbrahimElshishtawy/QuranGlow?display_name=tag&style=for-the-badge"></a>
-    <a href="https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest/download/app-release.apk"><img alt="Download APK" src="https://img.shields.io/badge/Download-APK-0f766e?style=for-the-badge&logo=android"></a>
-    <a href="#-التشغيل-محلياً"><img alt="Flutter" src="https://img.shields.io/badge/Built%20with-Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white"></a>
-  </p>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--cream);
+    color: var(--text-main);
+    overflow-x: hidden;
+  }
+
+  /* ─── Geometric Pattern BG ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(201,168,76,0.07) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(13,110,110,0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 24px;
+    overflow: hidden;
+  }
+
+  .hero-pattern {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(135deg, var(--teal-deep) 0%, #0a1a1a 40%, #0f2020 70%, var(--teal-deep) 100%);
+    z-index: 0;
+  }
+
+  /* Geometric lattice SVG overlay */
+  .hero-pattern::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23c9a84c' stroke-width='0.4' opacity='0.18'%3E%3Cpolygon points='40,4 76,22 76,58 40,76 4,58 4,22'/%3E%3Cpolygon points='40,14 66,26 66,54 40,66 14,54 14,26'/%3E%3Cline x1='40' y1='4' x2='40' y2='14'/%3E%3Cline x1='76' y1='22' x2='66' y2='26'/%3E%3Cline x1='76' y1='58' x2='66' y2='54'/%3E%3Cline x1='40' y1='76' x2='40' y2='66'/%3E%3Cline x1='4' y1='58' x2='14' y2='54'/%3E%3Cline x1='4' y1='22' x2='14' y2='26'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 80px 80px;
+  }
+
+  .hero-content { position: relative; z-index: 1; }
+
+  /* Glowing orb behind logo */
+  .logo-orb {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,168,76,0.25) 0%, transparent 70%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    position: relative;
+    animation: pulse-orb 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-orb {
+    0%, 100% { box-shadow: 0 0 30px rgba(201,168,76,0.2), 0 0 60px rgba(201,168,76,0.08); }
+    50% { box-shadow: 0 0 50px rgba(201,168,76,0.35), 0 0 100px rgba(201,168,76,0.15); }
+  }
+
+  .logo-icon {
+    width: 90px;
+    height: 90px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, var(--gold) 0%, #a07830 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 46px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    border: 1.5px solid rgba(201,168,76,0.4);
+  }
+
+  .app-name {
+    font-family: 'Amiri', serif;
+    font-size: clamp(42px, 8vw, 72px);
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    text-shadow: 0 0 40px rgba(201,168,76,0.3);
+    animation: fade-up 0.8s ease both;
+  }
+
+  .app-name-ar {
+    font-family: 'Amiri', serif;
+    font-size: clamp(20px, 4vw, 32px);
+    color: rgba(201,168,76,0.7);
+    margin-bottom: 24px;
+    animation: fade-up 0.9s ease both;
+  }
+
+  .hero-tagline {
+    font-size: clamp(15px, 2.5vw, 20px);
+    color: rgba(250,247,240,0.8);
+    max-width: 620px;
+    line-height: 1.9;
+    font-weight: 300;
+    margin-bottom: 40px;
+    animation: fade-up 1s ease both;
+  }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Badges */
+  .badges {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+    animation: fade-up 1.1s ease both;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-gold {
+    background: linear-gradient(135deg, var(--gold) 0%, #a07830 100%);
+    color: var(--ink);
+    box-shadow: 0 4px 16px rgba(201,168,76,0.35);
+  }
+
+  .badge-gold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(201,168,76,0.5);
+  }
+
+  .badge-outline {
+    background: rgba(255,255,255,0.07);
+    color: var(--gold-pale);
+    border: 1px solid rgba(201,168,76,0.35);
+    backdrop-filter: blur(8px);
+  }
+
+  .badge-outline:hover {
+    background: rgba(201,168,76,0.12);
+    border-color: rgba(201,168,76,0.6);
+  }
+
+  /* Scroll indicator */
+  .scroll-hint {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(201,168,76,0.5);
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    animation: bounce 2s ease infinite;
+    z-index: 1;
+  }
+
+  .scroll-hint::after {
+    content: '⌄';
+    font-size: 22px;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
+  }
+
+  /* ─── SECTION WRAPPER ─── */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 80px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--teal-light);
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-family: 'Amiri', serif;
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 16px;
+    line-height: 1.3;
+  }
+
+  .section-subtitle {
+    font-size: 16px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    max-width: 600px;
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.3;
+    margin: 0 auto;
+  }
+
+  /* ─── WHY SECTION ─── */
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-top: 48px;
+  }
+
+  .why-card {
+    background: white;
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 16px;
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .why-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 60px; height: 60px;
+    background: radial-gradient(circle at top right, rgba(201,168,76,0.12), transparent);
+    border-radius: 0 16px 0 60px;
+  }
+
+  .why-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+  }
+
+  .why-icon {
+    font-size: 28px;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .why-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--teal-deep);
+    margin-bottom: 8px;
+  }
+
+  .why-card p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  /* ─── FEATURES TABLE ─── */
+  .features-section {
+    background: linear-gradient(135deg, var(--teal-deep) 0%, #0a1818 100%);
+    padding: 80px 0;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .features-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='20' fill='none' stroke='%23c9a84c' stroke-width='0.3' opacity='0.12'/%3E%3Ccircle cx='30' cy='30' r='10' fill='none' stroke='%23c9a84c' stroke-width='0.3' opacity='0.12'/%3E%3C/svg%3E");
+    background-size: 60px 60px;
+  }
+
+  .features-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .features-inner .section-title { color: var(--gold-light); }
+  .features-inner .section-label { color: var(--teal-light); }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 48px;
+  }
+
+  .feature-tile {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 14px;
+    padding: 24px 20px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    transition: all 0.25s ease;
+    cursor: default;
+  }
+
+  .feature-tile:hover {
+    background: rgba(201,168,76,0.1);
+    border-color: rgba(201,168,76,0.45);
+    transform: translateY(-3px);
+  }
+
+  .feature-tile .f-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .feature-tile h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--gold-light);
+    margin-bottom: 8px;
+  }
+
+  .feature-tile p {
+    font-size: 13px;
+    color: rgba(250,247,240,0.6);
+    line-height: 1.6;
+  }
+
+  /* ─── TECH STACK ─── */
+  .tech-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 40px;
+    justify-content: center;
+  }
+
+  .tech-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: 1.5px solid var(--cream-dark);
+    border-radius: 100px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--teal-deep);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  .tech-pill:hover {
+    border-color: var(--teal-light);
+    background: var(--teal-deep);
+    color: var(--gold-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(13,110,110,0.2);
+  }
+
+  .tech-pill .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  /* ─── DOWNLOAD SECTION ─── */
+  .download-section {
+    background: linear-gradient(135deg, #fffdf5, var(--cream-dark));
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 24px;
+    padding: 60px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin: 0 24px;
+  }
+
+  .download-section::before {
+    content: '﷽';
+    position: absolute;
+    font-family: 'Amiri', serif;
+    font-size: 200px;
+    color: rgba(201,168,76,0.04);
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .download-section .section-title {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+
+  .download-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 36px;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--teal-deep) 0%, var(--teal) 100%);
+    color: var(--gold-light);
+    padding: 16px 36px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1.5px solid rgba(201,168,76,0.3);
+    box-shadow: 0 6px 24px rgba(13,110,110,0.3);
+    transition: all 0.25s ease;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 36px rgba(13,110,110,0.45);
+    border-color: var(--gold);
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    color: var(--teal-deep);
+    padding: 16px 36px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1.5px solid rgba(13,110,110,0.3);
+    transition: all 0.25s ease;
+  }
+
+  .btn-secondary:hover {
+    background: rgba(13,110,110,0.05);
+    border-color: var(--teal);
+    transform: translateY(-3px);
+  }
+
+  /* ─── CODE BLOCK ─── */
+  .code-section {
+    background: var(--ink);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-top: 32px;
+    border: 1px solid rgba(201,168,76,0.15);
+  }
+
+  .code-header {
+    background: rgba(255,255,255,0.04);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .code-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .code-dot:nth-child(1) { background: #ff5f57; }
+  .code-dot:nth-child(2) { background: #febc2e; }
+  .code-dot:nth-child(3) { background: #28c840; }
+
+  .code-label {
+    margin-right: auto;
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    font-family: monospace;
+  }
+
+  .code-body {
+    padding: 24px 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    color: rgba(255,255,255,0.85);
+    direction: ltr;
+    text-align: left;
+  }
+
+  .code-body .cmd { color: #7dd3fc; }
+  .code-body .comment { color: rgba(255,255,255,0.3); font-style: italic; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--ink);
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    padding: 48px 24px;
+    position: relative;
+    z-index: 1;
+    font-size: 14px;
+    line-height: 2;
+  }
+
+  footer .footer-logo {
+    font-family: 'Amiri', serif;
+    font-size: 28px;
+    color: var(--gold);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  footer a { color: rgba(201,168,76,0.7); text-decoration: none; }
+  footer a:hover { color: var(--gold); }
+
+  /* ─── ANIMATIONS ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    .download-section { padding: 40px 24px; margin: 0 12px; }
+    section { padding: 60px 16px; }
+    .features-inner { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<div class="hero">
+  <div class="hero-pattern"></div>
+  <div class="hero-content">
+    <div class="logo-orb">
+      <div class="logo-icon">📖</div>
+    </div>
+
+    <h1 class="app-name">QuranGlow</h1>
+    <p class="app-name-ar">نور القرآن في يدك</p>
+
+    <p class="hero-tagline">
+      تطبيق قرآني متكامل يجمع بين القراءة والاستماع والتفسير والأذكار<br>
+      واتجاه القبلة وتنزيل التلاوات — في تجربة واحدة أنيقة وسريعة
+    </p>
+
+    <div class="badges">
+      <a href="https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest/download/app-release.apk" class="badge badge-gold">
+        📥 تحميل APK
+      </a>
+      <a href="https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest" class="badge badge-outline">
+        🏷️ آخر إصدار
+      </a>
+      <a href="#local-run" class="badge badge-outline">
+        🛠️ تشغيل محلي
+      </a>
+    </div>
+
+    <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+      <img src="https://img.shields.io/github/v/release/IbrahimElshishtawy/QuranGlow?display_name=tag&style=for-the-badge&color=c9a84c&labelColor=074f4f" alt="Release" style="height:28px; border-radius:6px;">
+      <img src="https://img.shields.io/badge/Built%20with-Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" alt="Flutter" style="height:28px; border-radius:6px;">
+      <img src="https://img.shields.io/badge/Platform-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android" style="height:28px; border-radius:6px;">
+    </div>
+  </div>
+  <div class="scroll-hint">اكتشف المزيد</div>
 </div>
 
-## لماذا QuranGlow؟
+<!-- ═══════════════ WHY SECTION ═══════════════ -->
+<section class="reveal">
+  <p class="section-label">لماذا QuranGlow؟</p>
+  <h2 class="section-title">أكثر من مجرد قارئ للمصحف</h2>
+  <p class="section-subtitle">
+    QuranGlow مساحة يومية متكاملة تساعدك على القراءة والتدبر والاستماع<br>والمتابعة بشكل منظم وسهل كل يوم.
+  </p>
 
-`QuranGlow` ليس مجرد قارئ للمصحف، بل مساحة يومية متكاملة تساعد المستخدم على القراءة والتدبر والاستماع والمتابعة بشكل منظم وسهل.
+  <div class="why-grid">
+    <div class="why-card">
+      <span class="why-icon">🕌</span>
+      <h3>مصحف واضح وأنيق</h3>
+      <p>تجربة قراءة مريحة بواجهة عربية حديثة تناسب جميع الأعمار</p>
+    </div>
+    <div class="why-card">
+      <span class="why-icon">🎧</span>
+      <h3>مشغل صوتي متكامل</h3>
+      <p>استمع للتلاوات ونزّل المقاطع للاستماع بدون إنترنت</p>
+    </div>
+    <div class="why-card">
+      <span class="why-icon">📚</span>
+      <h3>تفسير لحظي</h3>
+      <p>فهم معنى الآية في ثوانٍ دون مغادرة شاشة القراءة</p>
+    </div>
+    <div class="why-card">
+      <span class="why-icon">🧭</span>
+      <h3>قبلة وأوقات الصلاة</h3>
+      <p>معرفة اتجاه القبلة وأوقات الصلاة من داخل التطبيق مباشرةً</p>
+    </div>
+    <div class="why-card">
+      <span class="why-icon">📊</span>
+      <h3>أهداف وإحصاءات</h3>
+      <p>تابع مسيرتك اليومية وحقق أهدافك بنظام ذكي للتتبع</p>
+    </div>
+    <div class="why-card">
+      <span class="why-icon">🔔</span>
+      <h3>إشعارات ذكية</h3>
+      <p>تذكيرات قابلة للإدارة مدعومة بـ Firebase لضمان الاستمرارية</p>
+    </div>
+  </div>
+</section>
 
-- مصحف واضح وتجربة قراءة مريحة.
-- مشغل صوتي لتلاوات القرآن مع إمكانيات تنزيل المقاطع.
-- تفسير للآيات للوصول إلى المعنى بسرعة.
-- أذكار وتسبيح ضمن التطبيق.
-- اتجاه القبلة ومواقيت الصلاة.
-- بحث داخل المحتوى ومحفوظات للرجوع السريع.
-- أهداف وإحصاءات لمتابعة الاستمرار اليومي.
-- إشعارات ومزامنة مدعومة بـ Firebase.
+<div class="divider"></div>
 
-## المميزات الرئيسية
+<!-- ═══════════════ FEATURES ═══════════════ -->
+<div class="features-section">
+  <div class="features-inner reveal">
+    <p class="section-label">المميزات الرئيسية</p>
+    <h2 class="section-title">كل ما تحتاجه في مكان واحد</h2>
 
-| الميزة | الوصف |
-| --- | --- |
-| المصحف | تصفح وقراءة القرآن بواجهة عربية حديثة |
-| التفسير | استعراض تفسير الآيات من داخل التطبيق |
-| الصوتيات | تشغيل التلاوات وإدارة التنزيلات |
-| البحث | الوصول السريع إلى السور والآيات والمحتوى |
-| الأذكار | أذكار يومية مع سبحة رقمية |
-| القبلة | تحديد اتجاه القبلة من داخل التطبيق |
-| الإحصاءات | متابعة الأهداف والتقدم والاستخدام |
-| الإشعارات | تذكيرات وتنبيهات قابلة للإدارة |
+    <div class="features-grid">
+      <div class="feature-tile">
+        <span class="f-icon">📖</span>
+        <h4>المصحف</h4>
+        <p>تصفح وقراءة القرآن بواجهة عربية حديثة وسلسة</p>
+      </div>
+      <div class="feature-tile">
+        <span class="f-icon">💡</span>
+        <h4>التفسير</h4>
+        <p>استعراض تفسير الآيات من داخل التطبيق مباشرة</p>
+      </div>
+      <div class="feature-tile">
+        <span class="f-icon">🎵</span>
+        <h4>الصوتيات</h4>
+        <p>تشغيل التلاوات وإدارة التنزيلات للاستماع offline</p>
+      </div>
+      <div class="feature-tile">
+        <span class="f-icon">🔍</span>
+        <h4>البحث</h4>
+        <p>وصول سريع للسور والآيات والمحتوى بكل سهولة</p>
+      </div>
+      <div class="feature-tile">
+        <span class="f-icon">📿</span>
+        <h4>الأذكار</h4>
+        <p>أذكار يومية مع سبحة رقمية تفاعلية</p>
+      </div>
+      <div class="feature-tile">
+        <span class="f-icon">🧭</span>
+        <h4>القبلة</h4>
+        <p>تحديد اتجاه القبلة بدقة من داخل التطبيق</p>
+      </div>
+      <div class="feature-tile">
+        <span class="f-icon">📈</span>
+        <h4>الإحصاءات</h4>
+        <p>متابعة الأهداف والتقدم والاستخدام اليومي</p>
+      </div>
+      <div class="feature-tile">
+        <span class="f-icon">🔔</span>
+        <h4>الإشعارات</h4>
+        <p>تذكيرات وتنبيهات قابلة للتخصيص الكامل</p>
+      </div>
+    </div>
+  </div>
+</div>
 
-## التحميل
+<!-- ═══════════════ TECH STACK ═══════════════ -->
+<section class="reveal" style="text-align:center;">
+  <p class="section-label">التقنيات المستخدمة</p>
+  <h2 class="section-title">بُني بأحدث التقنيات</h2>
+  <p class="section-subtitle" style="margin: 0 auto;">
+    نُخبة من المكتبات والأطر البرمجية الموثوقة لضمان أداء سلس وتجربة استثنائية.
+  </p>
 
-يمكن تحميل آخر نسخة مباشرة من GitHub Releases:
+  <div class="tech-pills">
+    <div class="tech-pill"><span class="dot"></span> Flutter</div>
+    <div class="tech-pill"><span class="dot"></span> Riverpod</div>
+    <div class="tech-pill"><span class="dot"></span> Hive</div>
+    <div class="tech-pill"><span class="dot"></span> Firebase</div>
+    <div class="tech-pill"><span class="dot"></span> Just Audio</div>
+    <div class="tech-pill"><span class="dot"></span> Flutter Local Notifications</div>
+    <div class="tech-pill"><span class="dot"></span> Dart</div>
+  </div>
+</section>
 
-- [تحميل APK مباشرة](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest/download/app-release.apk)
-- [فتح صفحة آخر إصدار](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest)
+<div class="divider"></div>
 
-حتى يعمل رابط التحميل المباشر بشكل صحيح، ارفع ملف الـ APK في كل Release بهذا الاسم بالضبط:
+<!-- ═══════════════ LOCAL RUN ═══════════════ -->
+<section class="reveal" id="local-run">
+  <p class="section-label">للمطورين</p>
+  <h2 class="section-title">التشغيل محلياً</h2>
+  <p class="section-subtitle">بضع خطوات وتطبيقك يعمل على جهازك</p>
 
-`app-release.apk`
+  <div class="code-section" style="direction:ltr; max-width:600px; margin-top:32px;">
+    <div class="code-header">
+      <div class="code-dot"></div>
+      <div class="code-dot"></div>
+      <div class="code-dot"></div>
+      <span class="code-label">terminal</span>
+    </div>
+    <div class="code-body">
+      <span class="comment"># 1. تثبيت المكتبات</span><br>
+      <span class="cmd">flutter pub get</span><br><br>
+      <span class="comment"># 2. تشغيل التطبيق</span><br>
+      <span class="cmd">flutter run</span><br><br>
+      <span class="comment"># 3. بناء نسخة الإصدار</span><br>
+      <span class="cmd">flutter build apk --release</span>
+    </div>
+  </div>
 
-الملف الجاهز لديك حالياً موجود هنا:
+  <p style="margin-top:24px; font-size:14px; color:var(--text-muted); line-height:1.8;">
+    بعد البناء، ستجد ملف الـ APK في:<br>
+    <code style="background:var(--cream-dark); padding:4px 10px; border-radius:6px; font-family:monospace; color:var(--teal-deep);">build/app/outputs/flutter-apk/app-release.apk</code>
+  </p>
+</section>
 
-`build/app/outputs/flutter-apk/app-release.apk`
+<!-- ═══════════════ DOWNLOAD CTA ═══════════════ -->
+<div style="max-width:1100px; margin:0 auto 80px; position:relative; z-index:1;">
+  <div class="download-section reveal">
+    <p class="section-label" style="color:var(--teal-light);">جاهز للبدء؟</p>
+    <h2 class="section-title">حمّل التطبيق الآن</h2>
+    <p style="color:var(--text-muted); font-size:16px; line-height:1.8; max-width:480px; margin:0 auto;">
+      تحقق من آخر إصدار على GitHub أو حمّل الـ APK مباشرة وابدأ رحلتك مع القرآن الكريم
+    </p>
 
-## كيف تنشر النسخة على GitHub
+    <div class="download-buttons">
+      <a href="https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest/download/app-release.apk" class="btn-primary">
+        📥 تحميل APK مباشرة
+      </a>
+      <a href="https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest" class="btn-secondary">
+        🏷️ صفحة الإصدارات
+      </a>
+    </div>
 
-بعد ما تجهز نسخة الـ release:
+    <p style="margin-top:24px; font-size:13px; color:var(--text-muted);">
+      ارفع الملف باسم <code style="background:rgba(13,110,110,0.08); padding:2px 8px; border-radius:4px; color:var(--teal-deep); font-family:monospace;">app-release.apk</code> حتى تعمل الروابط تلقائياً
+    </p>
+  </div>
+</div>
 
-```bash
-flutter build apk --release
-```
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer>
+  <span class="footer-logo">QuranGlow</span>
+  <div>صُنع بـ ❤️ و <a href="https://flutter.dev" target="_blank">Flutter</a></div>
+  <div style="margin-top:8px;">
+    <a href="https://github.com/IbrahimElshishtawy/QuranGlow" target="_blank">GitHub ↗</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/IbrahimElshishtawy/QuranGlow/releases" target="_blank">Releases ↗</a>
+  </div>
+  <div style="margin-top:20px; font-size:12px; opacity:0.5;">
+    ﴿ وَنَزَّلْنَا عَلَيْكَ الْكِتَابَ تِبْيَانًا لِكُلِّ شَيْءٍ ﴾
+  </div>
+</footer>
 
-ثم:
-
-1. افتح صفحة `Releases` في GitHub.
-2. أنشئ `New release`.
-3. ارفع الملف الموجود في `build/app/outputs/flutter-apk/app-release.apk`.
-4. لا تغيّر اسم الملف، واتركه `app-release.apk`.
-5. انشر الـ Release.
-
-بعدها سيعمل زر التحميل الموجود في هذا `README` تلقائياً على آخر إصدار.
-
-## لقطات مقترحة للعرض
-
-إذا أردت أن يظهر المشروع بشكل أقوى على GitHub، أضف لاحقاً صوراً من التطبيق داخل مجلد مثل `docs/screenshots/` ثم ضعها هنا. أفضل لقطات للدعاية:
-
-- الشاشة الرئيسية
-- شاشة المصحف
-- شاشة التفسير
-- شاشة المشغل والتنزيلات
-- شاشة القبلة أو الأذكار
-
-## التشغيل محلياً
-
-```bash
-flutter pub get
-flutter run
-```
-
-## التقنيات المستخدمة
-
-- Flutter
-- Riverpod
-- Hive
-- Firebase
-- Just Audio
-- Flutter Local Notifications
-
-## جاهزية README
-
-الروابط داخل هذا `README` مربوطة الآن مباشرة بالمستودع:
-
-`IbrahimElshishtawy/QuranGlow`
+<script>
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
