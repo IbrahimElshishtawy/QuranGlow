@@ -183,11 +183,25 @@ flutter build apk --release
 
 ---
 
+## 👨‍💻 المطوّر
+
+<div align="center">
+
+**إبراهيم الششتاوي**
+
+[![GitHub](https://img.shields.io/badge/GitHub-IbrahimElshishtawy-181717?style=flat-square&logo=github)](https://github.com/IbrahimElshishtawy)
+[![Email](https://img.shields.io/badge/Email-shishtawyhima@gmail.com-EA4335?style=flat-square&logo=gmail&logoColor=white)](mailto:shishtawyhima@gmail.com)
+[![Phone](https://img.shields.io/badge/Phone-01223070571-25D366?style=flat-square&logo=whatsapp&logoColor=white)](tel:+201223070571)
+
+</div>
+
+---
+
 <div align="center">
 
 <br>
 
-صُنع بـ ❤️ و [Flutter](https://flutter.dev)
+صُنع بـ ❤️ بواسطة [إبراهيم الششتاوي](https://github.com/IbrahimElshishtawy) و [Flutter](https://flutter.dev)
 
 <br>
 
