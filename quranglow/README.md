@@ -87,6 +87,40 @@ flutter pub get
 flutter run
 ```
 
+## CI/CD
+
+تم إعداد GitHub Actions داخل:
+
+- `.github/workflows/ci.yml`
+- `.github/workflows/cd.yml`
+
+السلوك الحالي:
+
+- `CI`: يعمل عند `push` و `pull_request` ويشمل:
+  - `flutter pub get`
+  - `dart format --set-exit-if-changed`
+  - `flutter analyze`
+  - `flutter test`
+  - `flutter build apk --debug`
+
+- `CD`: يعمل عند:
+  - تشغيل يدوي `workflow_dispatch`
+  - أو عند إنشاء tag مثل `v1.0.0`
+
+وفيه يتم:
+
+- تشغيل التحليل والاختبارات
+- بناء `app-release.apk`
+- رفعه كـ artifact
+- وإن كان التشغيل من tag يتم إنشاء GitHub Release وإرفاق ملف الـ APK
+
+لإطلاق نسخة جديدة:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
 ## التقنيات المستخدمة
 
 - Flutter
