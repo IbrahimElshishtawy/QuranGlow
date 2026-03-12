@@ -56,7 +56,7 @@ class DailyAyahCard extends ConsumerWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: list.length,
-              separatorBuilder: (_, __) => Divider(
+              separatorBuilder: (_, _) => Divider(
                 color: cs.outlineVariant.withValues(alpha: .6),
                 height: 22,
               ),

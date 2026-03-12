@@ -36,11 +36,13 @@ class GoalsStrip extends ConsumerWidget {
               child: Center(child: CircularProgressIndicator()),
             ),
           ),
-          error: (e, _) => HomeSurfaceCard(
-            child: Text('تعذر تحميل الأهداف: $e'),
-          ),
+          error: (e, _) =>
+              HomeSurfaceCard(child: Text('تعذر تحميل الأهداف: $e')),
           data: (goals) {
-            final list = goals.whereType<models.Goal>().where((g) => g.active).toList();
+            final list = goals
+                .whereType<models.Goal>()
+                .where((g) => g.active)
+                .toList();
             final shown = list.take(limit).toList();
             if (shown.isEmpty) {
               return HomeSurfaceCard(
@@ -49,10 +51,13 @@ class GoalsStrip extends ConsumerWidget {
                     Icon(Icons.flag_outlined, color: cs.primary),
                     const SizedBox(width: 10),
                     const Expanded(
-                      child: Text('لا توجد أهداف مفعلة بعد، ابدأ بإضافة هدف جديد'),
+                      child: Text(
+                        'لا توجد أهداف مفعلة بعد، ابدأ بإضافة هدف جديد',
+                      ),
                     ),
                     FilledButton.tonal(
-                      onPressed: () => Navigator.pushNamed(context, AppRoutes.goals),
+                      onPressed: () =>
+                          Navigator.pushNamed(context, AppRoutes.goals),
                       child: const Text('إضافة'),
                     ),
                   ],
@@ -67,7 +72,7 @@ class GoalsStrip extends ConsumerWidget {
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   itemCount: shown.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  separatorBuilder: (_, _) => const SizedBox(width: 12),
                   itemBuilder: (context, i) {
                     final goal = shown[i];
                     return GoalPill(
@@ -87,7 +92,9 @@ class GoalsStrip extends ConsumerWidget {
                         }
                       },
                       onIncreaseProgress: () async {
-                        await ref.read(di.goalsServiceProvider).increment(goal.id);
+                        await ref
+                            .read(di.goalsServiceProvider)
+                            .increment(goal.id);
                       },
                     );
                   },
