@@ -56,7 +56,7 @@ class HeroHeader extends StatelessWidget {
           SafeArea(
             bottom: false,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
+              padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
               child: Column(
                 children: [
                   Row(
@@ -82,7 +82,7 @@ class HeroHeader extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   Expanded(
                     child: Row(
                       children: [
@@ -187,7 +187,7 @@ class _MainHeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
@@ -210,10 +210,11 @@ class _MainHeroCard extends StatelessWidget {
         ],
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
             decoration: BoxDecoration(
               color: colorScheme.primary.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(999),
@@ -225,44 +226,47 @@ class _MainHeroCard extends StatelessWidget {
               style: theme.textTheme.labelMedium?.copyWith(
                 color: colorScheme.primary,
                 fontWeight: FontWeight.w900,
+                fontSize: 11,
               ),
             ),
           ),
-          const Spacer(),
           Text(
-            'افتح يومك مع القرآن بشكل أوضح وأجمل.',
-            maxLines: 2,
+            'ابدأ يومك مع القرآن بوضوح وهدوء.',
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w900,
-              height: 1.2,
+                fontWeight: FontWeight.w900,
+              height: 1.1,
+              fontSize: 15,
             ),
           ),
-          const SizedBox(height: 6),
           Text(
-            'اقرأ، استمع، تابع أهدافك، وانتقل مباشرة إلى أهم الأدوات من الصفحة الرئيسية.',
-            maxLines: 3,
+            'اقرأ واستمع وتابع أهدافك من مكان واحد.',
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.bodySmall?.copyWith(
-              height: 1.35,
+              height: 1.2,
               color: colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w600,
+              fontSize: 11,
             ),
           ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+          Row(
             children: [
-              _MiniStatChip(
-                icon: Icons.headphones_rounded,
-                label: 'استماع أسرع',
-                colorScheme: colorScheme,
+              Expanded(
+                child: _MiniStatChip(
+                  icon: Icons.headphones_rounded,
+                  label: 'استماع أسرع',
+                  colorScheme: colorScheme,
+                ),
               ),
-              _MiniStatChip(
-                icon: Icons.track_changes_rounded,
-                label: 'تقدم يومي',
-                colorScheme: colorScheme,
+              const SizedBox(width: 8),
+              Expanded(
+                child: _MiniStatChip(
+                  icon: Icons.track_changes_rounded,
+                  label: 'تقدم يومي',
+                  colorScheme: colorScheme,
+                ),
               ),
             ],
           ),
@@ -281,7 +285,7 @@ class _SideHeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
@@ -301,11 +305,12 @@ class _SideHeroCard extends StatelessWidget {
         ],
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 38,
-            height: 38,
+            width: 34,
+            height: 34,
             decoration: BoxDecoration(
               color: colorScheme.onPrimary.withValues(alpha: 0.16),
               borderRadius: BorderRadius.circular(14),
@@ -313,10 +318,9 @@ class _SideHeroCard extends StatelessWidget {
             child: Icon(
               Icons.bolt_rounded,
               color: colorScheme.onPrimary,
-              size: 20,
+              size: 18,
             ),
           ),
-          const Spacer(),
           Text(
             'ابدأ الآن',
             maxLines: 1,
@@ -324,17 +328,18 @@ class _SideHeroCard extends StatelessWidget {
             style: theme.textTheme.titleSmall?.copyWith(
               color: colorScheme.onPrimary,
               fontWeight: FontWeight.w900,
+              fontSize: 13,
             ),
           ),
-          const SizedBox(height: 4),
           Text(
-            'مصحف\nبحث\nمشغل',
-            maxLines: 3,
+            'مصحف • بحث • مشغل',
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.bodySmall?.copyWith(
               color: colorScheme.onPrimary.withValues(alpha: 0.92),
               fontWeight: FontWeight.w700,
-              height: 1.35,
+              height: 1.15,
+              fontSize: 10.5,
             ),
           ),
         ],
@@ -357,7 +362,7 @@ class _MiniStatChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(999),
@@ -365,14 +370,18 @@ class _MiniStatChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: colorScheme.primary),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              color: colorScheme.primary,
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
+          Icon(icon, size: 13, color: colorScheme.primary),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: colorScheme.primary,
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
         ],
