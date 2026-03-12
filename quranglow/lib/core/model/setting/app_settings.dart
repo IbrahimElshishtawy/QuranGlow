@@ -1,6 +1,8 @@
 // lib/core/model/app_settings.dart
 // ignore_for_file: file_names
 
+import 'package:quranglow/core/theme/theme_controller.dart';
+
 class AppSettings {
   final bool darkMode;
   final double fontScale;

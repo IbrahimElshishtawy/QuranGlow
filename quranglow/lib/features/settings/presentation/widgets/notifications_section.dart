@@ -1,13 +1,15 @@
-// lib/features/ui/pages/settings/widgets/notifications_section.dart
-// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../../core/service/setting/notification_service.dart';
+import 'package:quranglow/core/service/setting/daily_reminder_kind.dart';
+import 'package:quranglow/core/service/setting/notification_service.dart';
+
 import 'settings_providers.dart';
 
 class NotificationsSection extends ConsumerStatefulWidget {
   const NotificationsSection({super.key});
+
   @override
   ConsumerState<NotificationsSection> createState() =>
       _NotificationsSectionState();
@@ -16,13 +18,37 @@ class NotificationsSection extends ConsumerStatefulWidget {
 class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
   late final ProviderSubscription<bool> _dailyEnabledSub;
   late final ProviderSubscription<TimeOfDay> _dailyTimeSub;
+  late final ProviderSubscription<DailyReminderKind> _dailyKindSub;
   late final ProviderSubscription<bool> _salawatEnabledSub;
   late final ProviderSubscription<TimeOfDay> _salawatTimeSub;
+
+  String _kindLabel(DailyReminderKind kind) {
+    switch (kind) {
+      case DailyReminderKind.quran:
+        return 'تلاوة القرآن';
+      case DailyReminderKind.adhan:
+        return 'الاستعداد للصلاة';
+      case DailyReminderKind.dhikr:
+        return 'الأذكار';
+    }
+  }
 
   void _snack(String s, {Color? bg}) {
     final cs = Theme.of(context).colorScheme;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(s), backgroundColor: bg ?? cs.primary),
+    );
+  }
+
+  Future<void> _rescheduleDaily() async {
+    final enabled = ref.read(notificationsEnabledProvider);
+    final time = ref.read(reminderTimeProvider);
+    final kind = ref.read(dailyReminderKindProvider);
+
+    await NotificationService.instance.scheduleDailyReminder(
+      enabled: enabled,
+      time: time,
+      kind: kind,
     );
   }
 
@@ -35,15 +61,11 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
       enabled,
     ) async {
       try {
-        final t = ref.read(reminderTimeProvider);
-        await NotificationService.instance.scheduleDailyReminder(
-          enabled: enabled,
-          time: t,
-        );
+        await _rescheduleDaily();
         _snack(enabled ? 'تم تفعيل التذكير اليومي' : 'تم إيقاف التذكير اليومي');
       } catch (e) {
         _snack(
-          'فشل ضبط التذكير اليومي: $e',
+          'تعذّر تحديث التذكير اليومي: $e',
           bg: Theme.of(context).colorScheme.error,
         );
       }
@@ -54,21 +76,34 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
       time,
     ) async {
       try {
-        final en = ref.read(notificationsEnabledProvider);
-        await NotificationService.instance.scheduleDailyReminder(
-          enabled: en,
-          time: time,
-        );
-        if (en) {
+        await _rescheduleDaily();
+        if (ref.read(notificationsEnabledProvider)) {
           _snack('تم تحديث وقت التذكير اليومي إلى ${time.format(context)}');
         }
       } catch (e) {
         _snack(
-          'فشل تحديث وقت التذكير اليومي: $e',
+          'تعذّر تحديث الوقت: $e',
           bg: Theme.of(context).colorScheme.error,
         );
       }
     });
+
+    _dailyKindSub = ref.listenManual<DailyReminderKind>(
+      dailyReminderKindProvider,
+      (prev, next) async {
+        try {
+          await _rescheduleDaily();
+          if (ref.read(notificationsEnabledProvider)) {
+            _snack('تم تحديث نوع التذكير اليومي');
+          }
+        } catch (e) {
+          _snack(
+            'تعذّر تحديث نوع التذكير: $e',
+            bg: Theme.of(context).colorScheme.error,
+          );
+        }
+      },
+    );
 
     _salawatEnabledSub = ref.listenManual<bool>(salawatEnabledProvider, (
       prev,
@@ -81,13 +116,11 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
           time: t,
         );
         _snack(
-          enabled
-              ? 'تم تفعيل تذكير الصلاة على النبي ﷺ'
-              : 'تم إيقاف تذكير الصلاة على النبي ﷺ',
+          enabled ? 'تم تفعيل تذكير الصلاة على النبي' : 'تم إيقاف تذكير الصلاة على النبي',
         );
       } catch (e) {
         _snack(
-          'فشل ضبط تذكير الصلاة على النبي ﷺ: $e',
+          'تعذّر تحديث تذكير الصلاة على النبي: $e',
           bg: Theme.of(context).colorScheme.error,
         );
       }
@@ -104,12 +137,13 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
           time: time,
         );
         if (en) {
-          _snack(
-            'تم تحديث وقت تذكير الصلاة على النبي ﷺ إلى ${time.format(context)}',
-          );
+          _snack('تم تحديث وقت تذكير الصلاة على النبي إلى ${time.format(context)}');
         }
       } catch (e) {
-        _snack('فشل تحديث الوقت: $e', bg: Theme.of(context).colorScheme.error);
+        _snack(
+          'تعذّر تحديث وقت التذكير: $e',
+          bg: Theme.of(context).colorScheme.error,
+        );
       }
     });
   }
@@ -118,6 +152,7 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
   void dispose() {
     _dailyEnabledSub.close();
     _dailyTimeSub.close();
+    _dailyKindSub.close();
     _salawatEnabledSub.close();
     _salawatTimeSub.close();
     super.dispose();
@@ -125,31 +160,45 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final dailyEnabled = ref.watch(notificationsEnabledProvider);
     final dailyTime = ref.watch(reminderTimeProvider);
+    final dailyKind = ref.watch(dailyReminderKindProvider);
     final salawatEnabled = ref.watch(salawatEnabledProvider);
     final salawatTime = ref.watch(salawatTimeProvider);
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: cs.surface,
+        border: Border.all(color: cs.outlineVariant),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'الإشعارات',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                Icon(Icons.notifications_active_rounded, color: cs.primary),
+                const SizedBox(width: 8),
+                const Text(
+                  'إعدادات الإشعارات',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                ),
+              ],
             ),
-
-            // التذكير اليومي
+            const SizedBox(height: 12),
             SwitchListTile(
+              contentPadding: EdgeInsets.zero,
               value: dailyEnabled,
               title: const Text('تفعيل التذكير اليومي'),
               onChanged: (v) =>
                   ref.read(notificationsEnabledProvider.notifier).state = v,
             ),
             ListTile(
+              contentPadding: EdgeInsets.zero,
               title: const Text('وقت التذكير اليومي'),
               subtitle: Text(dailyTime.format(context)),
               onTap: () async {
@@ -162,49 +211,73 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
                 }
               },
             ),
-
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('نوع التذكير'),
+              subtitle: Text(_kindLabel(dailyKind)),
+              trailing: DropdownButton<DailyReminderKind>(
+                value: dailyKind,
+                onChanged: (v) {
+                  if (v == null) return;
+                  ref.read(dailyReminderKindProvider.notifier).state = v;
+                },
+                items: const [
+                  DropdownMenuItem(
+                    value: DailyReminderKind.quran,
+                    child: Text('القرآن'),
+                  ),
+                  DropdownMenuItem(
+                    value: DailyReminderKind.adhan,
+                    child: Text('الصلاة'),
+                  ),
+                  DropdownMenuItem(
+                    value: DailyReminderKind.dhikr,
+                    child: Text('الأذكار'),
+                  ),
+                ],
+              ),
+            ),
             const Divider(height: 24),
-
-            // تذكير الصلاة على النبي ﷺ
             SwitchListTile(
+              contentPadding: EdgeInsets.zero,
               value: salawatEnabled,
-              title: const Text('تفعيل تذكير الصلاة على النبي ﷺ'),
-              onChanged: (v) =>
-                  ref.read(salawatEnabledProvider.notifier).state = v,
+              title: const Text('تفعيل تذكير الصلاة على النبي'),
+              onChanged: (v) => ref.read(salawatEnabledProvider.notifier).state = v,
             ),
             ListTile(
-              title: const Text('الوقت'),
+              contentPadding: EdgeInsets.zero,
+              title: const Text('وقت تذكير الصلاة على النبي'),
               subtitle: Text(salawatTime.format(context)),
               onTap: () async {
                 final t = await showTimePicker(
                   context: context,
                   initialTime: salawatTime,
                 );
-                if (t != null) ref.read(salawatTimeProvider.notifier).state = t;
+                if (t != null) {
+                  ref.read(salawatTimeProvider.notifier).state = t;
+                }
               },
             ),
-
             const SizedBox(height: 8),
-
-            // زر اختبار سريع
             Align(
-              alignment: Alignment.centerLeft,
+              alignment: Alignment.centerRight,
               child: OutlinedButton.icon(
                 icon: const Icon(Icons.notifications_active_outlined),
-                label: const Text('اختبار إشعار الآن'),
+                label: const Text('إرسال إشعار تجريبي الآن'),
                 onPressed: () async {
                   try {
+                    final kindText = _kindLabel(dailyKind);
                     await NotificationService.instance.scheduleReminder(
                       id: 991001,
-                      title: 'اختبار إشعار',
-                      body: 'هذا إشعار اختباري للتأكد من الصلاحيات والقناة.',
+                      title: 'تنبيه تجريبي ($kindText)',
+                      body: 'هذا إشعار تجريبي من تطبيق QuranGlow.',
                       when: DateTime.now().add(const Duration(seconds: 3)),
                       daily: false,
                     );
-                    _snack('سيصل إشعار الاختبار بعد ثوانٍ');
+                    _snack('سيظهر الإشعار التجريبي خلال ثوانٍ');
                   } catch (e) {
                     _snack(
-                      'فشل إرسال اختبار: $e',
+                      'تعذّر إرسال الإشعار التجريبي: $e',
                       bg: Theme.of(context).colorScheme.error,
                     );
                   }

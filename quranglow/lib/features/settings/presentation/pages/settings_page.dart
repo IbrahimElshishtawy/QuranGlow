@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quranglow/features/settings/presentation/widgets/notifications_section.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
-
-// أقسام الصفحة
-import 'widgets/index.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -15,7 +13,7 @@ class SettingsPage extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('الإعدادات'),
+          title: const Text('إعدادات الإشعارات'),
           automaticallyImplyLeading: false,
           leading: IconButton(
             icon: Icon(
@@ -33,13 +31,7 @@ class SettingsPage extends ConsumerWidget {
           ),
         ),
         body: ListView(
-          children: [
-            AppearanceSection(),
-            GoalsSection(),
-            NotificationsSection(),
-            AyahOfDaySection(),
-            SizedBox(height: 16),
-          ],
+          children: [NotificationsSection(), SizedBox(height: 16)],
         ),
       ),
     );

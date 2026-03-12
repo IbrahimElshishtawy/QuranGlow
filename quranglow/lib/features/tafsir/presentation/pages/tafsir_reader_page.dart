@@ -3,7 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/di/tafsir_providers.dart';
+import 'package:quranglow/core/di/tafsir_providers.dart'
+    hide quranAllProvider, tafsirForAyahProvider;
 import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/features/tafsir/presentation/widgets/ayah_card.dart';
 import 'package:quranglow/features/tafsir/presentation/widgets/selection_card.dart';

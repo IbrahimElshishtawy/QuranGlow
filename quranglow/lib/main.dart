@@ -1,12 +1,15 @@
 // ignore_for_file: depend_on_referenced_packages
 
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:quranglow/Quran_Glow_App.dart';
 import 'package:quranglow/core/service/audio/audio_locator.dart';
 import 'package:quranglow/core/service/sync/firebase_sync_service.dart';
@@ -15,32 +18,79 @@ import 'package:quranglow/firebase_options.dart';
 
 Future<void> main() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
+  GoogleFonts.config.allowRuntimeFetching = false;
   FlutterNativeSplash.preserve(widgetsBinding: binding);
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+  final firebaseReady = await _safeInit(
+    'firebase',
+    () =>
+        Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
+    timeout: const Duration(seconds: 8),
   );
 
-  // Simple anonymous sign in for syncing
-  try {
-    await FirebaseSyncService().signInAnonymously();
-  } catch (_) {}
+  if (firebaseReady) {
+    if (!kDebugMode) {
+      unawaited(
+        _safeInit(
+          'firebase-anon-signin',
+          () => FirebaseSyncService().signInAnonymously(),
+          timeout: const Duration(seconds: 5),
+        ),
+      );
+    } else {
+      debugPrint('[BOOT] firebase-anon-signin skipped on debug build');
+    }
 
-  FlutterError.onError = (errorDetails) {
-    FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
-  };
-  PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    return true;
-  };
+    FlutterError.onError = (errorDetails) {
+      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+    };
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
+  }
 
-  await Hive.initFlutter();
-  await initAudioHandler();
-  await NotificationService.instance.init();
+  await _safeInit(
+    'hive',
+    () => Hive.initFlutter(),
+    timeout: const Duration(seconds: 5),
+  );
+  final shouldInitAudioService =
+      !(defaultTargetPlatform == TargetPlatform.android && kDebugMode);
+  if (shouldInitAudioService) {
+    await _safeInit(
+      'audio-handler',
+      () => initAudioHandler(),
+      timeout: const Duration(seconds: 10),
+    );
+  } else {
+    debugPrint('[BOOT] audio-handler skipped on Android debug build');
+  }
+  await _safeInit(
+    'notifications',
+    () => NotificationService.instance.init(),
+    timeout: const Duration(seconds: 5),
+  );
+
   runApp(const ProviderScope(child: _Bootstrap(child: QuranGlowApp())));
-  WidgetsBinding.instance.addPostFrameCallback(
-    (_) => FlutterNativeSplash.remove(),
-  );
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    FlutterNativeSplash.remove();
+  });
+}
+
+Future<bool> _safeInit(
+  String name,
+  Future<void> Function() task, {
+  required Duration timeout,
+}) async {
+  try {
+    await task().timeout(timeout);
+    return true;
+  } catch (e, st) {
+    debugPrint('[BOOT] $name failed/skipped: $e');
+    debugPrintStack(stackTrace: st);
+    return false;
+  }
 }
 
 class _Bootstrap extends StatefulWidget {

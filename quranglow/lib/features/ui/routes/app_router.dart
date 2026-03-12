@@ -126,6 +126,28 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
                     ),
                   );
                 },
+                onAyahLongPress: (int ayahNumber, Aya aya) async {
+                  final fakeSurah = Surah(
+                    number: a.surahNumber,
+                    name: a.surahName,
+                    ayat: a.ayat,
+                  );
+                  final tafsirText = await quran.getAyahTafsir(
+                    a.surahNumber,
+                    ayahNumber,
+                    tafsirEdition,
+                  );
+                  if (!context.mounted) return;
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.ayah,
+                    arguments: AyahArgs(
+                      aya: aya,
+                      surah: fakeSurah,
+                      tafsir: tafsirText,
+                    ),
+                  );
+                },
               );
             },
           );

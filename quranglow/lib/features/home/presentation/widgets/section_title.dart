@@ -14,15 +14,38 @@ class SectionTitle extends StatelessWidget {
 
     return Row(
       children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+        Container(
+          width: 6,
+          height: 22,
+          decoration: BoxDecoration(
+            color: cs.primary,
+            borderRadius: BorderRadius.circular(99),
+          ),
         ),
-        const Spacer(),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
+          ),
+        ),
         if (actionText != null)
-          TextButton(
+          FilledButton.tonal(
             onPressed: onAction,
-            child: Text(actionText!, style: TextStyle(color: cs.primary)),
+            style: FilledButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              minimumSize: const Size(0, 34),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              backgroundColor: cs.primaryContainer.withValues(alpha: 0.7),
+            ),
+            child: Text(
+              actionText!,
+              style: TextStyle(
+                color: cs.onPrimaryContainer,
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+              ),
+            ),
           ),
       ],
     );

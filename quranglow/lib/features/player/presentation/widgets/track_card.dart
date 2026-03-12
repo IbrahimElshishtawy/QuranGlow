@@ -3,7 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/features/player/presentation/providers/player_controller_provider.dart';
+import 'package:quranglow/core/di/providers.dart';
 
 class TrackCard extends ConsumerWidget {
   const TrackCard({super.key});

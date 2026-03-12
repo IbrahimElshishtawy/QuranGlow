@@ -1,13 +1,15 @@
 // lib/features/ui/pages/mushaf/span_builder.dart
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
 
 class AyahSpanBuilder {
-  AyahSpanBuilder({required this.onAyahTap});
+  AyahSpanBuilder({
+    required this.onAyahTap,
+    required this.onAyahLongPress,
+  });
   final void Function(int index) onAyahTap;
+  final void Function(int index) onAyahLongPress;
 
   final Map<int, List<InlineSpan>> _cache = {};
 
@@ -22,7 +24,8 @@ class AyahSpanBuilder {
     required bool showBasmala,
     required String basmala,
     required int? currentAyahIndex,
-    required List<TapGestureRecognizer> recognizersBucket,
+    Color? ayahNumberColor,
+    required List<GestureRecognizer> recognizersBucket,
   }) {
     final cacheKey = Object.hash(
       ayat.first.number,
@@ -49,27 +52,54 @@ class AyahSpanBuilder {
       recognizersBucket.add(r);
       final selected = currentAyahIndex == i;
       final s = selected
-          ? _base.copyWith(backgroundColor: Colors.amber.withOpacity(.18))
+          ? _base.copyWith(
+              backgroundColor: Colors.amber.withValues(alpha: 0.18),
+            )
           : _base;
       out.add(TextSpan(text: '${a.text.trim()} ', style: s, recognizer: r));
-      out.add(_ayahMarker(i, selected, onTap: () => onAyahTap(i)));
+      out.add(_ayahMarker(
+        ayahNumber: a.numberInSurah,
+        selected: selected,
+        ayahNumberColor: ayahNumberColor,
+        onTap: () => onAyahTap(i),
+        onLongPress: () => onAyahLongPress(i),
+      ));
       out.add(const TextSpan(text: '  ', style: _base));
     }
     _cache[cacheKey] = out;
     return out;
   }
 
-  InlineSpan _ayahMarker(int ayahIndex, bool selected, {VoidCallback? onTap}) {
-    final txt = _toArabicDigits(ayahIndex + 1);
-    return TextSpan(
-      text: ' \u06DD$txt ',
-      style: TextStyle(
-        fontSize: 14,
-        height: 1.0,
-        backgroundColor: selected ? Colors.amber.withOpacity(.18) : null,
-        fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+  InlineSpan _ayahMarker({
+    required int ayahNumber,
+    required bool selected,
+    VoidCallback? onTap,
+    VoidCallback? onLongPress,
+    Color? ayahNumberColor,
+  }) {
+    final txt = _toArabicDigits(ayahNumber);
+    return WidgetSpan(
+      alignment: PlaceholderAlignment.middle,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: onTap,
+        onLongPress: onLongPress,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 1),
+          child: Text(
+            '۝$txt',
+            style: TextStyle(
+              fontSize: 14,
+              height: 1.0,
+              color: ayahNumberColor,
+              backgroundColor: selected
+                  ? Colors.amber.withValues(alpha: 0.18)
+                  : null,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+            ),
+          ),
+        ),
       ),
-      recognizer: (TapGestureRecognizer()..onTap = onTap),
     );
   }
 

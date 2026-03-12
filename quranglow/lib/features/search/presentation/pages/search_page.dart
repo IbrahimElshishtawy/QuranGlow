@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/features/mushaf/presentation/pages/mushaf_page.dart';
 import 'package:quranglow/features/search/presentation/providers/search_providers.dart';
-import 'widgets/highlighted.dart';
+import 'package:quranglow/features/search/presentation/widgets/highlighted.dart';
 
 class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key});

@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:quranglow/core/theme/theme_controller.dart';
 
-ThemeData buildTheme(AppColorScheme colorScheme, bool isDark, String fontFamily, double fontScale) {
-  if (isDark) return buildDarkTheme(fontFamily: fontFamily, fontScale: fontScale);
+ThemeData buildTheme(
+  AppColorScheme colorScheme,
+  bool isDark,
+  String fontFamily,
+  double fontScale,
+) {
+  if (isDark) {
+    return buildDarkTheme(fontFamily: fontFamily, fontScale: fontScale);
+  }
 
   switch (colorScheme) {
     case AppColorScheme.sepia:
@@ -10,7 +17,6 @@ ThemeData buildTheme(AppColorScheme colorScheme, bool isDark, String fontFamily,
     case AppColorScheme.blue:
       return buildBlueTheme(fontFamily: fontFamily, fontScale: fontScale);
     case AppColorScheme.green:
-    default:
       return buildLightTheme(fontFamily: fontFamily, fontScale: fontScale);
   }
 }
@@ -20,11 +26,13 @@ ThemeData buildLightTheme({
   required double fontScale,
 }) {
   final base = ThemeData.light(useMaterial3: true);
-  final textTheme = base.textTheme.apply(
+  final textTheme = _scaledTextTheme(
+    base.textTheme.apply(
     fontFamily: fontFamily,
-    fontSizeFactor: fontScale,
     bodyColor: Colors.black87,
     displayColor: Colors.black87,
+    ),
+    fontScale,
   );
 
   return base.copyWith(
@@ -59,11 +67,13 @@ ThemeData buildSepiaTheme({
   required double fontScale,
 }) {
   final base = ThemeData.light(useMaterial3: true);
-  final textTheme = base.textTheme.apply(
+  final textTheme = _scaledTextTheme(
+    base.textTheme.apply(
     fontFamily: fontFamily,
-    fontSizeFactor: fontScale,
     bodyColor: const Color(0xFF5B4636),
     displayColor: const Color(0xFF5B4636),
+    ),
+    fontScale,
   );
 
   return base.copyWith(
@@ -98,11 +108,13 @@ ThemeData buildBlueTheme({
   required double fontScale,
 }) {
   final base = ThemeData.light(useMaterial3: true);
-  final textTheme = base.textTheme.apply(
+  final textTheme = _scaledTextTheme(
+    base.textTheme.apply(
     fontFamily: fontFamily,
-    fontSizeFactor: fontScale,
     bodyColor: const Color(0xFF0D47A1),
     displayColor: const Color(0xFF0D47A1),
+    ),
+    fontScale,
   );
 
   return base.copyWith(
@@ -137,11 +149,13 @@ ThemeData buildDarkTheme({
   required double fontScale,
 }) {
   final base = ThemeData.dark(useMaterial3: true);
-  final textTheme = base.textTheme.apply(
+  final textTheme = _scaledTextTheme(
+    base.textTheme.apply(
     fontFamily: fontFamily,
-    fontSizeFactor: fontScale,
     bodyColor: Colors.white,
     displayColor: Colors.white,
+    ),
+    fontScale,
   );
 
   return base.copyWith(
@@ -168,5 +182,27 @@ ThemeData buildDarkTheme({
       ),
       elevation: 2,
     ),
+  );
+}
+
+TextTheme _scaledTextTheme(TextTheme t, double scale) {
+  final safeScale = (scale.isFinite && scale > 0) ? scale : 1.0;
+  double? scaled(double? v) => v == null ? null : (v * safeScale);
+  return t.copyWith(
+    displayLarge: t.displayLarge?.copyWith(fontSize: scaled(t.displayLarge?.fontSize)),
+    displayMedium: t.displayMedium?.copyWith(fontSize: scaled(t.displayMedium?.fontSize)),
+    displaySmall: t.displaySmall?.copyWith(fontSize: scaled(t.displaySmall?.fontSize)),
+    headlineLarge: t.headlineLarge?.copyWith(fontSize: scaled(t.headlineLarge?.fontSize)),
+    headlineMedium: t.headlineMedium?.copyWith(fontSize: scaled(t.headlineMedium?.fontSize)),
+    headlineSmall: t.headlineSmall?.copyWith(fontSize: scaled(t.headlineSmall?.fontSize)),
+    titleLarge: t.titleLarge?.copyWith(fontSize: scaled(t.titleLarge?.fontSize)),
+    titleMedium: t.titleMedium?.copyWith(fontSize: scaled(t.titleMedium?.fontSize)),
+    titleSmall: t.titleSmall?.copyWith(fontSize: scaled(t.titleSmall?.fontSize)),
+    bodyLarge: t.bodyLarge?.copyWith(fontSize: scaled(t.bodyLarge?.fontSize)),
+    bodyMedium: t.bodyMedium?.copyWith(fontSize: scaled(t.bodyMedium?.fontSize)),
+    bodySmall: t.bodySmall?.copyWith(fontSize: scaled(t.bodySmall?.fontSize)),
+    labelLarge: t.labelLarge?.copyWith(fontSize: scaled(t.labelLarge?.fontSize)),
+    labelMedium: t.labelMedium?.copyWith(fontSize: scaled(t.labelMedium?.fontSize)),
+    labelSmall: t.labelSmall?.copyWith(fontSize: scaled(t.labelSmall?.fontSize)),
   );
 }
