@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class HeroHeader extends StatelessWidget {
   const HeroHeader({super.key});
@@ -9,11 +8,10 @@ class HeroHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final width = MediaQuery.sizeOf(context).width;
-    final compact = width < 380;
+    final compact = MediaQuery.sizeOf(context).width < 380;
 
     final mint = Color.alphaBlend(
-      cs.primary.withValues(alpha: 0.14),
+      cs.primary.withValues(alpha: 0.12),
       Colors.white,
     );
     final softMint = Color.alphaBlend(
@@ -38,19 +36,19 @@ class HeroHeader extends StatelessWidget {
         children: [
           const Positioned.fill(child: _PatternLayer()),
           Positioned(
-            top: -50,
-            right: -35,
+            top: -36,
+            right: -24,
             child: _GlowOrb(
-              size: compact ? 150 : 200,
-              color: cs.primary.withValues(alpha: 0.10),
+              size: compact ? 120 : 160,
+              color: cs.primary.withValues(alpha: 0.08),
             ),
           ),
           Positioned(
-            bottom: -45,
-            left: -20,
+            bottom: -34,
+            left: -18,
             child: _GlowOrb(
-              size: compact ? 110 : 150,
-              color: cs.tertiary.withValues(alpha: 0.08),
+              size: compact ? 90 : 120,
+              color: cs.tertiary.withValues(alpha: 0.06),
             ),
           ),
           SafeArea(
@@ -60,9 +58,9 @@ class HeroHeader extends StatelessWidget {
               child: Column(
                 children: [
                   _HeaderTopRow(compact: compact),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 12),
                   Expanded(
-                    child: _MainHeroCard(compact: compact),
+                    child: _HeroCard(compact: compact),
                   ),
                 ],
               ),
@@ -95,52 +93,112 @@ class _HeaderTopRow extends StatelessWidget {
   }
 }
 
-class _PatternLayer extends StatelessWidget {
-  const _PatternLayer();
+class _HeroCard extends StatelessWidget {
+  const _HeroCard({required this.compact});
+
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(painter: _PatternPainter());
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: EdgeInsets.all(compact ? 14 : 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white.withValues(alpha: 0.86),
+            cs.primary.withValues(alpha: 0.05),
+          ],
+        ),
+        border: Border.all(color: cs.primary.withValues(alpha: 0.10)),
+        boxShadow: [
+          BoxShadow(
+            color: cs.primary.withValues(alpha: 0.04),
+            blurRadius: 14,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(999),
+              color: cs.primary.withValues(alpha: 0.07),
+              border: Border.all(color: cs.primary.withValues(alpha: 0.10)),
+            ),
+            child: Text(
+              'بسم الله الرحمن الرحيم',
+              style: TextStyle(
+                color: cs.primary,
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                height: 1.1,
+              ),
+            ),
+          ),
+          SizedBox(height: compact ? 10 : 12),
+          const Text(
+            'ابدأ يومك مع القرآن',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Color(0xFF224633),
+              fontSize: 23,
+              fontWeight: FontWeight.w900,
+              height: 1.1,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'واجهة هادئة وواضحة للقراءة، الاستماع، والرجوع السريع إلى ما يهمك يوميًا.',
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Color(0xFF607B6B),
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              height: 1.35,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: const [
+              _InfoChip(icon: Icons.menu_book_rounded, label: 'مصحف'),
+              _InfoChip(icon: Icons.headphones_rounded, label: 'استماع'),
+              _InfoChip(icon: Icons.auto_stories_rounded, label: 'تفسير'),
+            ],
+          ),
+          const Spacer(),
+          const Row(
+            children: [
+              Expanded(
+                child: _StatChip(
+                  icon: Icons.visibility_rounded,
+                  label: 'قراءة أوضح',
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: _StatChip(
+                  icon: Icons.bolt_rounded,
+                  label: 'وصول أسرع',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
-}
-
-class _PatternPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF7DB38E).withValues(alpha: 0.07)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.7;
-
-    const step = 56.0;
-    for (double x = 0; x < size.width + step; x += step) {
-      for (double y = 0; y < size.height + step; y += step) {
-        _drawStar(canvas, Offset(x, y), 14, paint);
-      }
-    }
-  }
-
-  void _drawStar(Canvas canvas, Offset center, double radius, Paint paint) {
-    const points = 8;
-    const inner = 0.42;
-    final path = Path();
-    for (int i = 0; i < points * 2; i++) {
-      final angle = (i * math.pi / points) - math.pi / 2;
-      final currentRadius = i.isEven ? radius : radius * inner;
-      final x = center.dx + currentRadius * math.cos(angle);
-      final y = center.dy + currentRadius * math.sin(angle);
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-    path.close();
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _BrandBlock extends StatelessWidget {
@@ -167,8 +225,8 @@ class _BrandBlock extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: cs.primary.withValues(alpha: 0.10),
-                blurRadius: 12,
+                color: cs.primary.withValues(alpha: 0.08),
+                blurRadius: 10,
                 offset: const Offset(0, 5),
               ),
             ],
@@ -180,7 +238,7 @@ class _BrandBlock extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        Expanded(
+        const Expanded(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,23 +247,23 @@ class _BrandBlock extends StatelessWidget {
                 'QuranGlow',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.cairo(
-                  color: const Color(0xFF214734),
+                style: TextStyle(
+                  color: Color(0xFF214734),
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
-                  height: 1,
+                  height: 1.1,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 'رفيق يومي لقراءة القرآن والاستماع والتدبر',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.cairo(
-                  color: const Color(0xFF5F7D6B),
+                style: TextStyle(
+                  color: Color(0xFF5F7D6B),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  height: 1.1,
+                  height: 1.2,
                 ),
               ),
             ],
@@ -227,7 +285,7 @@ class _DailyWirdPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
-        color: Colors.white.withValues(alpha: 0.64),
+        color: Colors.white.withValues(alpha: 0.66),
         border: Border.all(color: cs.primary.withValues(alpha: 0.14)),
       ),
       child: Row(
@@ -237,11 +295,11 @@ class _DailyWirdPill extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             'ورد اليوم',
-            style: GoogleFonts.cairo(
+            style: TextStyle(
               color: cs.primary,
               fontSize: 11,
               fontWeight: FontWeight.w800,
-              height: 1,
+              height: 1.1,
             ),
           ),
         ],
@@ -276,191 +334,6 @@ class _MenuButton extends StatelessWidget {
   }
 }
 
-class _MainHeroCard extends StatelessWidget {
-  const _MainHeroCard({required this.compact});
-
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Container(
-      padding: EdgeInsets.all(compact ? 14 : 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withValues(alpha: 0.84),
-            cs.primary.withValues(alpha: 0.05),
-          ],
-        ),
-        border: Border.all(color: cs.primary.withValues(alpha: 0.10)),
-        boxShadow: [
-          BoxShadow(
-            color: cs.primary.withValues(alpha: 0.05),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(999),
-              color: cs.primary.withValues(alpha: 0.07),
-              border: Border.all(color: cs.primary.withValues(alpha: 0.10)),
-            ),
-            child: Text(
-              'بسم الله الرحمن الرحيم',
-              style: GoogleFonts.cairo(
-                color: cs.primary,
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                height: 1,
-              ),
-            ),
-          ),
-          SizedBox(height: compact ? 10 : 12),
-          Text(
-            'ابدأ يومك مع القرآن',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.cairo(
-              color: const Color(0xFF224633),
-              fontSize: compact ? 22 : 24,
-              fontWeight: FontWeight.w900,
-              height: 1.1,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'واجهة هادئة تساعدك على القراءة، الاستماع، والرجوع السريع لما يهمك كل يوم.',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.cairo(
-              color: const Color(0xFF607B6B),
-              fontSize: compact ? 12 : 13,
-              fontWeight: FontWeight.w700,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 14),
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.white.withValues(alpha: 0.65),
-                border: Border.all(color: cs.primary.withValues(alpha: 0.08)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const _ActionBadge(),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'رحلة إيمانية منظمة',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.cairo(
-                                color: const Color(0xFF234A35),
-                                fontSize: 14,
-                                fontWeight: FontWeight.w900,
-                                height: 1.1,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'اقرأ، استمع، واحفظ تقدمك بسهولة',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.cairo(
-                                color: const Color(0xFF6C8375),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                height: 1.25,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  const Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _InfoChip(icon: Icons.menu_book_rounded, label: 'مصحف'),
-                      _InfoChip(icon: Icons.headphones_rounded, label: 'استماع'),
-                      _InfoChip(icon: Icons.auto_stories_rounded, label: 'تفسير'),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          const Row(
-            children: [
-              Expanded(
-                child: _StatChip(
-                  icon: Icons.menu_book_rounded,
-                  label: 'قراءة أوضح',
-                ),
-              ),
-              SizedBox(width: 8),
-              Expanded(
-                child: _StatChip(
-                  icon: Icons.headphones_rounded,
-                  label: 'وصول أسرع',
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ActionBadge extends StatelessWidget {
-  const _ActionBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
-        color: cs.primary.withValues(alpha: 0.08),
-        border: Border.all(color: cs.primary.withValues(alpha: 0.08)),
-      ),
-      child: const Icon(
-        Icons.nightlight_round_rounded,
-        color: Color(0xFF2D6449),
-        size: 18,
-      ),
-    );
-  }
-}
-
 class _InfoChip extends StatelessWidget {
   const _InfoChip({required this.icon, required this.label});
 
@@ -485,11 +358,11 @@ class _InfoChip extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: GoogleFonts.cairo(
-              color: const Color(0xFF2D6449),
+            style: const TextStyle(
+              color: Color(0xFF2D6449),
               fontSize: 10,
               fontWeight: FontWeight.w800,
-              height: 1,
+              height: 1.1,
             ),
           ),
         ],
@@ -524,11 +397,11 @@ class _StatChip extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.cairo(
-                color: const Color(0xFF2A5C43),
+              style: const TextStyle(
+                color: Color(0xFF2A5C43),
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
-                height: 1,
+                height: 1.1,
               ),
             ),
           ),
@@ -536,6 +409,54 @@ class _StatChip extends StatelessWidget {
       ),
     );
   }
+}
+
+class _PatternLayer extends StatelessWidget {
+  const _PatternLayer();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(painter: _PatternPainter());
+  }
+}
+
+class _PatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF7DB38E).withValues(alpha: 0.06)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.7;
+
+    const step = 56.0;
+    for (double x = 0; x < size.width + step; x += step) {
+      for (double y = 0; y < size.height + step; y += step) {
+        _drawStar(canvas, Offset(x, y), 14, paint);
+      }
+    }
+  }
+
+  void _drawStar(Canvas canvas, Offset center, double radius, Paint paint) {
+    const points = 8;
+    const inner = 0.42;
+    final path = Path();
+    for (int i = 0; i < points * 2; i++) {
+      final angle = (i * math.pi / points) - math.pi / 2;
+      final currentRadius = i.isEven ? radius : radius * inner;
+      final x = center.dx + currentRadius * math.cos(angle);
+      final y = center.dy + currentRadius * math.sin(angle);
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+    path.close();
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _GlowOrb extends StatelessWidget {
