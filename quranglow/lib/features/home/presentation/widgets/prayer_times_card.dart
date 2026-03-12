@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quranglow/core/service/setting/notification_service.dart';
 import 'package:quranglow/features/home/presentation/providers/prayer_times_provider.dart';
 import 'package:quranglow/features/home/presentation/widgets/home_surface_card.dart';
 import 'package:quranglow/features/home/presentation/widgets/section_title.dart';
@@ -106,6 +107,45 @@ class _PrayerTimesCardState extends ConsumerState<PrayerTimesCard> {
                           color: cs.primary,
                           fontWeight: FontWeight.w800,
                         ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: FilledButton.tonalIcon(
+                          onPressed: () async {
+                            await NotificationService.instance
+                                .requestPermissionsIfNeededFromUI(context);
+                            await NotificationService.instance
+                                .schedulePrayerNotifications(data: data);
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'تم جدولة تنبيهات الصلاة لباقي اليوم خارج التطبيق',
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.notifications_active_rounded),
+                          label: const Text('تفعيل أذان اليوم'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      OutlinedButton(
+                        onPressed: () async {
+                          await NotificationService.instance
+                              .cancelPrayerNotifications();
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('تم إيقاف تنبيهات الصلاة المجدولة'),
+                            ),
+                          );
+                        },
+                        child: const Text('إيقاف'),
                       ),
                     ],
                   ),

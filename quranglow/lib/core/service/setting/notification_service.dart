@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:quranglow/core/model/prayer/prayer_times_data.dart';
 import 'package:quranglow/core/service/setting/daily_reminder_kind.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -18,6 +19,7 @@ class NotificationService {
 
   static const _dailyId = 1001;
   static const _salawatId = 1002;
+  static const _prayerBaseId = 2000;
 
   Future<void> init() async {
     if (kIsWeb) return;
@@ -315,8 +317,80 @@ class NotificationService {
     );
   }
 
+  Future<void> schedulePrayerNotifications({
+    required PrayerTimesData data,
+    bool enabled = true,
+  }) async {
+    await cancelPrayerNotifications();
+    if (!enabled || kIsWeb) return;
+
+    const android = AndroidNotificationDetails(
+      _dailyChannelId,
+      'Prayer Times',
+      channelDescription: 'Prayer time alerts scheduled from the prayer times API',
+      importance: Importance.max,
+      priority: Priority.high,
+      category: AndroidNotificationCategory.alarm,
+      showWhen: true,
+      enableVibration: true,
+      playSound: true,
+    );
+    const ios = DarwinNotificationDetails();
+    const mac = DarwinNotificationDetails();
+    const win = WindowsNotificationDetails();
+
+    final mode = await _androidScheduleMode();
+    final orderedPrayerKeys = const ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+
+    for (var i = 0; i < orderedPrayerKeys.length; i++) {
+      final key = orderedPrayerKeys[i];
+      final time = data.prayers[key];
+      if (time == null) continue;
+
+      final scheduled = tz.TZDateTime.from(time, tz.local);
+      if (scheduled.isBefore(tz.TZDateTime.now(tz.local))) continue;
+
+      await _plugin.zonedSchedule(
+        _prayerBaseId + i,
+        'حان الآن موعد ${_arabicPrayerName(key)}',
+        'الأذان الآن: ${_arabicPrayerName(key)}',
+        scheduled,
+        const NotificationDetails(
+          android: android,
+          iOS: ios,
+          macOS: mac,
+          windows: win,
+        ),
+        androidScheduleMode: mode,
+      );
+    }
+  }
+
+  Future<void> cancelPrayerNotifications() async {
+    for (var i = 0; i < 5; i++) {
+      await _plugin.cancel(_prayerBaseId + i);
+    }
+  }
+
   Future<void> cancel(int id) async => _plugin.cancel(id);
   Future<void> cancelAll() => _plugin.cancelAll();
+
+  String _arabicPrayerName(String key) {
+    switch (key) {
+      case 'Fajr':
+        return 'الفجر';
+      case 'Dhuhr':
+        return 'الظهر';
+      case 'Asr':
+        return 'العصر';
+      case 'Maghrib':
+        return 'المغرب';
+      case 'Isha':
+        return 'العشاء';
+      default:
+        return key;
+    }
+  }
 }
 
 

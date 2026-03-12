@@ -187,7 +187,7 @@ class _MainHeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
@@ -214,7 +214,7 @@ class _MainHeroCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: colorScheme.primary.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(999),
@@ -226,7 +226,7 @@ class _MainHeroCard extends StatelessWidget {
               style: theme.textTheme.labelMedium?.copyWith(
                 color: colorScheme.primary,
                 fontWeight: FontWeight.w900,
-                fontSize: 11,
+                fontSize: 10,
               ),
             ),
           ),
@@ -237,18 +237,18 @@ class _MainHeroCard extends StatelessWidget {
             style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w900,
               height: 1.1,
-              fontSize: 15,
+              fontSize: 14,
             ),
           ),
           Text(
             'اقرأ واستمع وتابع أهدافك من مكان واحد.',
-            maxLines: 2,
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.bodySmall?.copyWith(
               height: 1.2,
               color: colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w600,
-              fontSize: 11,
+              fontSize: 10,
             ),
           ),
           Row(
@@ -362,7 +362,7 @@ class _MiniStatChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(999),
@@ -370,8 +370,8 @@ class _MiniStatChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 13, color: colorScheme.primary),
-          const SizedBox(width: 4),
+          Icon(icon, size: 12, color: colorScheme.primary),
+          const SizedBox(width: 3),
           Expanded(
             child: Text(
               label,
@@ -379,7 +379,7 @@ class _MiniStatChip extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: colorScheme.primary,
-                fontSize: 10,
+                fontSize: 9.5,
                 fontWeight: FontWeight.w800,
               ),
             ),
