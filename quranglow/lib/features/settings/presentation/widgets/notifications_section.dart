@@ -36,6 +36,7 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
   }
 
   void _snack(String text, {Color? bg}) {
+    if (!mounted) return;
     final cs = Theme.of(context).colorScheme;
     ScaffoldMessenger.of(
       context,
@@ -43,6 +44,7 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
   }
 
   Future<void> _rescheduleDaily() async {
+    if (!mounted) return;
     final enabled = ref.read(notificationsEnabledProvider);
     final time = ref.read(reminderTimeProvider);
     final kind = ref.read(dailyReminderKindProvider);
@@ -62,10 +64,13 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
       prev,
       enabled,
     ) async {
+      if (!mounted) return;
       try {
         await _rescheduleDaily();
+        if (!mounted) return;
         _snack(enabled ? 'تم تفعيل التذكير اليومي' : 'تم إيقاف التذكير اليومي');
       } catch (e) {
+        if (!mounted) return;
         _snack(
           'تعذر تحديث التذكير اليومي: $e',
           bg: Theme.of(context).colorScheme.error,
