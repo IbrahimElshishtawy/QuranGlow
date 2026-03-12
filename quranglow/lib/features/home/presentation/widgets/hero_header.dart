@@ -12,25 +12,12 @@ class HomeHeroTopBar extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final compact = MediaQuery.sizeOf(context).width < 380;
 
-    final startColor = Color.alphaBlend(
-      cs.primary.withValues(alpha: isDark ? 0.16 : 0.10),
-      cs.surface,
-    );
-    final endColor = Color.alphaBlend(
-      cs.tertiary.withValues(alpha: isDark ? 0.10 : 0.05),
-      cs.surfaceContainerLow,
-    );
-
     return DecoratedBox(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [startColor, endColor],
-        ),
+        color: Colors.transparent,
         border: Border(
           bottom: BorderSide(
-            color: cs.outlineVariant.withValues(alpha: 0.35),
+            color: cs.outlineVariant.withValues(alpha: 0.18),
           ),
         ),
       ),
@@ -65,30 +52,12 @@ class HeroHeader extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final compact = MediaQuery.sizeOf(context).width < 380;
 
-    final startColor = Color.alphaBlend(
-      cs.primary.withValues(alpha: isDark ? 0.10 : 0.07),
-      cs.surface,
-    );
-    final middleColor = Color.alphaBlend(
-      cs.tertiary.withValues(alpha: isDark ? 0.08 : 0.05),
-      cs.surfaceContainerLow,
-    );
-    final cardStart = Color.alphaBlend(
-      cs.surface.withValues(alpha: isDark ? 0.88 : 0.94),
-      cs.surfaceContainerLow,
-    );
-    final cardEnd = Color.alphaBlend(
-      cs.primary.withValues(alpha: isDark ? 0.12 : 0.05),
-      cs.surfaceContainer,
-    );
+    final cardStart = cs.surface.withValues(alpha: isDark ? 0.18 : 0.12);
+    final cardEnd = cs.primary.withValues(alpha: isDark ? 0.08 : 0.05);
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [startColor, middleColor, cs.surfaceContainerLowest],
-        ),
+        color: Colors.transparent,
       ),
       child: Stack(
         fit: StackFit.expand,
@@ -121,13 +90,13 @@ class HeroHeader extends StatelessWidget {
                   colors: [cardStart, cardEnd],
                 ),
                 border: Border.all(
-                  color: cs.primary.withValues(alpha: isDark ? 0.20 : 0.10),
+                  color: cs.primary.withValues(alpha: isDark ? 0.14 : 0.10),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.05),
-                    blurRadius: 14,
-                    offset: const Offset(0, 8),
+                    color: Colors.black.withValues(alpha: isDark ? 0.12 : 0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),

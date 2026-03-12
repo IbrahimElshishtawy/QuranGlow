@@ -31,16 +31,20 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
       await ref.read(trackingServiceProvider).startSession();
+      if (!mounted) return;
       _trackingSessionStarted = true;
     });
     _playbackSub = ref.listenManual(playerControllerProvider, (
       prev,
       next,
     ) async {
+      if (!mounted) return;
       if (!isAudioHandlerReady) return;
       await next.when(
         data: (s) async {
+          if (!mounted) return;
           final isPlaying = s.isPlaying ?? false;
           final url = s.currentUrl;
           final title =
@@ -54,6 +58,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
           }
         },
         error: (e, st) async {
+          if (!mounted) return;
           await audioHandler.stop();
         },
         loading: () async {},
@@ -80,6 +85,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
   }
 
   void _flushListeningTime() {
+    if (!mounted) return;
     final startedAt = _listeningStartedAt;
     if (startedAt == null) return;
     final seconds = DateTime.now().difference(startedAt).inSeconds;

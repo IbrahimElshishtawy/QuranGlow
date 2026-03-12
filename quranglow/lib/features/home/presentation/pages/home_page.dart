@@ -255,7 +255,7 @@ class _HomeSections extends StatelessWidget {
           color: cs.tertiary.withValues(alpha: 0.09),
         ),
         CustomScrollView(
-          physics: const BouncingScrollPhysics(),
+          physics: const ClampingScrollPhysics(),
           slivers: [
             SliverPersistentHeader(
               pinned: true,

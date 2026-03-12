@@ -78,199 +78,117 @@ class _TasbihCounterState extends ConsumerState<TasbihCounter> {
             (_count / settings.tasbihTarget).clamp(0.0, 1.0).toDouble();
 
         return ListView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
           children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(28),
-                gradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                  colors: [
-                    cs.primaryContainer,
-                    cs.tertiaryContainer,
-                    cs.surface,
-                  ],
-                ),
-                border: Border.all(color: cs.outlineVariant),
-                boxShadow: [
-                  BoxShadow(
-                    color: cs.primary.withValues(alpha: 0.08),
-                    blurRadius: 24,
-                    offset: const Offset(0, 12),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          _selectedDhikr,
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            color: cs.onPrimaryContainer,
-                          ),
-                        ),
-                      ),
-                      FilledButton.tonalIcon(
-                        onPressed: () =>
-                            Navigator.pushNamed(context, AppRoutes.setting),
-                        icon: const Icon(Icons.tune_rounded),
-                        label: const Text('الإعدادات'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'استمر بهدوء وثبات حتى تكتمل الدورة الحالية.',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: cs.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(999),
-                    child: LinearProgressIndicator(
-                      value: progress,
-                      minHeight: 10,
-                      backgroundColor: cs.surface.withValues(alpha: 0.55),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '$_count / ${settings.tasbihTarget}',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      Text(
-                        'الدورات المكتملة: $_rounds',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: cs.onSurfaceVariant,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            _HeroPanel(
+              selectedDhikr: _selectedDhikr,
+              count: _count,
+              target: settings.tasbihTarget,
+              rounds: _rounds,
+              progress: progress,
+              onOpenSettings: () =>
+                  Navigator.pushNamed(context, AppRoutes.setting),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 22),
             Center(
-              child: InkWell(
-                borderRadius: BorderRadius.circular(999),
+              child: _TasbihDial(
+                count: _count,
+                target: settings.tasbihTarget,
+                progress: progress,
                 onTap: () => _inc(settings),
-                child: Ink(
-                  width: 250,
-                  height: 250,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        cs.primary,
-                        cs.primary.withValues(alpha: 0.92),
-                        cs.tertiary,
-                      ],
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: cs.primary.withValues(alpha: 0.24),
-                        blurRadius: 32,
-                        spreadRadius: 4,
-                        offset: const Offset(0, 16),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '$_count',
-                        style: theme.textTheme.displayLarge?.copyWith(
-                          color: cs.onPrimary,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'اضغط للتسبيح',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: cs.onPrimary.withValues(alpha: 0.92),
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 22),
             Row(
               children: [
                 Expanded(
-                  child: _StatCard(
+                  child: _InfoMetric(
                     icon: Icons.flag_rounded,
-                    label: 'الهدف',
+                    title: 'الهدف',
                     value: '${settings.tasbihTarget}',
+                    tint: cs.primary,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
-                  child: _StatCard(
+                  child: _InfoMetric(
                     icon: settings.tasbihVibrate
                         ? Icons.vibration_rounded
                         : Icons.do_not_disturb_on_total_silence_rounded,
-                    label: 'الاهتزاز',
+                    title: 'الاهتزاز',
                     value: settings.tasbihVibrate ? 'مفعل' : 'متوقف',
+                    tint: cs.tertiary,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
-                  child: _StatCard(
+                  child: _InfoMetric(
                     icon: settings.tasbihSound
                         ? Icons.music_note_rounded
                         : Icons.volume_off_rounded,
-                    label: 'الصوت',
+                    title: 'الصوت',
                     value: settings.tasbihSound ? 'مفعل' : 'متوقف',
+                    tint: cs.secondary,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _reset(settings),
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('إعادة الضبط'),
+            const SizedBox(height: 18),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHigh.withValues(alpha: 0.72),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.65)),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _reset(settings),
+                      icon: const Icon(Icons.restart_alt_rounded),
+                      label: const Text('إعادة الضبط'),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: () => _inc(settings),
-                    icon: const Icon(Icons.touch_app_rounded),
-                    label: const Text('سبّح الآن'),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: () => _inc(settings),
+                      icon: const Icon(Icons.touch_app_rounded),
+                      label: const Text('سبّح الآن'),
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 24),
             Text(
-              'أذكار سريعة',
+              'اختر الذكر',
               style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w900,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 6),
+            Text(
+              'بدّل الذكر الحالي وسيبقى العداد مستمراً بنفس الدورة.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: cs.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 14),
             DhikrQuickList(
               selectedItem: _selectedDhikr,
               onTapItem: (item) {
@@ -285,16 +203,296 @@ class _TasbihCounterState extends ConsumerState<TasbihCounter> {
   }
 }
 
-class _StatCard extends StatelessWidget {
-  const _StatCard({
-    required this.icon,
-    required this.label,
+class _HeroPanel extends StatelessWidget {
+  const _HeroPanel({
+    required this.selectedDhikr,
+    required this.count,
+    required this.target,
+    required this.rounds,
+    required this.progress,
+    required this.onOpenSettings,
+  });
+
+  final String selectedDhikr;
+  final int count;
+  final int target;
+  final int rounds;
+  final double progress;
+  final VoidCallback onOpenSettings;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(30),
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [
+            cs.primary.withValues(alpha: 0.14),
+            cs.tertiary.withValues(alpha: 0.10),
+            cs.surface.withValues(alpha: 0.92),
+          ],
+        ),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.7)),
+        boxShadow: [
+          BoxShadow(
+            color: cs.shadow.withValues(alpha: 0.08),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(999),
+                  color: cs.primaryContainer.withValues(alpha: 0.88),
+                ),
+                child: Text(
+                  'جلسة تسبيح',
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: cs.onPrimaryContainer,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              IconButton.filledTonal(
+                onPressed: onOpenSettings,
+                icon: const Icon(Icons.tune_rounded),
+                tooltip: 'الإعدادات',
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            selectedDhikr,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w900,
+              height: 1.15,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'أكمل التسبيح بإيقاع هادئ وواضح مع متابعة لحظية للتقدم وعدد الدورات.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: cs.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 18),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 11,
+              backgroundColor: cs.surfaceContainerHighest.withValues(alpha: 0.8),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _MiniReadout(
+                  title: 'التقدم الحالي',
+                  value: '$count / $target',
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _MiniReadout(
+                  title: 'الدورات المكتملة',
+                  value: '$rounds',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TasbihDial extends StatelessWidget {
+  const _TasbihDial({
+    required this.count,
+    required this.target,
+    required this.progress,
+    required this.onTap,
+  });
+
+  final int count;
+  final int target;
+  final double progress;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0, end: progress),
+      duration: const Duration(milliseconds: 250),
+      builder: (context, animatedProgress, _) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            SizedBox(
+              width: 280,
+              height: 280,
+              child: CustomPaint(
+                painter: _DialPainter(
+                  progress: animatedProgress,
+                  trackColor: cs.surfaceContainerHighest,
+                  progressColor: cs.primary,
+                  glowColor: cs.primary.withValues(alpha: 0.18),
+                ),
+              ),
+            ),
+            InkWell(
+              borderRadius: BorderRadius.circular(999),
+              onTap: onTap,
+              child: Ink(
+                width: 220,
+                height: 220,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      cs.primary,
+                      cs.primary.withValues(alpha: 0.92),
+                      cs.tertiary,
+                    ],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: cs.primary.withValues(alpha: 0.28),
+                      blurRadius: 28,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 14),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '$count',
+                      style: theme.textTheme.displayLarge?.copyWith(
+                        color: cs.onPrimary,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'من $target',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: cs.onPrimary.withValues(alpha: 0.9),
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 7,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.18),
+                        ),
+                      ),
+                      child: Text(
+                        'اضغط للتسبيح',
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          color: cs.onPrimary,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _MiniReadout extends StatelessWidget {
+  const _MiniReadout({
+    required this.title,
     required this.value,
   });
 
-  final IconData icon;
-  final String label;
+  final String title;
   final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.55)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: cs.onSurfaceVariant,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoMetric extends StatelessWidget {
+  const _InfoMetric({
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.tint,
+  });
+
+  final IconData icon;
+  final String title;
+  final String value;
+  final Color tint;
 
   @override
   Widget build(BuildContext context) {
@@ -304,16 +502,24 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.outlineVariant),
+        color: cs.surfaceContainerHigh.withValues(alpha: 0.78),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.7)),
       ),
       child: Column(
         children: [
-          Icon(icon, color: cs.primary),
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: tint.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: tint),
+          ),
           const SizedBox(height: 10),
           Text(
-            label,
+            title,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: cs.onSurfaceVariant,
               fontWeight: FontWeight.w700,
@@ -322,12 +528,78 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             value,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w800,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w900,
             ),
           ),
         ],
       ),
     );
+  }
+}
+
+class _DialPainter extends CustomPainter {
+  const _DialPainter({
+    required this.progress,
+    required this.trackColor,
+    required this.progressColor,
+    required this.glowColor,
+  });
+
+  final double progress;
+  final Color trackColor;
+  final Color progressColor;
+  final Color glowColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final radius = size.width / 2 - 14;
+    const startAngle = -1.5708;
+    final sweepAngle = 6.28318 * progress;
+
+    final glowPaint = Paint()
+      ..color = glowColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 18
+      ..strokeCap = StrokeCap.round
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
+
+    final trackPaint = Paint()
+      ..color = trackColor.withValues(alpha: 0.8)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 12
+      ..strokeCap = StrokeCap.round;
+
+    final progressPaint = Paint()
+      ..color = progressColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 12
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawCircle(center, radius, glowPaint);
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      0,
+      6.28318,
+      false,
+      trackPaint,
+    );
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      startAngle,
+      sweepAngle,
+      false,
+      progressPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _DialPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.trackColor != trackColor ||
+        oldDelegate.progressColor != progressColor ||
+        oldDelegate.glowColor != glowColor;
   }
 }

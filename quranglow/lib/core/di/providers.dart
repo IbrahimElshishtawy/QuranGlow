@@ -271,8 +271,10 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
   StreamSubscription<int?>? _indexSub;
   List<String> _urls = const <String>[];
   String _reciterName = '';
+  bool _disposed = false;
 
   Future<void> _init() async {
+    if (_disposed || !mounted) return;
     final editionId = ref.read(editionIdProvider);
     final chapter = ref.read(chapterProvider).clamp(1, 114);
     await _loadSurah(editionId: editionId, chapter: chapter, autoPlay: false);
@@ -283,16 +285,19 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
     required int chapter,
     required bool autoPlay,
   }) async {
+    if (_disposed || !mounted) return;
     state = const AsyncValue.loading();
     try {
       final service = ref.read(quranServiceProvider);
       final urls = await service.getSurahAudioUrls(editionId, chapter);
+      if (_disposed || !mounted) return;
       if (urls.isEmpty) {
         throw Exception('No audio URLs found');
       }
 
       _urls = urls;
       _reciterName = await _resolveReciterName(editionId);
+      if (_disposed || !mounted) return;
 
       await _player.setAudioSource(
         // ignore: deprecated_member_use
@@ -304,13 +309,16 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
         initialIndex: 0,
         initialPosition: Duration.zero,
       );
+      if (_disposed || !mounted) return;
 
       if (autoPlay) {
         await _player.play();
+        if (_disposed || !mounted) return;
       }
 
       _emitState();
     } catch (e, st) {
+      if (_disposed || !mounted) return;
       state = AsyncValue.error(e, st);
     }
   }
@@ -331,6 +339,7 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
   }
 
   void _emitState() {
+    if (_disposed || !mounted) return;
     if (_urls.isEmpty) return;
 
     final editionId = ref.read(editionIdProvider);
@@ -365,21 +374,25 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
 
   Future<void> play() async {
     await _player.play();
+    if (_disposed || !mounted) return;
     _emitState();
   }
 
   Future<void> pause() async {
     await _player.pause();
+    if (_disposed || !mounted) return;
     _emitState();
   }
 
   Future<void> next() async {
     await _player.seekToNext();
+    if (_disposed || !mounted) return;
     _emitState();
   }
 
   Future<void> previous() async {
     await _player.seekToPrevious();
+    if (_disposed || !mounted) return;
     _emitState();
   }
 
@@ -389,6 +402,7 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
 
   Future<void> setSpeed(double speed) async {
     await _player.setSpeed(speed);
+    if (_disposed || !mounted) return;
     _emitState();
   }
 
@@ -397,12 +411,14 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
         ? LoopMode.all
         : LoopMode.off;
     await _player.setLoopMode(nextMode);
+    if (_disposed || !mounted) return;
     _emitState();
   }
 
   Future<void> toggleMute() async {
     final nextVolume = _player.volume > 0 ? 0.0 : 1.0;
     await _player.setVolume(nextVolume);
+    if (_disposed || !mounted) return;
     _emitState();
   }
 
@@ -425,6 +441,7 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
 
   @override
   void dispose() {
+    _disposed = true;
     _playingSub?.cancel();
     _indexSub?.cancel();
     _player.dispose();

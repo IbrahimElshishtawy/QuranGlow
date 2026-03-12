@@ -49,9 +49,18 @@ class _AzkarTasbihPageState extends State<AzkarTasbihPage>
                 padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: cs.surfaceContainerHigh,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: cs.outlineVariant),
+                    gradient: LinearGradient(
+                      begin: Alignment.topRight,
+                      end: Alignment.bottomLeft,
+                      colors: [
+                        cs.primary.withValues(alpha: 0.10),
+                        cs.surfaceContainerHigh,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(
+                      color: cs.outlineVariant.withValues(alpha: 0.72),
+                    ),
                   ),
                   child: TabBar(
                     controller: _tab,
@@ -59,7 +68,7 @@ class _AzkarTasbihPageState extends State<AzkarTasbihPage>
                     unselectedLabelColor: cs.onSurfaceVariant,
                     indicator: BoxDecoration(
                       color: cs.primaryContainer,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(18),
                     ),
                     dividerColor: Colors.transparent,
                     tabs: const [
