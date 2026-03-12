@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quranglow/features/settings/presentation/widgets/goals_section.dart';
 import 'package:quranglow/features/settings/presentation/widgets/notifications_section.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
 
@@ -13,7 +14,7 @@ class SettingsPage extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('إعدادات الإشعارات'),
+          title: const Text('الإعدادات'),
           automaticallyImplyLeading: false,
           leading: IconButton(
             icon: Icon(
@@ -30,8 +31,14 @@ class SettingsPage extends ConsumerWidget {
             },
           ),
         ),
-        body: ListView(
-          children: [NotificationsSection(), SizedBox(height: 16)],
+        body: const ListView(
+          padding: EdgeInsets.all(12),
+          children: [
+            GoalsSection(),
+            SizedBox(height: 12),
+            NotificationsSection(),
+            SizedBox(height: 16),
+          ],
         ),
       ),
     );

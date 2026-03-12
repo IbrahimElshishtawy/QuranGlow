@@ -22,86 +22,121 @@ class GoalPill extends ConsumerWidget {
   final FollowCallback onFollow;
   final IncCallback onIncreaseProgress;
 
-  String _toArabicDigits(int n) {
-    const map = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    return n.toString().split('').map((c) => map[int.parse(c)]).join();
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
 
     return ConstrainedBox(
-      constraints: const BoxConstraints.tightFor(width: 240, height: 118),
+      constraints: const BoxConstraints.tightFor(width: 260, height: 132),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(18),
           gradient: LinearGradient(
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
-            colors: [cs.surface, cs.primary.withValues(alpha: .07)],
+            colors: [
+              cs.surface,
+              cs.primary.withValues(alpha: .08),
+            ],
           ),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: .7)),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: .75)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: FutureBuilder<GoalPos?>(
           future: posStore.load(goal.id),
-          builder: (ctx, snap) {
-            final pos = snap.data;
+          builder: (context, snapshot) {
+            final pos = snapshot.data;
             final hasPos = pos != null;
-
             final surahNum = hasPos ? pos.surah : 1;
-            final ayahIdx0 = hasPos ? pos.ayahIndex : 0;
-            final ayahNum = ayahIdx0 + 1;
+            final ayahNum = hasPos ? pos.ayahIndex + 1 : 1;
             final surahName = quran.getSurahNameArabic(surahNum);
 
             return Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  goal.title,
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
-                ),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(40),
-                  child: LinearProgressIndicator(
-                    value: goal.progress.clamp(0.0, 1.0),
-                    minHeight: 8,
-                    backgroundColor: cs.primary.withValues(alpha: .10),
-                    valueColor: AlwaysStoppedAnimation(cs.primary),
-                  ),
-                ),
                 Row(
                   children: [
                     Expanded(
                       child: Text(
-                        hasPos
-                            ? '$surahName • آية ${_toArabicDigits(ayahNum)}'
-                            : 'ابدأ القراءة لهذا الهدف',
-                        style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+                        goal.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    FilledButton.tonal(
-                      style: FilledButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                    if (goal.reminderEnabled)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: cs.primary.withValues(alpha: .12),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          'تذكير',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: cs.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
-                      onPressed: () async => onFollow(surahNum, ayahNum),
-                      child: Text(hasPos ? 'تابع' : 'ابدأ'),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  '${goal.current} / ${goal.target} ${goal.unit}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: cs.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: LinearProgressIndicator(
+                    value: goal.progress,
+                    minHeight: 9,
+                    backgroundColor: cs.primary.withValues(alpha: .12),
+                    valueColor: AlwaysStoppedAnimation(
+                      goal.completed ? Colors.green : cs.primary,
                     ),
-                    const SizedBox(width: 4),
-                    IconButton.filledTonal(
-                      tooltip: 'زيادة التقدّم',
-                      visualDensity: VisualDensity.compact,
-                      icon: const Icon(Icons.add_rounded, size: 18),
-                      onPressed: () async => onIncreaseProgress(),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  hasPos ? '$surahName • آية $ayahNum' : 'ابدأ القراءة لهذا الهدف',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+                ),
+                const Spacer(),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.tonal(
+                        onPressed: () => onFollow(surahNum, ayahNum),
+                        child: Text(hasPos ? 'تابع' : 'ابدأ'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton.filled(
+                      tooltip: 'زيادة التقدم',
+                      onPressed: onIncreaseProgress,
+                      icon: const Icon(Icons.add_rounded),
                     ),
                   ],
                 ),

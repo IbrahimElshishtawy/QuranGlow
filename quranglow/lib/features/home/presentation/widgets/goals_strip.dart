@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart' as di;
@@ -39,10 +37,10 @@ class GoalsStrip extends ConsumerWidget {
             ),
           ),
           error: (e, _) => HomeSurfaceCard(
-            child: Text('تعذّر تحميل الأهداف: $e'),
+            child: Text('تعذر تحميل الأهداف: $e'),
           ),
           data: (goals) {
-            final list = goals.whereType<models.Goal>().toList();
+            final list = goals.whereType<models.Goal>().where((g) => g.active).toList();
             final shown = list.take(limit).toList();
             if (shown.isEmpty) {
               return HomeSurfaceCard(
@@ -51,11 +49,10 @@ class GoalsStrip extends ConsumerWidget {
                     Icon(Icons.flag_outlined, color: cs.primary),
                     const SizedBox(width: 10),
                     const Expanded(
-                      child: Text('لا توجد أهداف بعد، ابدأ بإضافة هدف جديد'),
+                      child: Text('لا توجد أهداف مفعلة بعد، ابدأ بإضافة هدف جديد'),
                     ),
                     FilledButton.tonal(
-                      onPressed: () =>
-                          Navigator.pushNamed(context, AppRoutes.goals),
+                      onPressed: () => Navigator.pushNamed(context, AppRoutes.goals),
                       child: const Text('إضافة'),
                     ),
                   ],
@@ -65,16 +62,16 @@ class GoalsStrip extends ConsumerWidget {
 
             return HomeSurfaceCard(
               child: SizedBox(
-                height: 138,
+                height: 152,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   itemCount: shown.length,
                   separatorBuilder: (_, __) => const SizedBox(width: 12),
                   itemBuilder: (context, i) {
-                    final g = shown[i];
+                    final goal = shown[i];
                     return GoalPill(
-                      goal: g,
+                      goal: goal,
                       posStore: GoalPosStore(),
                       onFollow: (surahNum, ayahNum) async {
                         await Navigator.pushNamed(
@@ -90,18 +87,7 @@ class GoalsStrip extends ConsumerWidget {
                         }
                       },
                       onIncreaseProgress: () async {
-                        final svc = ref.read(di.goalsServiceProvider);
-                        final list = List<models.Goal>.from(
-                          await svc.listGoals(),
-                        );
-                        final idx = list.indexWhere((x) => x.id == g.id);
-                        if (idx != -1) {
-                          final cur = list[idx];
-                          list[idx] = cur.copyWith(
-                            current: min(cur.target, cur.current + 1),
-                          );
-                          await svc.saveAll(list);
-                        }
+                        await ref.read(di.goalsServiceProvider).increment(goal.id);
                       },
                     );
                   },
