@@ -23,23 +23,25 @@ class SectionTitle extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        Text(
-          title,
-          style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
+          ),
         ),
-        const Spacer(),
         if (actionText != null)
-          OutlinedButton(
+          FilledButton.tonal(
             onPressed: onAction,
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: cs.primary.withValues(alpha: 0.35)),
+            style: FilledButton.styleFrom(
+              visualDensity: VisualDensity.compact,
               minimumSize: const Size(0, 34),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              backgroundColor: cs.primaryContainer.withValues(alpha: 0.7),
             ),
             child: Text(
               actionText!,
               style: TextStyle(
-                color: cs.primary,
+                color: cs.onPrimaryContainer,
                 fontWeight: FontWeight.w700,
                 fontSize: 12,
               ),

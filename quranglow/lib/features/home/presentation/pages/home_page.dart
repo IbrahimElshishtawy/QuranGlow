@@ -228,22 +228,95 @@ class _HomeSections extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        const SliverToBoxAdapter(
-          child: SectionSpacing(child: PrayerTimesCard()),
+    final cs = Theme.of(context).colorScheme;
+
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [cs.surface, cs.surfaceContainerLowest],
+              ),
+            ),
+          ),
         ),
-        const SliverToBoxAdapter(child: SectionSpacing(child: DailyAyahCard())),
-        const SliverToBoxAdapter(child: SectionSpacing(child: GoalsStrip())),
-        const SliverToBoxAdapter(child: SectionSpacing(child: LastReadCard())),
-        const SliverToBoxAdapter(
-          child: SectionSpacing(child: QuickActionsGrid()),
+        _SoftOrb(
+          alignment: Alignment.topRight,
+          offset: const Offset(120, -140),
+          size: 260,
+          color: cs.primary.withValues(alpha: 0.12),
         ),
-        const SliverToBoxAdapter(child: SectionSpacing(child: ShortcutsList())),
-        SliverToBoxAdapter(
-          child: SizedBox(height: MediaQuery.of(context).padding.bottom + 14),
+        _SoftOrb(
+          alignment: Alignment.centerLeft,
+          offset: const Offset(-110, -30),
+          size: 220,
+          color: cs.tertiary.withValues(alpha: 0.09),
+        ),
+        CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            const SliverToBoxAdapter(
+              child: SectionSpacing(child: PrayerTimesCard()),
+            ),
+            const SliverToBoxAdapter(
+              child: SectionSpacing(child: DailyAyahCard()),
+            ),
+            const SliverToBoxAdapter(child: SectionSpacing(child: GoalsStrip())),
+            const SliverToBoxAdapter(
+              child: SectionSpacing(child: LastReadCard()),
+            ),
+            const SliverToBoxAdapter(
+              child: SectionSpacing(child: QuickActionsGrid()),
+            ),
+            const SliverToBoxAdapter(
+              child: SectionSpacing(child: ShortcutsList()),
+            ),
+            SliverToBoxAdapter(
+              child: SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+            ),
+          ],
         ),
       ],
+    );
+  }
+}
+
+class _SoftOrb extends StatelessWidget {
+  const _SoftOrb({
+    required this.alignment,
+    required this.offset,
+    required this.size,
+    required this.color,
+  });
+
+  final Alignment alignment;
+  final Offset offset;
+  final double size;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Align(
+        alignment: alignment,
+        child: Transform.translate(
+          offset: offset,
+          child: Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [color, color.withValues(alpha: 0)],
+                stops: const [0, 1],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
