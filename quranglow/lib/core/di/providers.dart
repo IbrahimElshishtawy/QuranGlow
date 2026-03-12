@@ -14,6 +14,7 @@ import 'package:quranglow/core/model/book/Play_list_State.dart';
 import 'package:quranglow/core/model/book/bookmark.dart';
 import 'package:quranglow/core/model/book/surah.dart';
 import 'package:quranglow/core/model/setting/App_Settings.dart';
+import 'package:quranglow/core/model/setting/app_settings.dart';
 import 'package:quranglow/core/model/setting/goal.dart';
 import 'package:quranglow/core/service/audio/audio_service.dart';
 import 'package:quranglow/core/service/audio/my_audio_handler.dart';
@@ -425,8 +426,8 @@ final dailyAyahProvider = FutureProvider.autoDispose<Map<String, String>>((
   final text = (data['text'] ?? data['ayahText'] ?? '').toString();
 
   final surah = data['surah'] ?? {};
-  final surahName =
-      (surah['name'] ?? surah['englishName'] ?? 'سورة غير معروفة').toString();
+  final surahName = (surah['name'] ?? surah['englishName'] ?? 'سورة غير معروفة')
+      .toString();
   final nInSurah = data['numberInSurah']?.toString() ?? '';
 
   return {'text': text, 'ref': '$surahName • $nInSurah'};

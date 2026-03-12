@@ -136,7 +136,12 @@ class QuranService {
             0,
         'text': m['text'] ?? m['arabic'] ?? m['quran'] ?? '',
       });
-    }).toList();
+    }).toList()
+      ..sort((a, b) {
+        final bySurahOrder = a.numberInSurah.compareTo(b.numberInSurah);
+        if (bySurahOrder != 0) return bySurahOrder;
+        return a.number.compareTo(b.number);
+      });
 
     return Surah(number: chapter, name: name, ayat: ayat.cast<Aya>());
   }

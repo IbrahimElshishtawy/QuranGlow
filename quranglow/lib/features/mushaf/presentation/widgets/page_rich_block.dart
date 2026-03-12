@@ -1,5 +1,7 @@
-﻿import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/core/model/book/topic.dart';
 import 'package:quranglow/features/mushaf/presentation/widgets/span_builder.dart';
@@ -13,7 +15,7 @@ class PageRange {
   bool contains(int idx) => idx >= start && idx < end;
 }
 
-class PageRichBlock extends StatefulWidget {
+class PageRichBlock extends ConsumerStatefulWidget {
   const PageRichBlock({
     super.key,
     required this.ayat,
@@ -36,10 +38,10 @@ class PageRichBlock extends StatefulWidget {
   final Color? ayahNumberColor;
 
   @override
-  State<PageRichBlock> createState() => _PageRichBlockState();
+  ConsumerState<PageRichBlock> createState() => _PageRichBlockState();
 }
 
-class _PageRichBlockState extends State<PageRichBlock> {
+class _PageRichBlockState extends ConsumerState<PageRichBlock> {
   final List<GestureRecognizer> _recognizers = [];
 
   void _disposeRecognizers() {
@@ -64,10 +66,15 @@ class _PageRichBlockState extends State<PageRichBlock> {
     }
 
     final subAyat = widget.ayat.sublist(widget.range.start, widget.range.end);
-
     if (subAyat.isEmpty) {
       return const SizedBox.shrink();
     }
+
+    final fontScale = ref.watch(
+      settingsProvider.select(
+        (value) => value.maybeWhen(data: (s) => s.fontScale, orElse: () => 1.0),
+      ),
+    );
 
     final localCurrentIndex = widget.currentAyahIndex == null
         ? null
@@ -77,10 +84,10 @@ class _PageRichBlockState extends State<PageRichBlock> {
             widget.range.end,
           );
 
-    // Ù…Ù‡Ù…: Ù†Ø¸Ù Ø§Ù„Ù€ recognizers Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø© Ù‚Ø¨Ù„ Ø¨Ù†Ø§Ø¡ spans Ø¬Ø¯ÙŠØ¯Ø©
     _disposeRecognizers();
 
     final builder = AyahSpanBuilder(
+      fontScale: fontScale,
       onAyahTap: (localIndex) => widget.onTapIndex(widget.range.start + localIndex),
       onAyahLongPress: (localIndex) =>
           widget.onLongPressIndex(widget.range.start + localIndex),
@@ -174,8 +181,8 @@ class _PageRichBlockState extends State<PageRichBlock> {
                         RichText(
                           textAlign: TextAlign.justify,
                           textDirection: TextDirection.rtl,
-                          strutStyle: const StrutStyle(
-                            fontSize: 24,
+                          strutStyle: StrutStyle(
+                            fontSize: 24 * fontScale,
                             height: 2.15,
                           ),
                           text: TextSpan(
@@ -188,7 +195,7 @@ class _PageRichBlockState extends State<PageRichBlock> {
                                 'Scheherazade',
                               ],
                               height: 2.15,
-                              fontSize: 24,
+                              fontSize: 24 * fontScale,
                               letterSpacing: 0.15,
                             ),
                             children: spans,
@@ -245,4 +252,3 @@ class _NoGlowBehavior extends ScrollBehavior {
     return child;
   }
 }
-

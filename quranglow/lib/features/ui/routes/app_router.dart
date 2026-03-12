@@ -79,14 +79,17 @@ Route<dynamic>? onGenerateRoute(RouteSettings s) {
   } else if (name == AppRoutes.mushaf) {
     final a = s.arguments;
     final args = a is MushafArgs ? a : const MushafArgs();
-    return _mat(
-      MushafPage(
-        chapter: args.chapter,
-        editionId: args.editionId,
-        initialAyah: args.initialAyah,
-      ),
-      s,
-    );
+    if (a is MushafArgs && (a.initialAyah != null || a.chapter != 1)) {
+      return _mat(
+        MushafPage(
+          chapter: args.chapter,
+          editionId: args.editionId,
+          initialAyah: args.initialAyah,
+        ),
+        s,
+      );
+    }
+    return _mat(const SurahListPage(), s);
   } else if (name == AppRoutes.mushafPaged) {
     final a = s.arguments;
     if (a is PagedMushafArgs) {

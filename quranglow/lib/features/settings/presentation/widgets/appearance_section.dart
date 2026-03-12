@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/model/setting/App_Settings.dart';
+import 'package:quranglow/core/model/setting/app_settings.dart';
 import 'package:quranglow/features/settings/presentation/widgets/font_scale_dialog.dart';
 import 'package:quranglow/features/settings/presentation/widgets/readers_sheet.dart';
 import 'package:quranglow/features/settings/presentation/widgets/section_header.dart';

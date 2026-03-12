@@ -42,7 +42,8 @@ class _MushafPageState extends ConsumerState<MushafPage> {
 
   final _pos = PositionStore();
   final _ayahPreviewPlayer = AudioPlayer();
-  final GlobalKey<PagedMushafState> _pagedMushafKey = GlobalKey<PagedMushafState>();
+  final GlobalKey<PagedMushafState> _pagedMushafKey =
+      GlobalKey<PagedMushafState>();
 
   TextStyle _ayahPreviewTextStyle(BuildContext context, Color color) =>
       DefaultTextStyle.of(context).style.copyWith(
@@ -60,7 +61,9 @@ class _MushafPageState extends ConsumerState<MushafPage> {
     _lastAyahNumber = widget.initialAyah;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-      await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+      ]);
       await WakelockPlus.enable();
     });
   }
@@ -77,7 +80,8 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   String _audioEditionId() {
     final settings = ref.read(settingsProvider);
     return settings.maybeWhen(
-      data: (s) => s.readerEditionId.trim().isEmpty ? 'ar.alafasy' : s.readerEditionId,
+      data: (s) =>
+          s?.readerEditionId.trim().isEmpty ? 'ar.alafasy' : s?.readerEditionId,
       orElse: () => 'ar.alafasy',
     );
   }
@@ -104,9 +108,9 @@ class _MushafPageState extends ConsumerState<MushafPage> {
     final ayahIndex0 = (_lastAyahNumber ?? 1) - 1;
     await _pos.save(_chapter, ayahIndex0);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('تم حفظ موضع القراءة')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('تم حفظ موضع القراءة')));
   }
 
   void _openTafsirForAyah(int ayahNumber) {
@@ -121,9 +125,9 @@ class _MushafPageState extends ConsumerState<MushafPage> {
     final content = '$_chapter:$ayahNumber\n$ayahText';
     Clipboard.setData(ClipboardData(text: content));
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('تم نسخ الآية')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('تم نسخ الآية')));
   }
 
   Future<void> _playAyahAudio(Aya aya, int ayahNumber) async {
@@ -150,14 +154,14 @@ class _MushafPageState extends ConsumerState<MushafPage> {
       await _ayahPreviewPlayer.setUrl(url);
       await _ayahPreviewPlayer.play();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('يتم تشغيل الآية $ayahNumber')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('يتم تشغيل الآية $ayahNumber')));
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تعذر تشغيل الآية: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('تعذر تشغيل الآية: $e')));
     }
   }
 
@@ -198,7 +202,10 @@ class _MushafPageState extends ConsumerState<MushafPage> {
               children: [
                 Text(
                   'الآية $ayahNumber',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 SelectableText(
@@ -448,7 +455,10 @@ class _SelectedAyahPanel extends StatelessWidget {
                         ayahText!,
                         textAlign: TextAlign.right,
                         textDirection: TextDirection.rtl,
-                        style: _ayahPreviewTextStyle(context, cs.onSurfaceVariant),
+                        style: _ayahPreviewTextStyle(
+                          context,
+                          cs.onSurfaceVariant,
+                        ),
                       ),
                     ),
                   Row(
@@ -485,4 +495,3 @@ class _SelectedAyahPanel extends StatelessWidget {
     );
   }
 }
-

@@ -11,9 +11,9 @@ import 'package:quranglow/features/home/presentation/widgets/prayer_times_card.d
 import 'package:quranglow/features/home/presentation/widgets/quick_actions_grid.dart';
 import 'package:quranglow/features/home/presentation/widgets/section_spacing.dart';
 import 'package:quranglow/features/home/presentation/widgets/shortcuts_list.dart';
-import 'package:quranglow/features/mushaf/presentation/pages/mushaf_page.dart';
 import 'package:quranglow/features/player/presentation/pages/player_page.dart';
 import 'package:quranglow/features/search/presentation/pages/search_page.dart';
+import 'package:quranglow/features/surah/presentation/pages/surah_list_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
       case 0:
         return const _HomeSections();
       case 1:
-        return const MushafPage();
+        return const SurahListPage();
       case 2:
         return const AzkarTasbihPage();
       case 3:

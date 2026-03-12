@@ -7,16 +7,18 @@ class AyahSpanBuilder {
   AyahSpanBuilder({
     required this.onAyahTap,
     required this.onAyahLongPress,
+    required this.fontScale,
   });
   final void Function(int index) onAyahTap;
   final void Function(int index) onAyahLongPress;
+  final double fontScale;
 
   final Map<int, List<InlineSpan>> _cache = {};
 
-  static const _base = TextStyle(
-    fontSize: 20,
+  TextStyle get _base => TextStyle(
+    fontSize: 20 * fontScale,
     height: 1.9,
-    fontFamilyFallback: ['Noto Naskh Arabic', 'Scheherazade'],
+    fontFamilyFallback: const ['Noto Naskh Arabic', 'Scheherazade'],
   );
 
   List<InlineSpan> buildSpans({
@@ -64,7 +66,7 @@ class AyahSpanBuilder {
         onTap: () => onAyahTap(i),
         onLongPress: () => onAyahLongPress(i),
       ));
-      out.add(const TextSpan(text: '  ', style: _base));
+      out.add(TextSpan(text: '  ', style: _base));
     }
     _cache[cacheKey] = out;
     return out;

@@ -7,7 +7,7 @@ import 'package:quranglow/core/data/surah_names_ar.dart';
 import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/core/model/book/surah.dart';
-import 'package:quranglow/core/model/setting/App_Settings.dart';
+import 'package:quranglow/core/model/setting/app_settings.dart';
 import 'package:quranglow/core/service/audio/audio_locator.dart';
 import 'package:quranglow/features/downloads/presentation/widgets/AyahPickerSheet.dart';
 import 'package:quranglow/features/player/presentation/widgets/reader_row.dart';

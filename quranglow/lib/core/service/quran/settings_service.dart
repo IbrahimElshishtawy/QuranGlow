@@ -1,4 +1,4 @@
-import 'package:quranglow/core/model/setting/App_Settings.dart';
+import 'package:quranglow/core/model/setting/app_settings.dart';
 import 'package:quranglow/core/theme/theme_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
