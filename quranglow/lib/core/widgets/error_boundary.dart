@@ -2,6 +2,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:quranglow/core/service/sync/firebase_guard.dart';
 
 class GlobalErrorBoundary extends StatefulWidget {
   final Widget child;
@@ -47,7 +48,9 @@ class _GlobalErrorBoundaryState extends State<GlobalErrorBoundary> {
     super.initState();
     _previousOnError = FlutterError.onError;
     FlutterError.onError = (FlutterErrorDetails details) {
-      FirebaseCrashlytics.instance.recordFlutterError(details);
+      if (FirebaseGuard.isReady) {
+        FirebaseCrashlytics.instance.recordFlutterError(details);
+      }
       _setError(details.exception);
       _previousOnError?.call(details);
     };
@@ -81,9 +84,7 @@ class _GlobalErrorBoundaryState extends State<GlobalErrorBoundary> {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () {
-                  // In a real app, you might want to restart the app or navigate to home
-                },
+                onPressed: () {},
                 child: const Text('إعادة المحاولة'),
               ),
             ],
@@ -98,12 +99,10 @@ class _GlobalErrorBoundaryState extends State<GlobalErrorBoundary> {
     if (_hasError) {
       return _defaultErrorBuilder(context, _error!);
     }
-
     return widget.child;
   }
 }
 
-// Extension to wrap a widget with an error boundary
 extension ErrorBoundaryExtension on Widget {
   Widget withErrorBoundary() => GlobalErrorBoundary(child: this);
 }

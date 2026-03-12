@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
         ),
         appBar: AppBar(
           flexibleSpace: const HeroHeader(),
-          toolbarHeight: 120,
+          toolbarHeight: 188,
           centerTitle: true,
         ),
         bottomNavigationBar: _GlassNavigationBar(
