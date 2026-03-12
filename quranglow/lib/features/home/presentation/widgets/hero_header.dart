@@ -60,7 +60,7 @@ class HeroHeader extends StatelessWidget {
           SafeArea(
             bottom: false,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
+              padding: const EdgeInsets.fromLTRB(18, 14, 18, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -73,8 +73,8 @@ class HeroHeader extends StatelessWidget {
                       ),
                       const SizedBox(width: 10),
                       Container(
-                        width: 52,
-                        height: 52,
+                        width: 48,
+                        height: 48,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
                           gradient: LinearGradient(
@@ -96,16 +96,19 @@ class HeroHeader extends StatelessWidget {
                         child: Icon(
                           Icons.menu_book_rounded,
                           color: cs.onPrimary,
-                          size: 28,
+                          size: 26,
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               'QuranGlow',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: theme.textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: 0.2,
@@ -114,6 +117,8 @@ class HeroHeader extends StatelessWidget {
                             const SizedBox(height: 2),
                             Text(
                               'رحلة يومية أهدأ مع القرآن والتدبر',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: cs.onSurfaceVariant,
                                 fontWeight: FontWeight.w600,
@@ -122,74 +127,87 @@ class HeroHeader extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 7,
-                        ),
-                        decoration: BoxDecoration(
-                          color: cs.surface.withValues(alpha: 0.72),
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(
-                            color: cs.outlineVariant.withValues(alpha: 0.7),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 7,
                           ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.wb_sunny_outlined,
-                              size: 15,
-                              color: cs.primary,
+                          decoration: BoxDecoration(
+                            color: cs.surface.withValues(alpha: 0.72),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: cs.outlineVariant.withValues(alpha: 0.7),
                             ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'ورد اليوم',
-                              style: theme.textTheme.labelMedium?.copyWith(
-                                fontWeight: FontWeight.w800,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.wb_sunny_outlined,
+                                size: 15,
                                 color: cs.primary,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  'ورد اليوم',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.labelMedium?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: cs.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const Spacer(),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    decoration: BoxDecoration(
-                      color: cs.surface.withValues(alpha: 0.78),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: cs.outlineVariant.withValues(alpha: 0.65),
+                  const SizedBox(height: 10),
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
                       ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: cs.primary,
-                            fontWeight: FontWeight.w800,
-                          ),
+                      decoration: BoxDecoration(
+                        color: cs.surface.withValues(alpha: 0.78),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: cs.outlineVariant.withValues(alpha: 0.65),
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'اقرأ، استمع، تابع أهدافك، وانتقل سريعًا إلى أكثر ما تحتاجه من الصفحة الرئيسية.',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            height: 1.5,
-                            color: cs.onSurfaceVariant,
-                            fontWeight: FontWeight.w600,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'بسم الله الرحمن الرحيم',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: cs.primary,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 4),
+                          Text(
+                            'اقرأ، استمع، تابع أهدافك، وانتقل سريعًا إلى أكثر ما تحتاجه من الصفحة الرئيسية.',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              height: 1.35,
+                              color: cs.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
