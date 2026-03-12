@@ -257,19 +257,20 @@ class QiblaCompassState extends State<QiblaCompass>
                       rotationDeg: heading,
                       ringsColor: cs.outlineVariant,
                     ),
-                    AnimatedBuilder(
-                      animation: _animationController,
-                      builder: (context, child) {
-                        return CustomPaint(
-                          size: Size.infinite,
-                          painter: BurningEffectPainter(
-                            rotation: delta,
-                            color: cs.primary,
-                            animationValue: _animationController.value,
-                          ),
-                        );
-                      },
-                    ),
+                    if (widget.showEffects)
+                      AnimatedBuilder(
+                        animation: _animationController,
+                        builder: (context, child) {
+                          return CustomPaint(
+                            size: Size.infinite,
+                            painter: BurningEffectPainter(
+                              rotation: delta,
+                              color: cs.primary,
+                              animationValue: _animationController.value,
+                            ),
+                          );
+                        },
+                      ),
                     QiblaArrow(rotationDeg: delta, color: cs.primary),
                     Container(
                       width: 12,
@@ -287,30 +288,35 @@ class QiblaCompassState extends State<QiblaCompass>
           ),
         ),
         const SizedBox(height: 12),
-        info.InfoRow(
-          heading: _smoothedHeading ?? _heading,
-          bearing: _bearingToQibla,
-          delta: _delta,
-        ),
-        const SizedBox(height: 10),
-        CalibrationCard(status: _sensorStatus == 'CALIBRATION' ? 'WARN' : 'OK'),
-        const SizedBox(height: 10),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: cs.surface.withValues(alpha: 0.9),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.6)),
+        if (widget.showInfoCards) ...[
+          info.InfoRow(
+            heading: _smoothedHeading ?? _heading,
+            bearing: _bearingToQibla,
+            delta: _delta,
           ),
-          child: Text(
-            hint,
-            style: TextStyle(
-              color: hintColor,
-              fontWeight: FontWeight.w600,
+          const SizedBox(height: 10),
+        ],
+        if (widget.showCalibrationCard) ...[
+          CalibrationCard(status: _sensorStatus == 'CALIBRATION' ? 'WARN' : 'OK'),
+          const SizedBox(height: 10),
+        ],
+        if (widget.showHintCard)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: cs.surface.withValues(alpha: 0.9),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.6)),
+            ),
+            child: Text(
+              hint,
+              style: TextStyle(
+                color: hintColor,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
-        ),
       ],
     );
   }
