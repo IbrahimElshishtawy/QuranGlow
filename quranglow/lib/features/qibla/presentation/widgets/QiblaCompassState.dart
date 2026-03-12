@@ -1,10 +1,10 @@
-// lib/features/ui/pages/qibla/widgets/QiblaCompassState.dart
 import 'dart:async';
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
-
+import 'package:quranglow/features/qibla/presentation/widgets/burning_effect_painter.dart';
 import 'package:quranglow/features/qibla/presentation/widgets/compass_dial.dart'
     as dial;
 import 'package:quranglow/features/qibla/presentation/widgets/info_row.dart'
@@ -12,10 +12,12 @@ import 'package:quranglow/features/qibla/presentation/widgets/info_row.dart'
 import 'package:quranglow/features/qibla/presentation/widgets/loading_error.dart';
 import 'package:quranglow/features/qibla/presentation/widgets/qibla_arrow.dart';
 import 'package:quranglow/features/qibla/presentation/widgets/qibla_compass.dart';
-import 'package:quranglow/features/qibla/presentation/widgets/burning_effect_painter.dart';
 
-class QiblaCompassState extends State<QiblaCompass> with SingleTickerProviderStateMixin {
-  static const _kaabaLat = 21.4225, _kaabaLng = 39.8262;
+class QiblaCompassState extends State<QiblaCompass>
+    with SingleTickerProviderStateMixin {
+  static const _kaabaLat = 21.4225;
+  static const _kaabaLng = 39.8262;
+
   late AnimationController _animationController;
 
   Position? _pos;
@@ -73,7 +75,7 @@ class QiblaCompassState extends State<QiblaCompass> with SingleTickerProviderSta
       final enabled = await Geolocator.isLocationServiceEnabled();
       if (seq != _initSeq || !mounted) return;
       if (!enabled) {
-        _safeSet(() => _error = 'فعّل خدمة الموقع ثم أعد المحاولة');
+        _safeSet(() => _error = 'فعّل خدمة الموقع ثم أعد المحاولة.');
         return;
       }
 
@@ -85,7 +87,7 @@ class QiblaCompassState extends State<QiblaCompass> with SingleTickerProviderSta
       if (seq != _initSeq || !mounted) return;
       if (p == LocationPermission.deniedForever ||
           p == LocationPermission.denied) {
-        _safeSet(() => _error = 'صلاحية الموقع مرفوضة');
+        _safeSet(() => _error = 'صلاحية الموقع مرفوضة.');
         return;
       }
 
@@ -102,44 +104,38 @@ class QiblaCompassState extends State<QiblaCompass> with SingleTickerProviderSta
       );
       _safeSet(() {});
 
-      _posSub =
-          Geolocator.getPositionStream(
-            locationSettings: const LocationSettings(
-              accuracy: LocationAccuracy.low,
-              distanceFilter: 2,
-            ),
-          ).listen((p) {
-            if (!mounted || seq != _initSeq) return;
-            _pos = p;
-            _bearingToQibla = _bearing(
-              p.latitude,
-              p.longitude,
-              _kaabaLat,
-              _kaabaLng,
-            );
+      _posSub = Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.low,
+          distanceFilter: 2,
+        ),
+      ).listen((p) {
+        if (!mounted || seq != _initSeq) return;
+        _pos = p;
+        _bearingToQibla = _bearing(p.latitude, p.longitude, _kaabaLat, _kaabaLng);
 
-            if (_usingCourse || _heading == null) {
-              if (p.speed > 1.0 && p.heading >= 0) {
-                final course = _normalize(p.heading);
-                _usingCourse = true;
-                _sensorStatus = 'GPS-course';
-                _applyHeading(course);
-              }
-            }
+        if (_usingCourse || _heading == null) {
+          if (p.speed > 1.0 && p.heading >= 0) {
+            final course = _normalize(p.heading);
+            _usingCourse = true;
+            _sensorStatus = 'COURSE';
+            _applyHeading(course);
+          }
+        }
 
-            _updateDelta();
-            _safeSet(() {});
-          });
+        _updateDelta();
+        _safeSet(() {});
+      });
 
       _compassSub = FlutterCompass.events?.listen((e) {
         if (!mounted || seq != _initSeq) return;
 
         final acc = e.accuracy;
         if (acc == null) {
-          _sensorStatus = 'Unknown';
+          _sensorStatus = 'UNKNOWN';
         } else {
           final needsCalib = (acc <= 1) || (acc < 0) || (acc > 15);
-          _sensorStatus = needsCalib ? 'Calibration needed' : 'OK';
+          _sensorStatus = needsCalib ? 'CALIBRATION' : 'OK';
         }
 
         if (e.heading != null) {
@@ -151,7 +147,7 @@ class QiblaCompassState extends State<QiblaCompass> with SingleTickerProviderSta
       });
     } catch (e) {
       if (seq != _initSeq || !mounted) return;
-      _safeSet(() => _error = 'خطأ: $e');
+      _safeSet(() => _error = 'حدث خطأ أثناء تشغيل البوصلة: $e');
     }
   }
 
@@ -169,7 +165,9 @@ class QiblaCompassState extends State<QiblaCompass> with SingleTickerProviderSta
   }
 
   double _bearing(double lat1, double lon1, double lat2, double lon2) {
-    final q1 = _deg2rad(lat1), q2 = _deg2rad(lat2), s = _deg2rad(lon2 - lon1);
+    final q1 = _deg2rad(lat1);
+    final q2 = _deg2rad(lat2);
+    final s = _deg2rad(lon2 - lon1);
     final y = math.sin(s) * math.cos(q2);
     final x =
         math.cos(q1) * math.sin(q2) - math.sin(q1) * math.cos(q2) * math.cos(s);
@@ -188,75 +186,180 @@ class QiblaCompassState extends State<QiblaCompass> with SingleTickerProviderSta
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    if (_error != null) return ErrorCard(message: _error!, onRetry: _init);
-    if (_pos == null) return const LoadingCard();
+    if (_error != null) {
+      return ErrorCard(message: _error!, onRetry: _init);
+    }
+    if (_pos == null) {
+      return const LoadingCard();
+    }
 
     final heading = (_smoothedHeading ?? _heading) ?? 0;
     final delta = _delta ?? 0;
 
     final hint = _usingCourse
-        ? 'لا توجد بوصلة. تحرّك قليلًا ليُستنتج الاتجاه من GPS.'
-        : (_sensorStatus == 'Calibration needed'
-              ? 'حرّك الهاتف شكل 8 وأبعده عن المعادن/المغناطيس.'
-              : 'وجّه الهاتف أفقيًا بعيدًا عن المعادن والمغناطيس.');
+        ? 'لا يوجد مستشعر بوصلة دقيق، يتم الاعتماد على حركة GPS.'
+        : (_sensorStatus == 'CALIBRATION'
+              ? 'حرّك الهاتف بشكل 8 وابتعد عن المعادن لتحسين الدقة.'
+              : 'ثبّت الهاتف أفقيًا ووجّه السهم حتى يتطابق مع اتجاه القبلة.');
 
     final hintColor = _usingCourse
-        ? Colors.orange
-        : (_sensorStatus == 'Calibration needed'
-              ? Colors.orange
-              : cs.onSurfaceVariant);
+        ? cs.tertiary
+        : (_sensorStatus == 'CALIBRATION' ? cs.tertiary : cs.onSurfaceVariant);
 
     return Column(
       children: [
-        Card(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: Stack(
-                alignment: Alignment.center,
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [cs.surface, cs.surfaceContainerHigh],
+            ),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.65)),
+            boxShadow: [
+              BoxShadow(
+                color: cs.shadow.withValues(alpha: 0.10),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Row(
                 children: [
-                  dial.CompassDial(
-                    rotationDeg: heading,
-                    ringsColor: cs.outlineVariant,
+                  _StatusChip(
+                    icon: _usingCourse
+                        ? Icons.my_location_rounded
+                        : Icons.sensors_rounded,
+                    text: _usingCourse ? 'وضع GPS' : 'وضع البوصلة',
                   ),
-                  AnimatedBuilder(
-                    animation: _animationController,
-                    builder: (context, child) {
-                      return CustomPaint(
-                        size: Size.infinite,
-                        painter: BurningEffectPainter(
-                          rotation: delta,
-                          color: cs.primary,
-                          animationValue: _animationController.value,
-                        ),
-                      );
-                    },
-                  ),
-                  QiblaArrow(rotationDeg: delta, color: cs.primary),
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: cs.primary,
-                      shape: BoxShape.circle,
+                  const Spacer(),
+                  Text(
+                    'الدقة: ${_statusLabel(_sensorStatus)}',
+                    style: TextStyle(
+                      color: cs.onSurfaceVariant,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 14),
+              AspectRatio(
+                aspectRatio: 1,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    dial.CompassDial(
+                      rotationDeg: heading,
+                      ringsColor: cs.outlineVariant,
+                    ),
+                    AnimatedBuilder(
+                      animation: _animationController,
+                      builder: (context, child) {
+                        return CustomPaint(
+                          size: Size.infinite,
+                          painter: BurningEffectPainter(
+                            rotation: delta,
+                            color: cs.primary,
+                            animationValue: _animationController.value,
+                          ),
+                        );
+                      },
+                    ),
+                    QiblaArrow(rotationDeg: delta, color: cs.primary),
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: cs.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: cs.surface, width: 2),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         info.InfoRow(
           heading: _smoothedHeading ?? _heading,
           bearing: _bearingToQibla,
           delta: _delta,
         ),
-        const SizedBox(height: 12),
-        Text(hint, style: TextStyle(color: hintColor)),
+        const SizedBox(height: 10),
+        CalibrationCard(status: _sensorStatus == 'CALIBRATION' ? 'WARN' : 'OK'),
+        const SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: cs.surface.withValues(alpha: 0.9),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.6)),
+          ),
+          child: Text(
+            hint,
+            style: TextStyle(
+              color: hintColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
       ],
+    );
+  }
+
+  String _statusLabel(String value) {
+    switch (value) {
+      case 'OK':
+        return 'ممتازة';
+      case 'CALIBRATION':
+        return 'تحتاج معايرة';
+      case 'COURSE':
+        return 'GPS';
+      default:
+        return 'غير محددة';
+    }
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: cs.primary.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: cs.primary.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: cs.primary, size: 16),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: TextStyle(
+              color: cs.primary,
+              fontWeight: FontWeight.w700,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
