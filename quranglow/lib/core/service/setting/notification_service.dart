@@ -280,6 +280,41 @@ class NotificationService {
     );
   }
 
+  Future<void> showInstant({
+    required int id,
+    required String title,
+    required String body,
+  }) async {
+    if (kIsWeb) return;
+
+    const android = AndroidNotificationDetails(
+      _remindersChannelId,
+      'تذكيرات الأذكار',
+      channelDescription: 'تذكيرات الأذكار والمواعيد التي يحددها المستخدم',
+      importance: Importance.max,
+      priority: Priority.high,
+      category: AndroidNotificationCategory.reminder,
+      showWhen: true,
+      enableVibration: true,
+      playSound: true,
+    );
+    const ios = DarwinNotificationDetails();
+    const mac = DarwinNotificationDetails();
+    const win = WindowsNotificationDetails();
+
+    await _plugin.show(
+      id,
+      title,
+      body,
+      const NotificationDetails(
+        android: android,
+        iOS: ios,
+        macOS: mac,
+        windows: win,
+      ),
+    );
+  }
+
   Future<void> cancel(int id) async => _plugin.cancel(id);
   Future<void> cancelAll() => _plugin.cancelAll();
 }
