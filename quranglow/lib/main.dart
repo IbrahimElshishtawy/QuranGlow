@@ -29,7 +29,6 @@ Future<void> main() async {
   );
 
   if (firebaseReady) {
-    // Simple anonymous sign in for syncing
     if (!kDebugMode) {
       unawaited(
         _safeInit(
@@ -56,7 +55,8 @@ Future<void> main() async {
     () => Hive.initFlutter(),
     timeout: const Duration(seconds: 5),
   );
-  final shouldInitAudioService = !(defaultTargetPlatform == TargetPlatform.android && kDebugMode);
+  final shouldInitAudioService =
+      !(defaultTargetPlatform == TargetPlatform.android && kDebugMode);
   if (shouldInitAudioService) {
     await _safeInit(
       'audio-handler',
