@@ -115,53 +115,6 @@
 
 ---
 
-## 🚀 التشغيل محلياً
-
-### المتطلبات
-
-- Flutter SDK `>=3.0.0`
-- Dart `>=3.0.0`
-- Android SDK
-
-### الخطوات
-
-```bash
-# 1. استنساخ المستودع
-git clone https://github.com/IbrahimElshishtawy/QuranGlow.git
-cd QuranGlow
-
-# 2. تثبيت المكتبات
-flutter pub get
-
-# 3. تشغيل التطبيق
-flutter run
-```
-
-### بناء نسخة الإصدار
-
-```bash
-flutter build apk --release
-```
-
-الملف الناتج في:
-```
-build/app/outputs/flutter-apk/app-release.apk
-```
-
----
-
-## 📦 نشر إصدار جديد على GitHub
-
-```bash
-flutter build apk --release
-```
-
-1. افتح صفحة **Releases** في المستودع
-2. أنشئ **New release** وحدد الـ tag
-3. ارفع الملف من `build/app/outputs/flutter-apk/` باسم `app-release.apk`
-4. انشر الـ Release ✅
-
----
 
 ## 🤝 المساهمة
 
