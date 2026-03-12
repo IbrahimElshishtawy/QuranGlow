@@ -21,22 +21,23 @@ class AboutContactTile extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 42,
-              height: 42,
+              width: 46,
+              height: 46,
               decoration: BoxDecoration(
                 color: cs.primary.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(icon, color: cs.primary),
             ),
@@ -47,16 +48,20 @@ class AboutContactTile extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontWeight: FontWeight.w800),
+                    style: TextStyle(
+                      color: cs.onSurface,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                    ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 4),
                   SelectableText(
                     value,
                     style: TextStyle(
                       color: cs.onSurfaceVariant,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      height: 1.4,
+                      height: 1.45,
                     ),
                   ),
                   if (onOpen != null) ...[

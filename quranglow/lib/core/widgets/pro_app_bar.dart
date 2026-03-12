@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quranglow/features/ui/routes/app_routes.dart';
 
 class ProAppBar extends StatelessWidget implements PreferredSizeWidget {
   const ProAppBar({
@@ -44,6 +45,11 @@ class ProAppBar extends StatelessWidget implements PreferredSizeWidget {
                     () {
                       if (Navigator.of(context).canPop()) {
                         Navigator.of(context).maybePop();
+                      } else {
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          AppRoutes.home,
+                          (route) => false,
+                        );
                       }
                     },
                 style: IconButton.styleFrom(

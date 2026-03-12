@@ -14,43 +14,41 @@ class AboutShareCard extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    return Card(
-      elevation: 0,
-      color: cs.surfaceContainerLow,
-      shape: RoundedRectangleBorder(
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(24),
-        side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.7)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.60)),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'مشاركة بيانات المطور',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w900,
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'مشاركة بيانات المطور',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w900,
             ),
-            const SizedBox(height: 8),
-            Text(
-              'مفيد لو أردت إرسال صفحة التواصل أو بيانات المطور لشخص آخر.',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: cs.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
-              ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'إذا أردت إرسال بيانات التواصل أو التعريف بالتطبيق لشخص آخر، يمكنك مشاركتها مباشرة.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: cs.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+              height: 1.45,
             ),
-            const SizedBox(height: 14),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: () => Share.share(shareText),
-                icon: const Icon(Icons.share_rounded),
-                label: const Text('مشاركة المعلومات'),
-              ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => Share.share(shareText),
+              icon: const Icon(Icons.share_rounded),
+              label: const Text('مشاركة المعلومات'),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

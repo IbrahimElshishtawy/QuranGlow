@@ -1,140 +1,138 @@
-// ignore_for_file: deprecated_member_use
-
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 class HeroHeader extends StatelessWidget {
   const HeroHeader({super.key});
 
-  // ── Brand palette (override with your ThemeData) ──
   static const Color _gold = Color(0xFFD4A847);
-  static const Color _goldLight = Color(0xFFF0CC72);
-  static const Color _midnight = Color(0xFF0D1117);
-  static const Color _surface1 = Color(0xFF161C26);
-  static const Color _surface2 = Color(0xFF1E2736);
-  static const Color _textPrimary = Color(0xFFF0EDE6);
-  static const Color _textSecondary = Color(0xFF8A96A8);
+  static const Color _goldSoft = Color(0xFFF0CC72);
+  static const Color _night = Color(0xFF0C1320);
+  static const Color _nightSoft = Color(0xFF162033);
+  static const Color _ink = Color(0xFFF6F1E8);
+  static const Color _muted = Color(0xFFB2BAC8);
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      child: SizedBox(
-        width: double.infinity,
-        child: DecoratedBox(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [_midnight, _surface1, Color(0xFF12182B)],
-              stops: [0.0, 0.55, 1.0],
+    final width = MediaQuery.sizeOf(context).width;
+    final compact = width < 380;
+
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [_night, _nightSoft, Color(0xFF101A2B)],
+          stops: [0.0, 0.58, 1.0],
+        ),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          const Positioned.fill(child: _PatternLayer()),
+          Positioned(
+            top: -44,
+            right: -36,
+            child: _GlowOrb(
+              size: compact ? 180 : 220,
+              color: _gold.withValues(alpha: 0.10),
             ),
           ),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // ── Background: Islamic star pattern ──
-              const Positioned.fill(child: _IslamicPatternBackground()),
-
-              // ── Glow orbs ──
-              Positioned(
-                top: -50,
-                right: -40,
-                child: _GlowOrb(
-                  size: 220,
-                  color: _gold.withValues(alpha: 0.10),
+          Positioned(
+            bottom: -70,
+            left: -30,
+            child: _GlowOrb(
+              size: compact ? 140 : 180,
+              color: const Color(0xFF4A6FA1).withValues(alpha: 0.12),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 1.4,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.transparent,
+                    _gold,
+                    _goldSoft,
+                    _gold,
+                    Colors.transparent,
+                  ],
                 ),
               ),
-              Positioned(
-                bottom: -60,
-                left: -30,
-                child: _GlowOrb(
-                  size: 180,
-                  color: const Color(0xFF3A6EA8).withValues(alpha: 0.12),
-                ),
+            ),
+          ),
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                16,
+                compact ? 10 : 12,
+                16,
+                compact ? 12 : 14,
               ),
-
-              // ── Gold shimmer line (top border) ──
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 1.5,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.transparent,
-                        _gold,
-                        _goldLight,
-                        _gold,
-                        Colors.transparent,
+              child: Column(
+                children: [
+                  _HeaderTopRow(compact: compact),
+                  SizedBox(height: compact ? 12 : 14),
+                  Expanded(
+                    child: const Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(flex: 11, child: _MainHeroCard()),
+                        SizedBox(width: 10),
+                        Expanded(flex: 7, child: _SideHeroCard()),
                       ],
-                      stops: [0.0, 0.25, 0.5, 0.75, 1.0],
                     ),
                   ),
-                ),
+                ],
               ),
-
-              // ── Content ──
-              SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Top bar
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          _MenuButton(),
-                          const SizedBox(width: 12),
-                          const Expanded(child: _BrandBlock()),
-                          const SizedBox(width: 10),
-                          const _DailyWirdPill(),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-
-                      // Hero cards row
-                      IntrinsicHeight(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: const [
-                            Expanded(flex: 11, child: _MainHeroCard()),
-                            SizedBox(width: 10),
-                            Expanded(flex: 7, child: _SideHeroCard()),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
 
-// ── Islamic Geometric Pattern (pure Canvas) ──────────────────────────────────
+class _HeaderTopRow extends StatelessWidget {
+  const _HeaderTopRow({required this.compact});
 
-class _IslamicPatternBackground extends StatelessWidget {
-  const _IslamicPatternBackground();
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(painter: _IslamicPatternPainter());
+    return Row(
+      children: [
+        const _MenuButton(),
+        const SizedBox(width: 12),
+        const Expanded(child: _BrandBlock()),
+        if (!compact) ...[
+          const SizedBox(width: 10),
+          const _DailyWirdPill(),
+        ],
+      ],
+    );
   }
 }
 
-class _IslamicPatternPainter extends CustomPainter {
+class _PatternLayer extends StatelessWidget {
+  const _PatternLayer();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(painter: _PatternPainter());
+  }
+}
+
+class _PatternPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFFD4A847).withOpacity(0.045)
+      ..color = HeroHeader._gold.withValues(alpha: 0.045)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.7;
 
@@ -146,26 +144,28 @@ class _IslamicPatternPainter extends CustomPainter {
     }
   }
 
-  void _drawStar(Canvas canvas, Offset center, double r, Paint paint) {
+  void _drawStar(Canvas canvas, Offset center, double radius, Paint paint) {
     const points = 8;
     const inner = 0.42;
     final path = Path();
     for (int i = 0; i < points * 2; i++) {
       final angle = (i * math.pi / points) - math.pi / 2;
-      final radius = i.isEven ? r : r * inner;
-      final x = center.dx + radius * math.cos(angle);
-      final y = center.dy + radius * math.sin(angle);
-      i == 0 ? path.moveTo(x, y) : path.lineTo(x, y);
+      final currentRadius = i.isEven ? radius : radius * inner;
+      final x = center.dx + currentRadius * math.cos(angle);
+      final y = center.dy + currentRadius * math.sin(angle);
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
     }
     path.close();
     canvas.drawPath(path, paint);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter old) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
-
-// ── Brand Block ───────────────────────────────────────────────────────────────
 
 class _BrandBlock extends StatelessWidget {
   const _BrandBlock();
@@ -174,7 +174,6 @@ class _BrandBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Logo mark
         Container(
           width: 46,
           height: 46,
@@ -183,23 +182,23 @@ class _BrandBlock extends StatelessWidget {
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFFD4A847), Color(0xFF9E7520)],
+              colors: [HeroHeader._gold, Color(0xFF9F741F)],
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFD4A847).withValues(alpha: 0.35),
+                color: HeroHeader._gold.withValues(alpha: 0.28),
                 blurRadius: 18,
                 offset: const Offset(0, 6),
               ),
             ],
           ),
           child: const Icon(
-            Icons.menu_book_rounded,
+            Icons.auto_stories_rounded,
             color: Colors.white,
             size: 24,
           ),
         ),
-        const SizedBox(width: 11),
+        const SizedBox(width: 12),
         Expanded(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -208,7 +207,7 @@ class _BrandBlock extends StatelessWidget {
               ShaderMask(
                 blendMode: BlendMode.srcIn,
                 shaderCallback: (bounds) => const LinearGradient(
-                  colors: [Color(0xFFF0CC72), Color(0xFFD4A847)],
+                  colors: [HeroHeader._goldSoft, HeroHeader._gold],
                 ).createShader(bounds),
                 child: const Text(
                   'QuranGlow',
@@ -217,21 +216,20 @@ class _BrandBlock extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 18,
-                    letterSpacing: 0.5,
-                    color: Colors.white, // masked by shader
+                    letterSpacing: 0.4,
+                    color: Colors.white,
                   ),
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 3),
               const Text(
-                'قراءة أهدأ • استماع أسهل • تنقل أسرع',
+                'رفيق يومي لقراءة القرآن والاستماع والتدبر',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: HeroHeader._textSecondary,
-                  fontSize: 10,
+                  color: HeroHeader._muted,
+                  fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  letterSpacing: 0.2,
                 ),
               ),
             ],
@@ -242,35 +240,29 @@ class _BrandBlock extends StatelessWidget {
   }
 }
 
-// ── Daily Wird Pill ───────────────────────────────────────────────────────────
-
 class _DailyWirdPill extends StatelessWidget {
   const _DailyWirdPill();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: HeroHeader._gold.withValues(alpha: 0.45),
-          width: 1,
-        ),
-        color: HeroHeader._gold.withValues(alpha: 0.08),
+        color: HeroHeader._gold.withValues(alpha: 0.10),
+        border: Border.all(color: HeroHeader._gold.withValues(alpha: 0.35)),
       ),
       child: const Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.wb_sunny_outlined, size: 13, color: HeroHeader._gold),
-          SizedBox(width: 5),
+          Icon(Icons.wb_sunny_outlined, size: 14, color: HeroHeader._gold),
+          SizedBox(width: 6),
           Text(
             'ورد اليوم',
             style: TextStyle(
-              color: HeroHeader._gold,
+              color: HeroHeader._goldSoft,
               fontSize: 11,
               fontWeight: FontWeight.w800,
-              letterSpacing: 0.3,
             ),
           ),
         ],
@@ -279,21 +271,20 @@ class _DailyWirdPill extends StatelessWidget {
   }
 }
 
-// ── Menu Button ───────────────────────────────────────────────────────────────
-
 class _MenuButton extends StatelessWidget {
+  const _MenuButton();
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 44,
-      height: 44,
+      width: 46,
+      height: 46,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
+        color: HeroHeader._nightSoft.withValues(alpha: 0.72),
         border: Border.all(
-          color: HeroHeader._gold.withValues(alpha: 0.25),
-          width: 1,
+          color: HeroHeader._gold.withValues(alpha: 0.22),
         ),
-        color: HeroHeader._surface2.withValues(alpha: 0.6),
       ),
       child: Builder(
         builder: (ctx) => IconButton(
@@ -301,7 +292,7 @@ class _MenuButton extends StatelessWidget {
           onPressed: () => Scaffold.of(ctx).openDrawer(),
           icon: const Icon(
             Icons.menu_rounded,
-            color: HeroHeader._gold,
+            color: HeroHeader._goldSoft,
             size: 20,
           ),
         ),
@@ -310,39 +301,29 @@ class _MenuButton extends StatelessWidget {
   }
 }
 
-// ── Main Hero Card ────────────────────────────────────────────────────────────
-
 class _MainHeroCard extends StatelessWidget {
   const _MainHeroCard();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: HeroHeader._gold.withValues(alpha: 0.20),
-          width: 1,
-        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: HeroHeader._gold.withValues(alpha: 0.18)),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            HeroHeader._surface2.withValues(alpha: 0.85),
-            HeroHeader._surface1.withValues(alpha: 0.70),
+            HeroHeader._nightSoft.withValues(alpha: 0.90),
+            const Color(0xFF141D2D).withValues(alpha: 0.82),
           ],
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.30),
+            color: Colors.black.withValues(alpha: 0.28),
             blurRadius: 24,
             offset: const Offset(0, 8),
-          ),
-          BoxShadow(
-            color: HeroHeader._gold.withValues(alpha: 0.06),
-            blurRadius: 40,
-            offset: const Offset(0, 0),
           ),
         ],
       ),
@@ -350,73 +331,60 @@ class _MainHeroCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Bismillah badge
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(999),
-              gradient: LinearGradient(
-                colors: [
-                  HeroHeader._gold.withValues(alpha: 0.18),
-                  HeroHeader._gold.withValues(alpha: 0.08),
-                ],
-              ),
-              border: Border.all(
-                color: HeroHeader._gold.withValues(alpha: 0.30),
-                width: 0.8,
-              ),
+              color: HeroHeader._gold.withValues(alpha: 0.10),
+              border: Border.all(color: HeroHeader._gold.withValues(alpha: 0.24)),
             ),
             child: const Text(
               'بسم الله الرحمن الرحيم',
               style: TextStyle(
-                color: HeroHeader._gold,
-                fontWeight: FontWeight.w900,
+                color: HeroHeader._goldSoft,
+                fontWeight: FontWeight.w800,
                 fontSize: 10,
-                letterSpacing: 0.5,
               ),
             ),
           ),
-          const SizedBox(height: 12),
-
-          // Main headline
+          const SizedBox(height: 8),
           const Text(
             'ابدأ يومك\nمع القرآن',
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: HeroHeader._textPrimary,
+              color: HeroHeader._ink,
               fontWeight: FontWeight.w900,
-              fontSize: 20,
-              height: 1.15,
-              letterSpacing: 0.2,
+              fontSize: 18,
+              height: 1.05,
             ),
           ),
-          const SizedBox(height: 6),
-
-          // Sub headline
+          const SizedBox(height: 8),
           const Text(
-            'اقرأ واستمع وتابع أهدافك من مكان واحد.',
+            'تلاوة هادئة، وصول سريع للسور، واستمرار في وردك اليومي داخل واجهة واحدة.',
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: HeroHeader._textSecondary,
+              color: HeroHeader._muted,
               fontSize: 11,
+              height: 1.35,
               fontWeight: FontWeight.w500,
-              height: 1.4,
             ),
           ),
-          const SizedBox(height: 14),
-
-          // Stat chips row
+          const SizedBox(height: 8),
           const Row(
             children: [
               Expanded(
                 child: _StatChip(
-                  icon: Icons.headphones_rounded,
-                  label: 'استماع أسرع',
+                  icon: Icons.menu_book_rounded,
+                  label: 'مصحف منظم',
                 ),
               ),
               SizedBox(width: 8),
               Expanded(
                 child: _StatChip(
-                  icon: Icons.track_changes_rounded,
-                  label: 'تقدم يومي',
+                  icon: Icons.headphones_rounded,
+                  label: 'استماع أسهل',
                 ),
               ),
             ],
@@ -426,8 +394,6 @@ class _MainHeroCard extends StatelessWidget {
     );
   }
 }
-
-// ── Side Hero Card ────────────────────────────────────────────────────────────
 
 class _SideHeroCard extends StatelessWidget {
   const _SideHeroCard();
@@ -437,7 +403,7 @@ class _SideHeroCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -445,130 +411,149 @@ class _SideHeroCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFD4A847).withValues(alpha: 0.30),
-            blurRadius: 28,
+            color: HeroHeader._gold.withValues(alpha: 0.28),
+            blurRadius: 24,
             offset: const Offset(0, 10),
           ),
         ],
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Icon container
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.15),
-                width: 1,
-              ),
-            ),
-            child: const Icon(
-              Icons.bolt_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-          const SizedBox(height: 14),
-
-          // Title
-          const Text(
-            'ابدأ الآن',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w900,
-              fontSize: 16,
-              letterSpacing: 0.3,
-            ),
-          ),
-          const SizedBox(height: 4),
-
-          // Tags
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _GoldTag(label: 'مصحف'),
-              const SizedBox(height: 4),
-              _GoldTag(label: 'بحث'),
-              const SizedBox(height: 4),
-              _GoldTag(label: 'مشغل'),
-            ],
-          ),
+          _ActionBadge(),
+          SizedBox(height: 10),
+          Expanded(child: _SideHeroContent()),
         ],
       ),
     );
   }
 }
 
-// ── Gold Tag (inside side card) ───────────────────────────────────────────────
+class _ActionBadge extends StatelessWidget {
+  const _ActionBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(13),
+        color: Colors.black.withValues(alpha: 0.18),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+      ),
+      child: const Icon(
+        Icons.nightlight_round_rounded,
+        color: Colors.white,
+        size: 20,
+      ),
+    );
+  }
+}
+
+class _SideHeroContent extends StatelessWidget {
+  const _SideHeroContent();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'رحلة إيمانية',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
+                fontSize: 14,
+              ),
+            ),
+            SizedBox(height: 4),
+            Text(
+              'اقرأ وابحث واستمع بسهولة',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Color(0xFFF7E8C2),
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: const [
+            _GoldTag(label: 'مصحف'),
+            _GoldTag(label: 'تفسير'),
+          ],
+        ),
+      ],
+    );
+  }
+}
 
 class _GoldTag extends StatelessWidget {
   const _GoldTag({required this.label});
+
   final String label;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.15),
+        color: Colors.black.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.25),
-          width: 0.8,
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
       ),
       child: Text(
         label,
         style: const TextStyle(
           color: Colors.white,
-          fontSize: 10,
+          fontSize: 9,
           fontWeight: FontWeight.w700,
-          letterSpacing: 0.4,
         ),
       ),
     );
   }
 }
 
-// ── Stat Chip ─────────────────────────────────────────────────────────────────
-
 class _StatChip extends StatelessWidget {
   const _StatChip({required this.icon, required this.label});
+
   final IconData icon;
   final String label;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
       decoration: BoxDecoration(
-        color: HeroHeader._gold.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: HeroHeader._gold.withValues(alpha: 0.20),
-          width: 0.8,
-        ),
+        borderRadius: BorderRadius.circular(12),
+        color: HeroHeader._gold.withValues(alpha: 0.09),
+        border: Border.all(color: HeroHeader._gold.withValues(alpha: 0.18)),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: HeroHeader._gold),
-          const SizedBox(width: 5),
+          Icon(icon, size: 14, color: HeroHeader._goldSoft),
+          const SizedBox(width: 6),
           Expanded(
             child: Text(
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                color: HeroHeader._gold,
-                fontSize: 9.5,
+                color: HeroHeader._goldSoft,
+                fontSize: 9,
                 fontWeight: FontWeight.w800,
-                letterSpacing: 0.2,
               ),
             ),
           ),
@@ -578,10 +563,9 @@ class _StatChip extends StatelessWidget {
   }
 }
 
-// ── Glow Orb ──────────────────────────────────────────────────────────────────
-
 class _GlowOrb extends StatelessWidget {
   const _GlowOrb({required this.size, required this.color});
+
   final double size;
   final Color color;
 
@@ -593,7 +577,9 @@ class _GlowOrb extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: RadialGradient(colors: [color, color.withValues(alpha: 0)]),
+          gradient: RadialGradient(
+            colors: [color, color.withValues(alpha: 0)],
+          ),
         ),
       ),
     );

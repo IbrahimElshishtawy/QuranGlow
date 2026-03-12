@@ -22,111 +22,115 @@ class AboutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: const ProAppBar(
           title: 'عن التطبيق',
-          subtitle: 'تعرف على QuranGlow والمطور ووسائل التواصل',
+          subtitle: 'هوية التطبيق والمطور ووسائل التواصل',
         ),
-        body: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            const AboutHeroCard(),
-            const SizedBox(height: 14),
-            const AboutSectionCard(
-              title: 'QuranGlow',
-              subtitle:
-                  'تطبيق قرآني يومي مصمم لتجربة قراءة واستماع أكثر هدوءًا وتنظيمًا.',
-              child: Column(
-                children: [
-                  AboutFeatureTile(
-                    icon: Icons.menu_book_rounded,
-                    title: 'قراءة المصحف',
-                    subtitle:
-                        'تصفح السور، التنقل بين الآيات، وحفظ موضع القراءة.',
-                  ),
-                  AboutFeatureTile(
-                    icon: Icons.headphones_rounded,
-                    title: 'الاستماع والتنزيل',
-                    subtitle:
-                        'تشغيل السور والآيات مع مكتبة صوتية داخلية للتنزيلات.',
-                  ),
-                  AboutFeatureTile(
-                    icon: Icons.auto_stories_rounded,
-                    title: 'التفسير والبحث',
-                    subtitle:
-                        'الوصول السريع إلى التفسير والبحث داخل الآيات والسور.',
-                  ),
-                  AboutFeatureTile(
-                    icon: Icons.flag_rounded,
-                    title: 'الأهداف والمتابعة',
-                    subtitle:
-                        'متابعة الورد اليومي، الإحصائيات، والعادات القرآنية.',
-                  ),
-                ],
+        body: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [cs.surface, cs.surfaceContainerLowest],
+            ),
+          ),
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              const AboutHeroCard(),
+              const SizedBox(height: 16),
+              const AboutSectionCard(
+                title: 'رسالة التطبيق',
+                subtitle:
+                    'تجربة قرآنية هادئة تجمع القراءة والتفسير والاستماع والمتابعة اليومية في واجهة واحدة.',
+                child: Column(
+                  children: [
+                    AboutFeatureTile(
+                      icon: Icons.menu_book_rounded,
+                      title: 'قراءة واضحة',
+                      subtitle: 'تصفح السور والآيات بسهولة مع حفظ موضع القراءة.',
+                    ),
+                    AboutFeatureTile(
+                      icon: Icons.headphones_rounded,
+                      title: 'استماع وتنزيل',
+                      subtitle: 'تشغيل التلاوات والوصول السريع إلى الملفات المحفوظة.',
+                    ),
+                    AboutFeatureTile(
+                      icon: Icons.auto_stories_rounded,
+                      title: 'تفسير وبحث',
+                      subtitle: 'فهم المعاني والوصول السريع إلى الآيات والسور.',
+                    ),
+                    AboutFeatureTile(
+                      icon: Icons.flag_rounded,
+                      title: 'أهداف يومية',
+                      subtitle: 'متابعة الورد والعادات القرآنية بصورة عملية ومنظمة.',
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 14),
-            AboutSectionCard(
-              title: 'المطور',
-              subtitle: 'تم تطوير التطبيق بواسطة:',
-              child: AboutContactTile(
-                icon: Icons.person_rounded,
-                title: _developerName,
-                value: 'Flutter Developer',
-                onCopy: () => _copy(context, _developerName, 'اسم المطور'),
+              const SizedBox(height: 16),
+              AboutSectionCard(
+                title: 'عن المطور',
+                subtitle: 'تم تطوير QuranGlow بعناية ليكون قريبًا من روح التطبيق وهدوئه.',
+                child: AboutContactTile(
+                  icon: Icons.person_rounded,
+                  title: _developerName,
+                  value: 'Flutter Developer',
+                  onCopy: () => _copy(context, _developerName, 'اسم المطور'),
+                ),
               ),
-            ),
-            const SizedBox(height: 14),
-            AboutSectionCard(
-              title: 'التواصل',
-              subtitle:
-                  'يمكنك نسخ أي وسيلة تواصل أو الضغط على الزر للانتقال للرابط مباشرة.',
-              child: Column(
-                children: [
-                  AboutContactTile(
-                    icon: Icons.phone_rounded,
-                    title: 'رقم الهاتف',
-                    value: _phone,
-                    onCopy: () => _copy(context, _phone, 'رقم الهاتف'),
-                  ),
-                  AboutContactTile(
-                    icon: Icons.facebook_rounded,
-                    title: 'Facebook',
-                    value: _facebook,
-                    onCopy: () => _copy(context, _facebook, 'رابط Facebook'),
-                    onOpen: () => _openLink(context, _facebook, 'Facebook'),
-                  ),
-                  AboutContactTile(
-                    icon: Icons.work_rounded,
-                    title: 'LinkedIn',
-                    value: _linkedin,
-                    onCopy: () => _copy(context, _linkedin, 'رابط LinkedIn'),
-                    onOpen: () => _openLink(context, _linkedin, 'LinkedIn'),
-                  ),
-                  AboutContactTile(
-                    icon: Icons.camera_alt_rounded,
-                    title: 'Instagram',
-                    value: _instagram,
-                    onCopy: () => _copy(context, _instagram, 'رابط Instagram'),
-                    onOpen: () => _openLink(context, _instagram, 'Instagram'),
-                  ),
-                  AboutContactTile(
-                    icon: Icons.code_rounded,
-                    title: 'GitHub',
-                    value: _github,
-                    onCopy: () => _copy(context, _github, 'رابط GitHub'),
-                    onOpen: () => _openLink(context, _github, 'GitHub'),
-                  ),
-                ],
+              const SizedBox(height: 16),
+              AboutSectionCard(
+                title: 'التواصل',
+                subtitle: 'يمكنك نسخ البيانات أو فتح الروابط مباشرة من داخل التطبيق.',
+                child: Column(
+                  children: [
+                    AboutContactTile(
+                      icon: Icons.phone_rounded,
+                      title: 'رقم الهاتف',
+                      value: _phone,
+                      onCopy: () => _copy(context, _phone, 'رقم الهاتف'),
+                    ),
+                    AboutContactTile(
+                      icon: Icons.facebook_rounded,
+                      title: 'Facebook',
+                      value: _facebook,
+                      onCopy: () => _copy(context, _facebook, 'رابط Facebook'),
+                      onOpen: () => _openLink(context, _facebook, 'Facebook'),
+                    ),
+                    AboutContactTile(
+                      icon: Icons.work_rounded,
+                      title: 'LinkedIn',
+                      value: _linkedin,
+                      onCopy: () => _copy(context, _linkedin, 'رابط LinkedIn'),
+                      onOpen: () => _openLink(context, _linkedin, 'LinkedIn'),
+                    ),
+                    AboutContactTile(
+                      icon: Icons.camera_alt_rounded,
+                      title: 'Instagram',
+                      value: _instagram,
+                      onCopy: () => _copy(context, _instagram, 'رابط Instagram'),
+                      onOpen: () => _openLink(context, _instagram, 'Instagram'),
+                    ),
+                    AboutContactTile(
+                      icon: Icons.code_rounded,
+                      title: 'GitHub',
+                      value: _github,
+                      onCopy: () => _copy(context, _github, 'رابط GitHub'),
+                      onOpen: () => _openLink(context, _github, 'GitHub'),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 14),
-            AboutShareCard(
-              shareText: _shareText,
-            ),
-          ],
+              const SizedBox(height: 16),
+              AboutShareCard(shareText: _shareText),
+            ],
+          ),
         ),
       ),
     );

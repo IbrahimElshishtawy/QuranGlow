@@ -17,37 +17,50 @@ class AboutSectionCard extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    return Card(
-      elevation: 0,
-      color: cs.surface,
-      shape: RoundedRectangleBorder(
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.96),
         borderRadius: BorderRadius.circular(24),
-        side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.7)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.60)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w900,
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 52,
+            height: 4,
+            decoration: BoxDecoration(
+              color: cs.primary.withValues(alpha: 0.65),
+              borderRadius: BorderRadius.circular(999),
             ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: cs.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
-                height: 1.4,
-              ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w900,
             ),
-            const SizedBox(height: 14),
-            child,
-          ],
-        ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            subtitle,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: cs.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }

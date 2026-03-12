@@ -55,19 +55,28 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final isCompactWidth = mediaQuery.size.width < 380;
+    final heroToolbarHeight = isCompactWidth ? 308.0 : 292.0;
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
         drawer: AppDrawer(
-          onNavigate: (r) {
+          onNavigate: (route) {
             Navigator.pop(context);
-            Navigator.pushNamed(context, r);
+            Navigator.pushNamed(context, route);
           },
         ),
         appBar: _tab == 0
             ? AppBar(
+                automaticallyImplyLeading: false,
+                backgroundColor: Colors.transparent,
+                surfaceTintColor: Colors.transparent,
+                elevation: 0,
+                scrolledUnderElevation: 0,
                 flexibleSpace: const HeroHeader(),
-                toolbarHeight: 188,
+                toolbarHeight: heroToolbarHeight,
                 centerTitle: true,
               )
             : null,
@@ -266,7 +275,9 @@ class _HomeSections extends StatelessWidget {
             const SliverToBoxAdapter(
               child: SectionSpacing(child: DailyAyahCard()),
             ),
-            const SliverToBoxAdapter(child: SectionSpacing(child: GoalsStrip())),
+            const SliverToBoxAdapter(
+              child: SectionSpacing(child: GoalsStrip()),
+            ),
             const SliverToBoxAdapter(
               child: SectionSpacing(child: LastReadCard()),
             ),
@@ -277,7 +288,9 @@ class _HomeSections extends StatelessWidget {
               child: SectionSpacing(child: ShortcutsList()),
             ),
             SliverToBoxAdapter(
-              child: SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+              child: SizedBox(
+                height: MediaQuery.of(context).padding.bottom + 16,
+              ),
             ),
           ],
         ),

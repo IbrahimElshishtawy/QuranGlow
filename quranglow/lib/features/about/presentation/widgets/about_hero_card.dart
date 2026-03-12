@@ -6,44 +6,50 @@ class AboutHeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final cs = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
         gradient: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
           colors: [
-            colorScheme.primary.withValues(alpha: 0.18),
-            colorScheme.tertiary.withValues(alpha: 0.10),
-            colorScheme.surface,
+            cs.primary.withValues(alpha: 0.20),
+            cs.tertiary.withValues(alpha: 0.08),
+            cs.surface,
           ],
         ),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.65),
-        ),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.65)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 62,
-            height: 62,
+            width: 64,
+            height: 64,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(22),
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  colorScheme.primary.withValues(alpha: 0.96),
-                  colorScheme.primary.withValues(alpha: 0.74),
+                  cs.primary.withValues(alpha: 0.96),
+                  cs.primary.withValues(alpha: 0.72),
                 ],
               ),
             ),
             child: Icon(
               Icons.auto_stories_rounded,
-              color: colorScheme.onPrimary,
+              color: cs.onPrimary,
               size: 30,
             ),
           ),
@@ -54,17 +60,17 @@ class AboutHeroCard extends StatelessWidget {
               children: [
                 Text(
                   'QuranGlow',
-                  style: theme.textTheme.titleLarge?.copyWith(
+                  style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w900,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
-                  'تجربة قرآنية تجمع بين المصحف، الاستماع، التفسير، الأهداف، والتنزيلات في واجهة واحدة.',
+                  'تطبيق قرآني بهوية هادئة ولمسة احترافية، يوازن بين الجمال وسهولة الوصول إلى القراءة والتفسير والاستماع.',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
+                    color: cs.onSurfaceVariant,
+                    height: 1.55,
                     fontWeight: FontWeight.w600,
-                    height: 1.4,
                   ),
                 ),
               ],
