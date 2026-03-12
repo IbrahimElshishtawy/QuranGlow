@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/features/mushaf/presentation/widgets/mushaf_header.dart';
+import 'package:quranglow/features/mushaf/presentation/widgets/mushaf_page_card.dart';
 import 'package:quranglow/features/mushaf/presentation/widgets/page_indicator.dart';
 import 'package:quranglow/features/mushaf/presentation/widgets/page_rich_block.dart';
 import 'package:quranglow/features/mushaf/presentation/widgets/position_store.dart';
@@ -153,57 +154,23 @@ class PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(14, 12, 14, 18),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(26),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          cs.surface.withValues(alpha: 0.78),
-                          cs.surfaceContainerLowest.withValues(alpha: 0.96),
-                        ],
+                  child: MushafPageCard(
+                    header: MushafHeader(surahName: widget.surahName),
+                    content: Expanded(
+                      child: PageRichBlock(
+                        ayat: widget.ayat,
+                        range: r,
+                        showBasmala: widget.showBasmala && pageIndex == 0,
+                        basmalaText: widget.basmalaText,
+                        currentAyahIndex: _currentAyahIdx0,
+                        onTapIndex: _onAyahTap,
+                        onLongPressIndex: _onAyahLongPress,
+                        ayahNumberColor: widget.ayahNumberColor ?? cs.primary,
                       ),
-                      border: Border.all(
-                        color: cs.outlineVariant.withValues(alpha: 0.75),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.08),
-                          blurRadius: 18,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          MushafHeader(surahName: widget.surahName),
-                          const SizedBox(height: 10),
-                          Divider(color: cs.outlineVariant),
-                          const SizedBox(height: 10),
-                          Expanded(
-                            child: PageRichBlock(
-                              ayat: widget.ayat,
-                              range: r,
-                              showBasmala: widget.showBasmala && pageIndex == 0,
-                              basmalaText: widget.basmalaText,
-                              currentAyahIndex: _currentAyahIdx0,
-                              onTapIndex: _onAyahTap,
-                              onLongPressIndex: _onAyahLongPress,
-                              ayahNumberColor:
-                                  widget.ayahNumberColor ?? cs.primary,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          PageIndicator(
-                            current: pageIndex + 1,
-                            total: _pages.length,
-                          ),
-                        ],
-                      ),
+                    indicator: PageIndicator(
+                      current: pageIndex + 1,
+                      total: _pages.length,
                     ),
                   ),
                 ),
