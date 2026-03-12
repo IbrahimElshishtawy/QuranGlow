@@ -16,11 +16,13 @@ class NotificationsSection extends ConsumerStatefulWidget {
 }
 
 class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
+  static const _salawatIntervals = <int>[5, 10, 15, 20, 25];
+
   late final ProviderSubscription<bool> _dailyEnabledSub;
   late final ProviderSubscription<TimeOfDay> _dailyTimeSub;
   late final ProviderSubscription<DailyReminderKind> _dailyKindSub;
   late final ProviderSubscription<bool> _salawatEnabledSub;
-  late final ProviderSubscription<TimeOfDay> _salawatTimeSub;
+  late final ProviderSubscription<int> _salawatIntervalSub;
 
   String _kindLabel(DailyReminderKind kind) {
     switch (kind) {
@@ -35,9 +37,9 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
 
   void _snack(String text, {Color? bg}) {
     final cs = Theme.of(context).colorScheme;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(text), backgroundColor: bg ?? cs.primary),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(text), backgroundColor: bg ?? cs.primary));
   }
 
   Future<void> _rescheduleDaily() async {
@@ -110,10 +112,10 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
       enabled,
     ) async {
       try {
-        final t = ref.read(salawatTimeProvider);
+        final interval = ref.read(salawatIntervalMinutesProvider);
         await NotificationService.instance.scheduleSalawat(
           enabled: enabled,
-          time: t,
+          intervalMinutes: interval,
         );
         _snack(
           enabled
@@ -128,26 +130,26 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
       }
     }, fireImmediately: true);
 
-    _salawatTimeSub = ref.listenManual<TimeOfDay>(salawatTimeProvider, (
-      prev,
-      time,
-    ) async {
-      try {
-        final enabled = ref.read(salawatEnabledProvider);
-        await NotificationService.instance.scheduleSalawat(
-          enabled: enabled,
-          time: time,
-        );
-        if (enabled) {
-          _snack('تم تحديث وقت تذكير الصلاة على النبي إلى ${time.format(context)}');
+    _salawatIntervalSub = ref.listenManual<int>(
+      salawatIntervalMinutesProvider,
+      (prev, interval) async {
+        try {
+          final enabled = ref.read(salawatEnabledProvider);
+          await NotificationService.instance.scheduleSalawat(
+            enabled: enabled,
+            intervalMinutes: interval,
+          );
+          if (enabled) {
+            _snack('تم تحديث تكرار التذكير إلى كل $interval دقائق');
+          }
+        } catch (e) {
+          _snack(
+            'تعذر تحديث تكرار التذكير: $e',
+            bg: Theme.of(context).colorScheme.error,
+          );
         }
-      } catch (e) {
-        _snack(
-          'تعذر تحديث وقت التذكير: $e',
-          bg: Theme.of(context).colorScheme.error,
-        );
-      }
-    });
+      },
+    );
   }
 
   @override
@@ -156,7 +158,7 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
     _dailyTimeSub.close();
     _dailyKindSub.close();
     _salawatEnabledSub.close();
-    _salawatTimeSub.close();
+    _salawatIntervalSub.close();
     super.dispose();
   }
 
@@ -167,7 +169,7 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
     final dailyTime = ref.watch(reminderTimeProvider);
     final dailyKind = ref.watch(dailyReminderKindProvider);
     final salawatEnabled = ref.watch(salawatEnabledProvider);
-    final salawatTime = ref.watch(salawatTimeProvider);
+    final salawatInterval = ref.watch(salawatIntervalMinutesProvider);
 
     return Container(
       margin: const EdgeInsets.all(12),
@@ -244,22 +246,29 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
               contentPadding: EdgeInsets.zero,
               value: salawatEnabled,
               title: const Text('تفعيل تذكير الصلاة على النبي'),
+              subtitle: const Text('رسالة متكررة: صلِّ على محمد ﷺ'),
               onChanged: (value) =>
                   ref.read(salawatEnabledProvider.notifier).state = value,
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('وقت تذكير الصلاة على النبي'),
-              subtitle: Text(salawatTime.format(context)),
-              onTap: () async {
-                final picked = await showTimePicker(
-                  context: context,
-                  initialTime: salawatTime,
-                );
-                if (picked != null) {
-                  ref.read(salawatTimeProvider.notifier).state = picked;
-                }
-              },
+              title: const Text('تكرار التذكير'),
+              subtitle: Text('كل $salawatInterval دقائق'),
+              trailing: DropdownButton<int>(
+                value: salawatInterval,
+                onChanged: (value) {
+                  if (value == null) return;
+                  ref.read(salawatIntervalMinutesProvider.notifier).state = value;
+                },
+                items: _salawatIntervals
+                    .map(
+                      (minutes) => DropdownMenuItem<int>(
+                        value: minutes,
+                        child: Text('كل $minutes دقائق'),
+                      ),
+                    )
+                    .toList(),
+              ),
             ),
             const SizedBox(height: 8),
             Align(

@@ -19,6 +19,7 @@ class NotificationService {
 
   static const _dailyId = 1001;
   static const _salawatId = 1002;
+  static const _salawatBatchSize = 96;
   static const _prayerBaseId = 2000;
 
   Future<void> init() async {
@@ -179,10 +180,11 @@ class NotificationService {
 
   Future<void> scheduleSalawat({
     required bool enabled,
-    required TimeOfDay time,
-    DailyReminderKind kind = DailyReminderKind.quran,
+    required int intervalMinutes,
   }) async {
-    await _plugin.cancel(_salawatId);
+    for (var i = 0; i < _salawatBatchSize; i++) {
+      await _plugin.cancel(_salawatId + i);
+    }
     if (!enabled || kIsWeb) return;
 
     final mode = await _androidScheduleMode();
@@ -201,20 +203,23 @@ class NotificationService {
     const mac = DarwinNotificationDetails();
     const win = WindowsNotificationDetails();
 
-    await _plugin.zonedSchedule(
-      _salawatId,
-      'Ø§Ù„ØµÙ„Ø§Ø© Ø¹Ù„Ù‰ Ø§Ù„Ù†Ø¨ÙŠ ï·º',
-      'ØµÙŽÙ„Ù‘Ù Ø¹Ù„Ù‰ Ø§Ù„Ù†Ø¨ÙŠ ï·º Ø§Ù„Ø¢Ù†',
-      _nextInstanceOf(time),
-      const NotificationDetails(
-        android: android,
-        iOS: ios,
-        macOS: mac,
-        windows: win,
-      ),
-      androidScheduleMode: mode,
-      matchDateTimeComponents: DateTimeComponents.time,
-    );
+    final now = tz.TZDateTime.now(tz.local);
+    for (var i = 0; i < _salawatBatchSize; i++) {
+      final scheduled = now.add(Duration(minutes: intervalMinutes * (i + 1)));
+      await _plugin.zonedSchedule(
+        _salawatId + i,
+        'الصلاة على النبي ﷺ',
+        'صلِّ على محمد ﷺ',
+        scheduled,
+        const NotificationDetails(
+          android: android,
+          iOS: ios,
+          macOS: mac,
+          windows: win,
+        ),
+        androidScheduleMode: mode,
+      );
+    }
   }
 
   Future<void> scheduleReminder({

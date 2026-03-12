@@ -57,7 +57,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final isCompactWidth = mediaQuery.size.width < 380;
-    final heroToolbarHeight = isCompactWidth ? 308.0 : 292.0;
+    final heroToolbarHeight = isCompactWidth ? 356.0 : 336.0;
 
     return Directionality(
       textDirection: TextDirection.rtl,

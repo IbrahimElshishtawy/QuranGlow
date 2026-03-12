@@ -14,9 +14,7 @@ final dailyReminderKindProvider = StateProvider<DailyReminderKind>(
 
 final salawatEnabledProvider = StateProvider<bool>((ref) => false);
 
-final salawatTimeProvider = StateProvider<TimeOfDay>(
-  (ref) => const TimeOfDay(hour: 12, minute: 0),
-);
+final salawatIntervalMinutesProvider = StateProvider<int>((ref) => 5);
 
 final keepScreenOnProvider = StateProvider<bool>((ref) => false);
 final useCellularProvider = StateProvider<bool>((ref) => true);
