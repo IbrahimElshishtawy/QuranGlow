@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:quranglow/core/theme/theme_controller.dart';
 
 enum AudioDownloadMode { fullSurah, selectedAyat }
 
 class AppSettings {
-  final bool darkMode;
+  final ThemeMode themeMode;
   final double fontScale;
   final String readerEditionId;
   final String fontFamily;
@@ -11,7 +12,7 @@ class AppSettings {
   final AudioDownloadMode audioDownloadMode;
 
   const AppSettings({
-    required this.darkMode,
+    this.themeMode = ThemeMode.system,
     required this.fontScale,
     required this.readerEditionId,
     this.fontFamily = 'System',
@@ -19,15 +20,17 @@ class AppSettings {
     this.audioDownloadMode = AudioDownloadMode.fullSurah,
   });
 
+  bool get darkMode => themeMode == ThemeMode.dark;
+
   AppSettings copyWith({
-    bool? darkMode,
+    ThemeMode? themeMode,
     double? fontScale,
     String? readerEditionId,
     String? fontFamily,
     AppColorScheme? colorScheme,
     AudioDownloadMode? audioDownloadMode,
   }) => AppSettings(
-    darkMode: darkMode ?? this.darkMode,
+    themeMode: themeMode ?? this.themeMode,
     fontScale: fontScale ?? this.fontScale,
     readerEditionId: readerEditionId ?? this.readerEditionId,
     fontFamily: fontFamily ?? this.fontFamily,

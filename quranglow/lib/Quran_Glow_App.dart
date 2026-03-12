@@ -99,7 +99,7 @@ class QuranGlowApp extends ConsumerWidget {
       data: (settings) => _buildApp(
         theme: _getTheme(settings, false),
         darkTheme: _getTheme(settings, true),
-        themeMode: settings.darkMode ? ThemeMode.dark : ThemeMode.light,
+        themeMode: settings.themeMode,
         onGenerateRoute: onGenerateRoute,
         home: const SplashScreen(),
       ),

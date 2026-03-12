@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 
-class HeroHeader extends StatelessWidget {
-  HeroHeader({super.key});
+class HomeHeroTopBar extends StatelessWidget {
+  HomeHeroTopBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +16,61 @@ class HeroHeader extends StatelessWidget {
       cs.primary.withValues(alpha: isDark ? 0.16 : 0.10),
       cs.surface,
     );
+    final endColor = Color.alphaBlend(
+      cs.tertiary.withValues(alpha: isDark ? 0.10 : 0.05),
+      cs.surfaceContainerLow,
+    );
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [startColor, endColor],
+        ),
+        border: Border(
+          bottom: BorderSide(
+            color: cs.outlineVariant.withValues(alpha: 0.35),
+          ),
+        ),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(16, compact ? 10 : 12, 16, 10),
+          child: Row(
+            children: [
+              const _MenuButton(),
+              const SizedBox(width: 12),
+              const Expanded(child: _BrandBlock()),
+              if (!compact) ...[
+                const SizedBox(width: 10),
+                const _DailyWirdPill(),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class HeroHeader extends StatelessWidget {
+  HeroHeader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final compact = MediaQuery.sizeOf(context).width < 380;
+
+    final startColor = Color.alphaBlend(
+      cs.primary.withValues(alpha: isDark ? 0.10 : 0.07),
+      cs.surface,
+    );
     final middleColor = Color.alphaBlend(
-      cs.tertiary.withValues(alpha: isDark ? 0.10 : 0.06),
+      cs.tertiary.withValues(alpha: isDark ? 0.08 : 0.05),
       cs.surfaceContainerLow,
     );
     final cardStart = Color.alphaBlend(
@@ -56,141 +109,105 @@ class HeroHeader extends StatelessWidget {
               color: cs.tertiary.withValues(alpha: isDark ? 0.14 : 0.06),
             ),
           ),
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(16, compact ? 10 : 12, 16, 14),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
+            child: Container(
+              padding: EdgeInsets.all(compact ? 12 : 14),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(28),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [cardStart, cardEnd],
+                ),
+                border: Border.all(
+                  color: cs.primary.withValues(alpha: isDark ? 0.20 : 0.10),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.05),
+                    blurRadius: 14,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(999),
+                      color: cs.primary.withValues(alpha: isDark ? 0.18 : 0.07),
+                      border: Border.all(
+                        color: cs.primary.withValues(
+                          alpha: isDark ? 0.24 : 0.10,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      'بسم الله الرحمن الرحيم',
+                      style: TextStyle(
+                        color: cs.primary,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: compact ? 8 : 10),
+                  Text(
+                    'ابدأ يومك مع القرآن',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: cs.onSurface,
+                      fontSize: compact ? 20 : 22,
+                      fontWeight: FontWeight.w900,
+                      height: 1.05,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'واجهة هادئة وواضحة للقراءة والاستماع والرجوع السريع إلى ما يهمك يوميًا.',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: cs.onSurfaceVariant,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      height: 1.25,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
                     children: [
-                      const _MenuButton(),
-                      const SizedBox(width: 12),
-                      const Expanded(child: _BrandBlock()),
-                      if (!compact) ...[
-                        const SizedBox(width: 10),
-                        const _DailyWirdPill(),
-                      ],
+                      _InfoChip(icon: Icons.menu_book_rounded, label: 'مصحف'),
+                      _InfoChip(icon: Icons.headphones_rounded, label: 'استماع'),
+                      _InfoChip(icon: Icons.auto_stories_rounded, label: 'تفسير'),
                     ],
                   ),
                   const SizedBox(height: 10),
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.all(compact ? 12 : 14),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(28),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [cardStart, cardEnd],
+                  const Row(
+                    children: [
+                      Expanded(
+                        child: _StatChip(
+                          icon: Icons.visibility_rounded,
+                          label: 'قراءة أوضح',
                         ),
-                        border: Border.all(
-                          color: cs.primary.withValues(
-                            alpha: isDark ? 0.20 : 0.10,
-                          ),
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: _StatChip(
+                          icon: Icons.bolt_rounded,
+                          label: 'وصول أسرع',
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(
-                              alpha: isDark ? 0.20 : 0.05,
-                            ),
-                            blurRadius: 14,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(999),
-                              color: cs.primary.withValues(
-                                alpha: isDark ? 0.18 : 0.07,
-                              ),
-                              border: Border.all(
-                                color: cs.primary.withValues(
-                                  alpha: isDark ? 0.24 : 0.10,
-                                ),
-                              ),
-                            ),
-                            child: Text(
-                              'بسم الله الرحمن الرحيم',
-                              style: TextStyle(
-                                color: cs.primary,
-                                fontSize: 9,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: compact ? 8 : 10),
-                          Text(
-                            'ابدأ يومك مع القرآن',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: cs.onSurface,
-                              fontSize: compact ? 20 : 22,
-                              fontWeight: FontWeight.w900,
-                              height: 1.05,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'واجهة هادئة وواضحة للقراءة والاستماع والرجوع السريع إلى ما يهمك يوميًا.',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: cs.onSurfaceVariant,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              height: 1.25,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          const Wrap(
-                            spacing: 6,
-                            runSpacing: 6,
-                            children: [
-                              _InfoChip(
-                                icon: Icons.menu_book_rounded,
-                                label: 'مصحف',
-                              ),
-                              _InfoChip(
-                                icon: Icons.headphones_rounded,
-                                label: 'استماع',
-                              ),
-                              _InfoChip(
-                                icon: Icons.auto_stories_rounded,
-                                label: 'تفسير',
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          const Row(
-                            children: [
-                              Expanded(
-                                child: _StatChip(
-                                  icon: Icons.visibility_rounded,
-                                  label: 'قراءة أوضح',
-                                ),
-                              ),
-                              SizedBox(width: 8),
-                              Expanded(
-                                child: _StatChip(
-                                  icon: Icons.bolt_rounded,
-                                  label: 'وصول أسرع',
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                    ],
                   ),
                 ],
               ),

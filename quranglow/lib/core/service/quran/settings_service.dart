@@ -1,9 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:quranglow/core/model/setting/reader_settings.dart';
 import 'package:quranglow/core/theme/theme_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsService {
-  static const _kDark = 'settings.dark';
+  static const _kThemeMode = 'settings.themeMode';
+  static const _kLegacyDark = 'settings.dark';
   static const _kScale = 'settings.fontScale';
   static const _kReader = 'settings.readerEditionId';
   static const _kFontFamily = 'settings.fontFamily';
@@ -12,7 +14,14 @@ class SettingsService {
 
   Future<AppSettings> load() async {
     final sp = await SharedPreferences.getInstance();
-    final dark = sp.getBool(_kDark) ?? false;
+    final legacyDark = sp.getBool(_kLegacyDark) ?? false;
+    final modeStr = sp.getString(_kThemeMode);
+    final themeMode = switch (modeStr) {
+      'light' => ThemeMode.light,
+      'dark' => ThemeMode.dark,
+      'system' => ThemeMode.system,
+      _ => legacyDark ? ThemeMode.dark : ThemeMode.system,
+    };
     final scale = sp.getDouble(_kScale) ?? 1.0;
     final reader = sp.getString(_kReader) ?? 'ar.alafasy';
     final fontFamily = sp.getString(_kFontFamily) ?? 'System';
@@ -29,7 +38,7 @@ class SettingsService {
     );
 
     return AppSettings(
-      darkMode: dark,
+      themeMode: themeMode,
       fontScale: scale,
       readerEditionId: reader,
       fontFamily: fontFamily,
@@ -38,9 +47,19 @@ class SettingsService {
     );
   }
 
-  Future<void> setDark(bool v) async {
+  Future<void> setThemeMode(ThemeMode mode) async {
     final sp = await SharedPreferences.getInstance();
-    await sp.setBool(_kDark, v);
+    final value = switch (mode) {
+      ThemeMode.light => 'light',
+      ThemeMode.dark => 'dark',
+      ThemeMode.system => 'system',
+    };
+    await sp.setString(_kThemeMode, value);
+    await sp.setBool(_kLegacyDark, mode == ThemeMode.dark);
+  }
+
+  Future<void> setDark(bool v) async {
+    await setThemeMode(v ? ThemeMode.dark : ThemeMode.light);
   }
 
   Future<void> setFontScale(double v) async {

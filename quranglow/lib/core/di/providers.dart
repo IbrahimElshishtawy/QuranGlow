@@ -3,6 +3,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -148,8 +149,17 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
   Future<void> setDark(bool v) async {
     final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
     if (cur == null) return;
-    state = AsyncValue.data(cur.copyWith(darkMode: v));
+    state = AsyncValue.data(
+      cur.copyWith(themeMode: v ? ThemeMode.dark : ThemeMode.light),
+    );
     await ref.read(settingsServiceProvider).setDark(v);
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(themeMode: mode));
+    await ref.read(settingsServiceProvider).setThemeMode(mode);
   }
 
   Future<void> setFontScale(double v) async {

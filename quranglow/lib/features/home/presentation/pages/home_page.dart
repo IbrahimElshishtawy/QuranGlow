@@ -226,7 +226,8 @@ class _HomeSections extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final mediaQuery = MediaQuery.of(context);
     final isCompactWidth = mediaQuery.size.width < 380;
-    final heroHeight = isCompactWidth ? 320.0 : 300.0;
+    final topBarHeight = mediaQuery.padding.top + (isCompactWidth ? 66.0 : 68.0);
+    final heroHeight = isCompactWidth ? 238.0 : 222.0;
 
     return Stack(
       children: [
@@ -256,6 +257,13 @@ class _HomeSections extends StatelessWidget {
         CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _PinnedHeaderDelegate(
+                height: topBarHeight,
+                child: HomeHeroTopBar(),
+              ),
+            ),
             SliverToBoxAdapter(
               child: SizedBox(
                 height: heroHeight,
@@ -289,6 +297,36 @@ class _HomeSections extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class _PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
+  _PinnedHeaderDelegate({
+    required this.height,
+    required this.child,
+  });
+
+  final double height;
+  final Widget child;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return child;
+  }
+
+  @override
+  bool shouldRebuild(covariant _PinnedHeaderDelegate oldDelegate) {
+    return oldDelegate.height != height || oldDelegate.child != child;
   }
 }
 
