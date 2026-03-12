@@ -1,5 +1,5 @@
-// lib/features/ui/pages/tafsir/tafsir_reader_page.dart
 // ignore_for_file: unused_result
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
@@ -46,7 +46,6 @@ class _TafsirReaderPageState extends ConsumerState<TafsirReaderPage> {
 
   @override
   Widget build(BuildContext context) {
-    // قائمة التفاسير
     final editions = ref.watch(tafsirEditionsProvider);
     editions.whenData((list) {
       if ((_editionId == null || _editionId!.isEmpty) && list.isNotEmpty) {
@@ -58,7 +57,6 @@ class _TafsirReaderPageState extends ConsumerState<TafsirReaderPage> {
     });
 
     final quranAll = ref.watch(quranAllProvider('quran-uthmani'));
-
     final AsyncValue<String> tafsir = (_editionId == null)
         ? const AsyncValue<String>.loading()
         : ref.watch(tafsirForAyahProvider((_surah, _ayah, _editionId!)));
@@ -83,17 +81,17 @@ class _TafsirReaderPageState extends ConsumerState<TafsirReaderPage> {
       child: Scaffold(
         appBar: ProAppBar(
           title: 'قارئ التفسير',
-          subtitle: 'تنقل بين الآيات مع تفسيرها وتحميلها للاستخدام دون اتصال',
+          subtitle: 'افتح الآية المطلوبة واقرأ تفسيرها مباشرة بشكل واضح ومرتب',
           actions: [
             if (_editionId != null)
               IconButton(
-                tooltip: 'تنزيل تفسير السورة للاستخدام أوفلاين',
+                tooltip: 'تنزيل تفسير السورة للاستخدام دون اتصال',
                 onPressed: () {
-                  ref.refresh(
-                    prefetchTafsirSurahProvider((_editionId!, _surah)),
-                  );
+                  ref.refresh(prefetchTafsirSurahProvider((_editionId!, _surah)));
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('جاري تنزيل تفسير السورة…')),
+                    const SnackBar(
+                      content: Text('جارٍ تنزيل تفسير السورة...'),
+                    ),
                   );
                 },
                 icon: const Icon(Icons.download_outlined),
@@ -123,15 +121,16 @@ class _TafsirReaderPageState extends ConsumerState<TafsirReaderPage> {
                 });
                 if (_editionId != null) {
                   ref.refresh(
-                    tafsirForAyahProvider((_surah, _ayah, _editionId!)).future,
+                    tafsirForAyahProvider((v, 1, _editionId!)).future,
                   );
                 }
               },
               onAyahChange: (v) {
-                setState(() => _ayah = v.clamp(1, maxAyat));
+                final nextAyah = v.clamp(1, maxAyat);
+                setState(() => _ayah = nextAyah);
                 if (_editionId != null) {
                   ref.refresh(
-                    tafsirForAyahProvider((_surah, _ayah, _editionId!)).future,
+                    tafsirForAyahProvider((_surah, nextAyah, _editionId!)).future,
                   );
                 }
               },

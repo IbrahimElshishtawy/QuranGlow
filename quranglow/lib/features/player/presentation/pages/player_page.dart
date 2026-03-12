@@ -24,10 +24,16 @@ class PlayerPage extends ConsumerStatefulWidget {
 
 class _PlayerPageState extends ConsumerState<PlayerPage> {
   ProviderSubscription? _playbackSub;
+  DateTime? _listeningStartedAt;
+  bool _trackingSessionStarted = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref.read(trackingServiceProvider).startSession();
+      _trackingSessionStarted = true;
+    });
     _playbackSub = ref.listenManual(playerControllerProvider, (
       prev,
       next,
@@ -40,6 +46,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
           final title =
               (s.surahName ?? 'سورة') +
               (s.reciterName != null ? ' - ${s.reciterName}' : '');
+          _trackListeningState(isPlaying);
           if (isPlaying && url != null && url.isNotEmpty) {
             await audioHandler.playUri(Uri.parse(url), title: title);
           } else if (!isPlaying) {
@@ -56,8 +63,30 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
 
   @override
   void dispose() {
+    _flushListeningTime();
+    if (_trackingSessionStarted) {
+      ref.read(trackingServiceProvider).endSession();
+    }
     _playbackSub?.close();
     super.dispose();
+  }
+
+  void _trackListeningState(bool isPlaying) {
+    if (isPlaying) {
+      _listeningStartedAt ??= DateTime.now();
+      return;
+    }
+    _flushListeningTime();
+  }
+
+  void _flushListeningTime() {
+    final startedAt = _listeningStartedAt;
+    if (startedAt == null) return;
+    final seconds = DateTime.now().difference(startedAt).inSeconds;
+    _listeningStartedAt = null;
+    if (seconds > 0) {
+      ref.read(trackingServiceProvider).addListeningTime(seconds);
+    }
   }
 
   Future<void> _downloadCurrent(BuildContext context, WidgetRef ref) async {

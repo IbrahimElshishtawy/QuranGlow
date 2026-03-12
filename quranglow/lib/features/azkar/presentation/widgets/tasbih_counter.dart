@@ -25,6 +25,7 @@ class _TasbihCounterState extends ConsumerState<TasbihCounter> {
   void _inc() {
     setState(() {
       _count++;
+      ref.read(trackingServiceProvider).incRemembrance(1);
       if (_count >= _target) {
         _rounds++;
         _count = 0;

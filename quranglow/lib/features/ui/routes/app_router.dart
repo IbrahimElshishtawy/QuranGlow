@@ -30,6 +30,7 @@ import 'package:quranglow/features/stats/presentation/pages/stats_page.dart';
 import 'package:quranglow/features/surah/presentation/pages/surah_list_page.dart';
 import 'package:quranglow/features/tafsir/presentation/pages/tafsir_explorer_page.dart';
 import 'package:quranglow/features/tafsir/presentation/pages/tafsir_reader_page.dart';
+import 'package:quranglow/features/tafsir/presentation/widgets/tafsir_args.dart';
 import 'app_routes.dart';
 
 final quranServiceProvider = Provider<QuranService>(

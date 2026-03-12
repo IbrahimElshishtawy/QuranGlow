@@ -41,6 +41,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   bool _uiVisible = false;
   late int _chapter;
   int? _lastAyahNumber;
+  bool _trackingSessionStarted = false;
 
   final _pos = PositionStore();
   final _ayahPreviewPlayer = AudioPlayer();
@@ -58,11 +59,16 @@ class _MushafPageState extends ConsumerState<MushafPage> {
         DeviceOrientation.portraitUp,
       ]);
       await WakelockPlus.enable();
+      await ref.read(trackingServiceProvider).startSession();
+      _trackingSessionStarted = true;
     });
   }
 
   @override
   void dispose() {
+    if (_trackingSessionStarted) {
+      ref.read(trackingServiceProvider).endSession();
+    }
     _ayahPreviewPlayer.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
@@ -265,6 +271,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
                       _lastAyahNumber = ayahNumber;
                       _uiVisible = true;
                     });
+                    ref.read(trackingServiceProvider).incAyat(1);
                   },
                   onAyahLongPress: (int ayahNumber, Aya aya) {
                     _openAyahActions(
