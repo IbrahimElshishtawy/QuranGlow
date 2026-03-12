@@ -10,13 +10,7 @@ Future<void> main() async {
   SplashBootstrap.initBinding();
   await AppBootstrap.initialize();
 
-  runApp(
-    const ProviderScope(
-      child: AppBootstrapScope(
-        child: QuranGlowApp(),
-      ),
-    ),
-  );
+  runApp(const ProviderScope(child: AppBootstrapScope(child: QuranGlowApp())));
 
   SplashBootstrap.removeSplash();
 }
