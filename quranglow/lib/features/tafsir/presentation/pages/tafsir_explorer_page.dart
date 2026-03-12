@@ -10,8 +10,8 @@ import 'package:quranglow/features/tafsir/presentation/widgets/ayah_card.dart';
 import 'package:quranglow/features/tafsir/presentation/widgets/selection_card.dart';
 import 'package:quranglow/features/tafsir/presentation/widgets/tafsir_card.dart';
 
-class TafsirReaderPage extends ConsumerStatefulWidget {
-  const TafsirReaderPage({
+class TafsirExplorerPage extends ConsumerStatefulWidget {
+  const TafsirExplorerPage({
     super.key,
     this.initialEditionId,
     this.initialEditionName,
@@ -25,10 +25,11 @@ class TafsirReaderPage extends ConsumerStatefulWidget {
   final int initialAyah;
 
   @override
-  ConsumerState<TafsirReaderPage> createState() => _TafsirReaderPageState();
+  ConsumerState<TafsirExplorerPage> createState() =>
+      _TafsirExplorerPageState();
 }
 
-class _TafsirReaderPageState extends ConsumerState<TafsirReaderPage> {
+class _TafsirExplorerPageState extends ConsumerState<TafsirExplorerPage> {
   String? _editionId;
   String? _editionName;
   int _surah = 1;
