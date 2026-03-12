@@ -5,6 +5,8 @@ import 'package:quranglow/features/about/presentation/widgets/about_feature_tile
 import 'package:quranglow/features/about/presentation/widgets/about_hero_card.dart';
 import 'package:quranglow/features/about/presentation/widgets/about_section_card.dart';
 import 'package:quranglow/features/about/presentation/widgets/about_share_card.dart';
+import 'package:quranglow/features/about/presentation/widgets/about_social_button.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutPage extends StatelessWidget {
@@ -28,7 +30,7 @@ class AboutPage extends StatelessWidget {
       child: Scaffold(
         appBar: const ProAppBar(
           title: 'عن التطبيق',
-          subtitle: 'هوية التطبيق والمطور ووسائل التواصل',
+          subtitle: 'هوية التطبيق والمطور وروابط التواصل',
         ),
         body: DecoratedBox(
           decoration: BoxDecoration(
@@ -52,12 +54,14 @@ class AboutPage extends StatelessWidget {
                     AboutFeatureTile(
                       icon: Icons.menu_book_rounded,
                       title: 'قراءة واضحة',
-                      subtitle: 'تصفح السور والآيات بسهولة مع حفظ موضع القراءة.',
+                      subtitle:
+                          'تصفح السور والآيات بسهولة مع حفظ موضع القراءة.',
                     ),
                     AboutFeatureTile(
                       icon: Icons.headphones_rounded,
                       title: 'استماع وتنزيل',
-                      subtitle: 'تشغيل التلاوات والوصول السريع إلى الملفات المحفوظة.',
+                      subtitle:
+                          'تشغيل التلاوات والوصول السريع إلى الملفات المحفوظة.',
                     ),
                     AboutFeatureTile(
                       icon: Icons.auto_stories_rounded,
@@ -67,7 +71,8 @@ class AboutPage extends StatelessWidget {
                     AboutFeatureTile(
                       icon: Icons.flag_rounded,
                       title: 'أهداف يومية',
-                      subtitle: 'متابعة الورد والعادات القرآنية بصورة عملية ومنظمة.',
+                      subtitle:
+                          'متابعة الورد والعادات القرآنية بصورة عملية ومنظمة.',
                     ),
                   ],
                 ),
@@ -75,47 +80,58 @@ class AboutPage extends StatelessWidget {
               const SizedBox(height: 16),
               const AboutSectionCard(
                 title: 'عن المطور',
-                subtitle: 'تم تطوير QuranGlow بعناية ليكون قريبًا من روح التطبيق وهدوئه.',
-                child: AboutContactTile(
-                  icon: Icons.person_rounded,
-                  title: _developerName,
-                  value: 'Flutter Developer',
-                ),
-              ),
-              const SizedBox(height: 16),
-              AboutSectionCard(
-                title: 'التواصل',
-                subtitle: 'افتح صفحات التواصل مباشرة من الأيقونات الجانبية.',
+                subtitle:
+                    'تم تطوير QuranGlow بعناية ليكون هادئًا وواضحًا وسهل الاستخدام.',
                 child: Column(
                   children: [
-                    const AboutContactTile(
+                    AboutContactTile(
+                      icon: Icons.person_rounded,
+                      title: 'اسم المطور',
+                      value: _developerName,
+                    ),
+                    AboutContactTile(
                       icon: Icons.phone_rounded,
                       title: 'رقم الهاتف',
                       value: _phone,
                     ),
-                    AboutContactTile(
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              AboutSectionCard(
+                title: 'السوشيال ميديا',
+                subtitle: 'افتح صفحات المطور مباشرة من الأيقونات التالية.',
+                child: Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    AboutSocialButton(
                       icon: Icons.facebook_rounded,
-                      title: 'Facebook',
-                      value: _facebook,
-                      onOpen: () => _openLink(context, _facebook, 'Facebook'),
+                      label: 'Facebook',
+                      backgroundColor: const Color(0xFFE7F0FF),
+                      iconColor: const Color(0xFF1877F2),
+                      onTap: () => _openLink(context, _facebook, 'Facebook'),
                     ),
-                    AboutContactTile(
+                    AboutSocialButton(
                       icon: Icons.work_rounded,
-                      title: 'LinkedIn',
-                      value: _linkedin,
-                      onOpen: () => _openLink(context, _linkedin, 'LinkedIn'),
+                      label: 'LinkedIn',
+                      backgroundColor: const Color(0xFFE6F4FF),
+                      iconColor: const Color(0xFF0A66C2),
+                      onTap: () => _openLink(context, _linkedin, 'LinkedIn'),
                     ),
-                    AboutContactTile(
+                    AboutSocialButton(
                       icon: Icons.camera_alt_rounded,
-                      title: 'Instagram',
-                      value: _instagram,
-                      onOpen: () => _openLink(context, _instagram, 'Instagram'),
+                      label: 'Instagram',
+                      backgroundColor: const Color(0xFFFFEEF6),
+                      iconColor: const Color(0xFFE1306C),
+                      onTap: () => _openLink(context, _instagram, 'Instagram'),
                     ),
-                    AboutContactTile(
+                    AboutSocialButton(
                       icon: Icons.code_rounded,
-                      title: 'GitHub',
-                      value: _github,
-                      onOpen: () => _openLink(context, _github, 'GitHub'),
+                      label: 'GitHub',
+                      backgroundColor: const Color(0xFFEEF1F4),
+                      iconColor: const Color(0xFF111827),
+                      onTap: () => _openLink(context, _github, 'GitHub'),
                     ),
                   ],
                 ),
@@ -130,14 +146,14 @@ class AboutPage extends StatelessWidget {
   }
 
   String get _shareText => [
-        'QuranGlow',
-        'المطور: $_developerName',
-        'الهاتف: $_phone',
-        'Facebook: $_facebook',
-        'LinkedIn: $_linkedin',
-        'Instagram: $_instagram',
-        'GitHub: $_github',
-      ].join('\n');
+    'QuranGlow',
+    'المطور: $_developerName',
+    'الهاتف: $_phone',
+    'Facebook: $_facebook',
+    'LinkedIn: $_linkedin',
+    'Instagram: $_instagram',
+    'GitHub: $_github',
+  ].join('\n');
 
   static Future<void> _openLink(
     BuildContext context,
