@@ -1,5 +1,3 @@
-import 'dart:ui' show FontFeature;
-
 import 'package:flutter/material.dart';
 import 'package:quranglow/features/player/presentation/widgets/CombinedPositionData.dart';
 
@@ -56,9 +54,7 @@ class PositionBar extends StatelessWidget {
                     .toDouble(),
                 onChanged: total.inMilliseconds <= 0
                     ? null
-                    : (value) => onSeek(
-                        Duration(milliseconds: value.round()),
-                      ),
+                    : (value) => onSeek(Duration(milliseconds: value.round())),
               ),
             ),
             Row(

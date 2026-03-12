@@ -60,7 +60,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   return ListView.separated(
                     padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
                     itemCount: results.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
+                    separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemBuilder: (_, i) {
                       final r = results[i];
                       return Card(
@@ -80,7 +80,9 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                           title: Highlighted(text: r.text, query: _q),
                           subtitle: Padding(
                             padding: const EdgeInsets.only(top: 8),
-                            child: Text('${r.surahName} • ${r.surah}:${r.ayah}'),
+                            child: Text(
+                              '${r.surahName} • ${r.surah}:${r.ayah}',
+                            ),
                           ),
                           trailing: Container(
                             width: 38,
@@ -191,9 +193,7 @@ class _SearchAppBar extends StatelessWidget implements PreferredSizeWidget {
                 decoration: BoxDecoration(
                   color: cs.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: cs.primary.withValues(alpha: 0.18),
-                  ),
+                  border: Border.all(color: cs.primary.withValues(alpha: 0.18)),
                 ),
                 child: Icon(Icons.manage_search_rounded, color: cs.primary),
               ),

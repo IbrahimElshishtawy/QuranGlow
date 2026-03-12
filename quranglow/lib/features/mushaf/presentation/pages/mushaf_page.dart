@@ -80,8 +80,10 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   String _audioEditionId() {
     final settings = ref.read(settingsProvider);
     return settings.maybeWhen(
-      data: (s) =>
-          s?.readerEditionId.trim().isEmpty ? 'ar.alafasy' : s?.readerEditionId,
+      data: (s) {
+        final editionId = s.readerEditionId.trim();
+        return editionId.isEmpty ? 'ar.alafasy' : editionId;
+      },
       orElse: () => 'ar.alafasy',
     );
   }

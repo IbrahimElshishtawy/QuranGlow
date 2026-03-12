@@ -1,4 +1,5 @@
-import 'package:quranglow/core/model/setting/app_settings.dart';
+import 'package:quranglow/core/model/setting/reader_settings.dart'
+    as app_settings;
 import 'package:quranglow/core/theme/theme_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,7 +11,7 @@ class SettingsService {
   static const _kColorScheme = 'settings.colorScheme';
   static const _kAudioDownloadMode = 'settings.audioDownloadMode';
 
-  Future<AppSettings> load() async {
+  Future<app_settings.AppSettings> load() async {
     final sp = await SharedPreferences.getInstance();
     final dark = sp.getBool(_kDark) ?? false;
     final scale = sp.getDouble(_kScale) ?? 1.0;
@@ -18,17 +19,18 @@ class SettingsService {
     final fontFamily = sp.getString(_kFontFamily) ?? 'System';
     final colorSchemeStr = sp.getString(_kColorScheme) ?? 'green';
     final audioDownloadModeStr =
-        sp.getString(_kAudioDownloadMode) ?? AudioDownloadMode.fullSurah.name;
+        sp.getString(_kAudioDownloadMode) ??
+        app_settings.AudioDownloadMode.fullSurah.name;
     final colorScheme = AppColorScheme.values.firstWhere(
       (e) => e.name == colorSchemeStr,
       orElse: () => AppColorScheme.green,
     );
-    final audioDownloadMode = AudioDownloadMode.values.firstWhere(
+    final audioDownloadMode = app_settings.AudioDownloadMode.values.firstWhere(
       (e) => e.name == audioDownloadModeStr,
-      orElse: () => AudioDownloadMode.fullSurah,
+      orElse: () => app_settings.AudioDownloadMode.fullSurah,
     );
 
-    return AppSettings(
+    return app_settings.AppSettings(
       darkMode: dark,
       fontScale: scale,
       readerEditionId: reader,
@@ -63,7 +65,7 @@ class SettingsService {
     await sp.setString(_kColorScheme, v.name);
   }
 
-  Future<void> setAudioDownloadMode(AudioDownloadMode v) async {
+  Future<void> setAudioDownloadMode(app_settings.AudioDownloadMode v) async {
     final sp = await SharedPreferences.getInstance();
     await sp.setString(_kAudioDownloadMode, v.name);
   }
