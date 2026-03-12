@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quranglow/features/settings/presentation/widgets/appearance_section.dart';
 import 'package:quranglow/features/settings/presentation/widgets/goals_section.dart';
 import 'package:quranglow/features/settings/presentation/widgets/notifications_section.dart';
 import 'package:quranglow/features/ui/routes/app_routes.dart';
@@ -34,6 +35,8 @@ class SettingsPage extends ConsumerWidget {
         body: ListView(
           padding: EdgeInsets.all(12),
           children: [
+            AppearanceSection(),
+            SizedBox(height: 12),
             GoalsSection(),
             SizedBox(height: 12),
             NotificationsSection(),

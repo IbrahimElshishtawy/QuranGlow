@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
-import 'font_scale_dialog.dart';
-import 'readers_sheet.dart';
-import 'section_header.dart';
+import 'package:quranglow/core/model/setting/App_Settings.dart';
+import 'package:quranglow/features/settings/presentation/widgets/font_scale_dialog.dart';
+import 'package:quranglow/features/settings/presentation/widgets/readers_sheet.dart';
+import 'package:quranglow/features/settings/presentation/widgets/section_header.dart';
 
 class AppearanceSection extends ConsumerWidget {
   const AppearanceSection({super.key});
@@ -57,8 +58,40 @@ class AppearanceSection extends ConsumerWidget {
               }
             },
           ),
+          ListTile(
+            title: const Text('تنزيل الصوت'),
+            subtitle: Text(_downloadModeLabel(st.audioDownloadMode)),
+            trailing: DropdownButton<AudioDownloadMode>(
+              value: st.audioDownloadMode,
+              onChanged: (value) async {
+                if (value == null) return;
+                await ref
+                    .read(settingsProvider.notifier)
+                    .setAudioDownloadMode(value);
+              },
+              items: const [
+                DropdownMenuItem(
+                  value: AudioDownloadMode.fullSurah,
+                  child: Text('السورة كاملة'),
+                ),
+                DropdownMenuItem(
+                  value: AudioDownloadMode.selectedAyat,
+                  child: Text('اختيار آيات'),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  String _downloadModeLabel(AudioDownloadMode mode) {
+    switch (mode) {
+      case AudioDownloadMode.fullSurah:
+        return 'تنزيل السورة كاملة مباشرة';
+      case AudioDownloadMode.selectedAyat:
+        return 'فتح قائمة لاختيار آيات محددة';
+    }
   }
 }

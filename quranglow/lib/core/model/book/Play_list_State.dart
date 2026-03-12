@@ -1,9 +1,11 @@
 import 'package:just_audio/just_audio.dart';
+import 'package:quranglow/features/player/presentation/widgets/CombinedPositionData.dart';
 
 class PlaylistState {
   final String editionId;
   final int chapter;
   final int total;
+  final Stream<CombinedPositionData> timelineStream;
   final Stream<Duration?> durationStream;
   final Stream<Duration> positionStream;
   final Stream<Duration> bufferedStream;
@@ -16,6 +18,7 @@ class PlaylistState {
     required this.editionId,
     required this.chapter,
     required this.total,
+    required this.timelineStream,
     required this.durationStream,
     required this.positionStream,
     required this.bufferedStream,

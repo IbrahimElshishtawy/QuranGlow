@@ -1,8 +1,6 @@
-// lib/features/ui/pages/player/widgets/transport_controls.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
-
 import 'package:quranglow/core/model/book/Play_list_State.dart';
 import 'package:quranglow/features/player/presentation/widgets/position_bar.dart';
 import 'package:quranglow/features/player/presentation/widgets/speed_menu.dart';
@@ -11,6 +9,7 @@ final playbackSpeedProvider = StateProvider<double>((_) => 1.0);
 
 class TransportControls extends ConsumerWidget {
   const TransportControls({super.key, required this.state});
+
   final PlaylistState state;
 
   @override
@@ -22,22 +21,52 @@ class TransportControls extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         PositionBar(
-          durationStream: state.durationStream,
-          positionStream: state.positionStream,
+          timelineStream: state.timelineStream,
           onSeek: ref.read(playerControllerProvider.notifier).seekTo,
-          bufferedStream: state.bufferedStream,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 14),
+        StreamBuilder<int?>(
+          stream: state.indexStream,
+          initialData: 0,
+          builder: (_, indexSnap) {
+            final currentAyah = (indexSnap.data ?? 0) + 1;
+            return Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: cs.outlineVariant.withValues(alpha: 0.65),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.multitrack_audio_rounded, color: cs.primary),
+                  const SizedBox(width: 10),
+                  Text(
+                    'الآية الحالية: $currentAyah من ${state.total}',
+                    style: TextStyle(
+                      color: cs.onSurface,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            IconButton(
+            _CircleAction(
               tooltip: 'السابق',
-              icon: const Icon(Icons.skip_previous_rounded, size: 28),
+              icon: Icons.skip_previous_rounded,
               onPressed: () =>
                   ref.read(playerControllerProvider.notifier).previous(),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
             StreamBuilder<bool>(
               stream: state.playingStream,
               initialData: false,
@@ -49,35 +78,31 @@ class TransportControls extends ConsumerWidget {
                       : ref.read(playerControllerProvider.notifier).play(),
                   icon: Icon(
                     playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                    size: 28,
+                    size: 30,
                   ),
                   label: Text(playing ? 'إيقاف مؤقت' : 'تشغيل'),
                   style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
+                    minimumSize: const Size(154, 56),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(18),
                     ),
                   ),
                 );
               },
             ),
-            const SizedBox(width: 8),
-            IconButton(
+            const SizedBox(width: 12),
+            _CircleAction(
               tooltip: 'التالي',
-              icon: const Icon(Icons.skip_next_rounded, size: 28),
-              onPressed: () =>
-                  ref.read(playerControllerProvider.notifier).next(),
+              icon: Icons.skip_next_rounded,
+              onPressed: () => ref.read(playerControllerProvider.notifier).next(),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         Wrap(
           alignment: WrapAlignment.center,
           spacing: 12,
-          runSpacing: 4,
+          runSpacing: 8,
           children: [
             SpeedMenu(
               currentSpeed: speed,
@@ -90,14 +115,14 @@ class TransportControls extends ConsumerWidget {
               onPressed: () =>
                   ref.read(playerControllerProvider.notifier).toggleLoop(),
               icon: const Icon(Icons.repeat_rounded, size: 18),
-              label: const Text('تكرار'),
+              label: const Text('تكرار السورة'),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: cs.outlineVariant),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
+                  horizontal: 14,
                   vertical: 10,
                 ),
               ),
@@ -106,14 +131,14 @@ class TransportControls extends ConsumerWidget {
               onPressed: () =>
                   ref.read(playerControllerProvider.notifier).toggleMute(),
               icon: const Icon(Icons.volume_off_rounded, size: 18),
-              label: const Text('صامت'),
+              label: const Text('كتم الصوت'),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: cs.outlineVariant),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
+                  horizontal: 14,
                   vertical: 10,
                 ),
               ),
@@ -121,6 +146,34 @@ class TransportControls extends ConsumerWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class _CircleAction extends StatelessWidget {
+  const _CircleAction({
+    required this.tooltip,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      style: IconButton.styleFrom(
+        minimumSize: const Size(52, 52),
+        backgroundColor: cs.surfaceContainerLow,
+        side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.7)),
+      ),
+      icon: Icon(icon, size: 28, color: cs.primary),
     );
   }
 }

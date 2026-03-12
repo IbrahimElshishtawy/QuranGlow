@@ -66,6 +66,12 @@ class HeroHeader extends StatelessWidget {
                 children: [
                   Row(
                     children: [
+                      _HeaderActionButton(
+                        icon: Icons.menu_rounded,
+                        tooltip: 'القائمة',
+                        onPressed: () => Scaffold.of(context).openDrawer(),
+                      ),
+                      const SizedBox(width: 10),
                       Container(
                         width: 52,
                         height: 52,
@@ -116,6 +122,7 @@ class HeroHeader extends StatelessWidget {
                           ],
                         ),
                       ),
+                      const SizedBox(width: 10),
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,
@@ -213,6 +220,40 @@ class _GlowOrb extends StatelessWidget {
             colors: [color, color.withValues(alpha: 0)],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _HeaderActionButton extends StatelessWidget {
+  const _HeaderActionButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      width: 46,
+      height: 46,
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.78),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: cs.outlineVariant.withValues(alpha: 0.72),
+        ),
+      ),
+      child: IconButton(
+        tooltip: tooltip,
+        onPressed: onPressed,
+        icon: Icon(icon, color: cs.primary),
       ),
     );
   }

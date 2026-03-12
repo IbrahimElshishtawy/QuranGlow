@@ -8,6 +8,7 @@ class SettingsService {
   static const _kReader = 'settings.readerEditionId';
   static const _kFontFamily = 'settings.fontFamily';
   static const _kColorScheme = 'settings.colorScheme';
+  static const _kAudioDownloadMode = 'settings.audioDownloadMode';
 
   Future<AppSettings> load() async {
     final sp = await SharedPreferences.getInstance();
@@ -16,9 +17,15 @@ class SettingsService {
     final reader = sp.getString(_kReader) ?? 'ar.alafasy';
     final fontFamily = sp.getString(_kFontFamily) ?? 'System';
     final colorSchemeStr = sp.getString(_kColorScheme) ?? 'green';
+    final audioDownloadModeStr =
+        sp.getString(_kAudioDownloadMode) ?? AudioDownloadMode.fullSurah.name;
     final colorScheme = AppColorScheme.values.firstWhere(
       (e) => e.name == colorSchemeStr,
       orElse: () => AppColorScheme.green,
+    );
+    final audioDownloadMode = AudioDownloadMode.values.firstWhere(
+      (e) => e.name == audioDownloadModeStr,
+      orElse: () => AudioDownloadMode.fullSurah,
     );
 
     return AppSettings(
@@ -27,6 +34,7 @@ class SettingsService {
       readerEditionId: reader,
       fontFamily: fontFamily,
       colorScheme: colorScheme,
+      audioDownloadMode: audioDownloadMode,
     );
   }
 
@@ -53,5 +61,10 @@ class SettingsService {
   Future<void> setColorScheme(AppColorScheme v) async {
     final sp = await SharedPreferences.getInstance();
     await sp.setString(_kColorScheme, v.name);
+  }
+
+  Future<void> setAudioDownloadMode(AudioDownloadMode v) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setString(_kAudioDownloadMode, v.name);
   }
 }

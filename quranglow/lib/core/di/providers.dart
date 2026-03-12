@@ -2,46 +2,39 @@
 // ignore_for_file: implementation_imports, unnecessary_this
 
 import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:just_audio/just_audio.dart';
-
 import 'package:http/http.dart' as http;
-
+import 'package:just_audio/just_audio.dart';
 import 'package:quranglow/core/api/alquran_cloud_source.dart';
 import 'package:quranglow/core/api/fawaz_cdn_source.dart';
 import 'package:quranglow/core/data/surah_names_ar.dart';
 import 'package:quranglow/core/model/book/Play_list_State.dart';
-import 'package:quranglow/core/model/setting/App_Settings.dart';
-
 import 'package:quranglow/core/model/book/bookmark.dart';
 import 'package:quranglow/core/model/book/surah.dart';
+import 'package:quranglow/core/model/setting/App_Settings.dart';
 import 'package:quranglow/core/model/setting/goal.dart';
+import 'package:quranglow/core/service/audio/audio_service.dart';
+import 'package:quranglow/core/service/audio/my_audio_handler.dart';
+import 'package:quranglow/core/service/quran/quran_service.dart';
 import 'package:quranglow/core/service/quran/settings_service.dart';
+import 'package:quranglow/core/service/quran/stats_service.dart';
+import 'package:quranglow/core/service/quran/stats_service_impl.dart';
 import 'package:quranglow/core/service/setting/download_service.dart';
 import 'package:quranglow/core/service/setting/goals_service.dart';
 import 'package:quranglow/core/service/setting/location_service.dart';
 import 'package:quranglow/core/service/setting/prayer_times_service.dart';
-import 'package:quranglow/core/service/audio/audio_service.dart';
-import 'package:quranglow/core/service/audio/my_audio_handler.dart';
-import 'package:quranglow/core/service/quran/quran_service.dart';
-import 'package:quranglow/core/service/quran/stats_service.dart';
-import 'package:quranglow/core/service/quran/stats_service_impl.dart';
 import 'package:quranglow/core/service/sync/firebase_sync_service.dart';
 import 'package:quranglow/core/service/sync/reminders_service.dart';
 import 'package:quranglow/core/service/tracking_service.dart';
 import 'package:quranglow/core/storage/hive_storage_impl.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
 import 'package:quranglow/core/theme/theme_controller.dart';
-
-// Bookmarks
 import 'package:quranglow/features/bookmarks/presentation/providers/bookmarks_controller.dart';
 import 'package:quranglow/features/bookmarks/presentation/providers/bookmarks_usecase.dart';
-
-// Downloads
 import 'package:quranglow/features/downloads/presentation/providers/download_controller.dart';
-
-/// --- HTTP & Dio -------------------------------------------------------------
+import 'package:quranglow/features/player/presentation/widgets/CombinedPositionData.dart';
 
 final httpClientProvider = Provider<http.Client>((ref) => http.Client());
 
@@ -56,11 +49,7 @@ final dioProvider = Provider<Dio>((ref) {
   );
 });
 
-/// --- Storage ----------------------------------------------------------------
-
 final storageProvider = Provider<LocalStorage>((ref) => HiveStorageImpl());
-
-/// --- API Sources ------------------------------------------------------------
 
 final fawazProvider = Provider<FawazCdnSource>((ref) {
   final client = ref.watch(httpClientProvider);
@@ -72,8 +61,6 @@ final alQuranProvider = Provider<AlQuranCloudSource>((ref) {
   final dio = ref.watch(dioProvider);
   return AlQuranCloudSource(dio: dio);
 });
-
-/// --- Services ---------------------------------------------------------------
 
 final goalsServiceProvider = Provider<GoalsService>((ref) {
   final svc = GoalsService(storage: ref.watch(storageProvider));
@@ -129,13 +116,9 @@ final prayerTimesServiceProvider = Provider<PrayerTimesService>((ref) {
   );
 });
 
-/// --- Goals (Stream) ---------------------------------------------------------
-
 final goalsStreamProvider = StreamProvider.autoDispose<List<Goal>>((ref) {
   return ref.watch(goalsServiceProvider).watchGoalsWithInitial();
 });
-
-/// --- Quran Text -------------------------------------------------------------
 
 final quranAllProvider = FutureProvider.autoDispose.family<List<Surah>, String>(
   (ref, editionId) {
@@ -143,8 +126,6 @@ final quranAllProvider = FutureProvider.autoDispose.family<List<Surah>, String>(
     return service.getQuranAllText(editionId);
   },
 );
-
-/// --- Settings (StateNotifier) -----------------------------------------------
 
 final settingsProvider =
     StateNotifierProvider<SettingsController, AsyncValue<AppSettings>>(
@@ -155,6 +136,7 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
   SettingsController(this.ref) : super(const AsyncValue.loading()) {
     _init();
   }
+
   final Ref ref;
 
   Future<void> _init() async {
@@ -197,9 +179,14 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
     state = AsyncValue.data(cur.copyWith(colorScheme: scheme));
     await ref.read(settingsServiceProvider).setColorScheme(scheme);
   }
-}
 
-/// --- Audio Editions ---------------------------------------------------------
+  Future<void> setAudioDownloadMode(AudioDownloadMode mode) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(audioDownloadMode: mode));
+    await ref.read(settingsServiceProvider).setAudioDownloadMode(mode);
+  }
+}
 
 final audioEditionsProvider = FutureProvider<List<dynamic>>((ref) async {
   return ref.read(quranServiceProvider).listAudioEditions();
@@ -213,11 +200,13 @@ class PlayerUiState extends PlaylistState {
   final String? currentUrl;
   final String? surahName;
   final String? reciterName;
+  final int? currentAyah;
 
   const PlayerUiState({
     required super.editionId,
     required super.chapter,
     required super.total,
+    required super.timelineStream,
     required super.durationStream,
     required super.positionStream,
     required super.bufferedStream,
@@ -229,6 +218,7 @@ class PlayerUiState extends PlaylistState {
     this.currentUrl,
     this.surahName,
     this.reciterName,
+    this.currentAyah,
   });
 }
 
@@ -316,8 +306,8 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
     final chapter = ref.read(chapterProvider).clamp(1, 114);
     final index = _player.currentIndex ?? 0;
     final safeIndex = index.clamp(0, _urls.length - 1);
-    final surahName = (chapter >= 1 && chapter < kSurahNamesAr.length)
-        ? kSurahNamesAr[chapter]
+    final surahName = (chapter >= 1 && chapter <= kSurahNamesAr.length)
+        ? kSurahNamesAr[chapter - 1]
         : 'سورة $chapter';
 
     state = AsyncValue.data(
@@ -325,6 +315,7 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
         editionId: editionId,
         chapter: chapter,
         total: _urls.length,
+        timelineStream: combinedPositionStream(_player),
         durationStream: _player.durationStream,
         positionStream: _player.positionStream,
         bufferedStream: _player.bufferedPositionStream,
@@ -336,6 +327,7 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
         currentUrl: _urls[safeIndex],
         surahName: surahName,
         reciterName: _reciterName,
+        currentAyah: safeIndex + 1,
       ),
     );
   }
@@ -409,8 +401,6 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
   }
 }
 
-/// --- Daily Ayah -------------------------------------------------------------
-
 final dailyAyahProvider = FutureProvider.autoDispose<Map<String, String>>((
   ref,
 ) async {
@@ -435,20 +425,17 @@ final dailyAyahProvider = FutureProvider.autoDispose<Map<String, String>>((
   final text = (data['text'] ?? data['ayahText'] ?? '').toString();
 
   final surah = data['surah'] ?? {};
-  final surahName = (surah['name'] ?? surah['englishName'] ?? 'سورة غير معروفة')
-      .toString();
+  final surahName =
+      (surah['name'] ?? surah['englishName'] ?? 'سورة غير معروفة').toString();
   final nInSurah = data['numberInSurah']?.toString() ?? '';
 
   return {'text': text, 'ref': '$surahName • $nInSurah'};
 });
 
-/// --- Tafsir -----------------------------------------------------------------
-
 final tafsirEditionsProvider = FutureProvider<List<Map<String, String>>>((ref) {
   return ref.read(quranServiceProvider).listTafsirEditions();
 });
 
-/// tuple: (surah, ayah, editionId)
 final tafsirForAyahProvider = FutureProvider.family<String, (int, int, String)>(
   (ref, t) {
     final (surah, ayah, editionId) = t;
@@ -456,7 +443,6 @@ final tafsirForAyahProvider = FutureProvider.family<String, (int, int, String)>(
   },
 );
 
-/// تصحيح الأنواع: (surah:int, editionId:String) -> getSurahText(editionId, surah)
 final quranSurahProvider = FutureProvider.autoDispose
     .family<Surah, (int, String)>((ref, t) {
       final (surah, editionId) = t;
@@ -474,14 +460,11 @@ final tafsirFutureProvider = FutureProvider.autoDispose
       }
     });
 
-/// يجلب جميع روابط الصوت لسورة واحدة لقارئ معيّن
 final surahAudioUrlsProvider = FutureProvider.autoDispose
     .family<List<String>, ({int surah, String reciterId})>((ref, p) async {
       final svc = ref.read(quranServiceProvider);
       return svc.getSurahAudioUrls(p.reciterId, p.surah);
     });
-
-/// --- download service -------------------------------------------------------
 
 final downloadControllerProvider =
     StateNotifierProvider<DownloadController, DownloadState>((ref) {
@@ -491,8 +474,6 @@ final downloadControllerProvider =
 final downloadServiceProvider = Provider<DownloadService>((ref) {
   return DownloadService(dio: ref.read(dioProvider));
 });
-
-/// --- bookmarks controller ----------------------------------------------------
 
 final bookmarksProvider =
     StateNotifierProvider<BookmarksController, List<Bookmark>>(
@@ -512,8 +493,6 @@ final surahAyatCountProvider = FutureProvider.family<int, int>((ref, n) {
   final uc = ref.read(bookmarksUseCaseProvider);
   return uc.getAyatCount(n);
 });
-
-/// --- Stats Service ----------------------------------------------------------
 
 final statsServiceProvider = Provider<StatsService>((ref) {
   return StatsServiceImpl(ref.watch(trackingServiceProvider));

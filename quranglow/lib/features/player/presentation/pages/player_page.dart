@@ -7,7 +7,9 @@ import 'package:quranglow/core/data/surah_names_ar.dart';
 import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/core/model/book/surah.dart';
+import 'package:quranglow/core/model/setting/App_Settings.dart';
 import 'package:quranglow/core/service/audio/audio_locator.dart';
+import 'package:quranglow/features/downloads/presentation/widgets/AyahPickerSheet.dart';
 import 'package:quranglow/features/player/presentation/widgets/reader_row.dart';
 import 'package:quranglow/features/player/presentation/widgets/track_card.dart';
 import 'package:quranglow/features/player/presentation/widgets/transport_controls.dart';
@@ -15,6 +17,7 @@ import 'package:quranglow/features/ui/routes/app_routes.dart';
 
 class PlayerPage extends ConsumerStatefulWidget {
   const PlayerPage({super.key});
+
   @override
   ConsumerState<PlayerPage> createState() => _PlayerPageState();
 }
@@ -32,9 +35,9 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
       if (!isAudioHandlerReady) return;
       await next.when(
         data: (s) async {
-          final bool isPlaying = (s.isPlaying ?? false);
-          final String? url = s.currentUrl;
-          final String title =
+          final isPlaying = s.isPlaying ?? false;
+          final url = s.currentUrl;
+          final title =
               (s.surahName ?? 'سورة') +
               (s.reciterName != null ? ' - ${s.reciterName}' : '');
           if (isPlaying && url != null && url.isNotEmpty) {
@@ -61,6 +64,26 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
     final cs = Theme.of(context).colorScheme;
     final editionId = ref.read(editionIdProvider);
     final chapter = ref.read(chapterProvider).clamp(1, 114);
+    final settings = ref.read(settingsProvider).whenOrNull(data: (s) => s);
+
+    if (settings?.audioDownloadMode == AudioDownloadMode.selectedAyat) {
+      await showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        builder: (ctx) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            child: AyahPickerSheet(reciterId: editionId, surah: chapter),
+          );
+        },
+      );
+      return;
+    }
+
     final service = ref.read(quranServiceProvider);
 
     showDialog(
@@ -71,7 +94,9 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
 
     try {
       final urls = await service.getSurahAudioUrls(editionId, chapter);
-      if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
       if (urls.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -88,10 +113,12 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
         arguments: {'surah': chapter, 'reciterId': editionId},
       );
     } catch (e) {
-      if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('تعذّر بدء التنزيل: $e'),
+          content: Text('تعذر بدء التنزيل: $e'),
           backgroundColor: cs.error,
         ),
       );
@@ -105,6 +132,13 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
     final ed = ref.watch(editionIdProvider);
     final ch = ref.watch(chapterProvider).clamp(1, 114);
     final editions = ref.watch(audioEditionsProvider);
+    final settings = ref.watch(settingsProvider).whenOrNull(data: (s) => s);
+    final surahName = kSurahNamesAr[ch - 1];
+    final downloadLabel = settings?.audioDownloadMode ==
+            AudioDownloadMode.selectedAyat
+        ? 'اختيار آيات'
+        : 'تنزيل السورة';
+
     final surahs = AsyncValue.data(
       List<Surah>.generate(
         kSurahNamesAr.length,
@@ -121,7 +155,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: _PlayerAppBar(
-          surahName: kSurahNamesAr[ch - 1],
+          surahName: surahName,
           onOpenLibrary: () =>
               Navigator.pushNamed(context, AppRoutes.downloadsLibrary),
           onDownload: () => _downloadCurrent(context, ref),
@@ -143,11 +177,11 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                   elevation: 0,
                   color: cs.surfaceContainerHigh,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(20),
                     side: BorderSide(color: cs.outlineVariant),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     child: ReaderRow(
                       editions: editions,
                       surahs: surahs,
@@ -162,43 +196,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
-                Card(
-                  elevation: 0,
-                  color: cs.surfaceContainer,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: cs.outlineVariant),
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
-                    child: TrackCard(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: () => _downloadCurrent(context, ref),
-                        icon: const Icon(Icons.download_rounded),
-                        label: const Text('تنزيل السورة'),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => Navigator.pushNamed(
-                          context,
-                          AppRoutes.downloadsLibrary,
-                        ),
-                        icon: const Icon(Icons.library_music),
-                        label: const Text('المكتبة'),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 14),
                 ctrl.when(
                   loading: () => const Center(
                     child: Padding(
@@ -209,27 +207,71 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                   error: (e, st) => Card(
                     color: cs.errorContainer,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(18),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Text(
-                        'تعذّر التحميل: $e',
+                        'تعذر التحميل: $e',
                         style: TextStyle(color: cs.onErrorContainer),
                       ),
                     ),
                   ),
-                  data: (s) => Card(
-                    elevation: 0,
-                    color: cs.surfaceContainerHigh,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(color: cs.outlineVariant),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: TransportControls(state: s),
-                    ),
+                  data: (s) => Column(
+                    children: [
+                      TrackCard(state: s),
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: FilledButton.icon(
+                              onPressed: () => _downloadCurrent(context, ref),
+                              icon: const Icon(Icons.download_rounded),
+                              label: Text(downloadLabel),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () => Navigator.pushNamed(
+                                context,
+                                AppRoutes.downloadsLibrary,
+                              ),
+                              icon: const Icon(Icons.library_music),
+                              label: const Text('المكتبة'),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      if (settings != null)
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            settings.audioDownloadMode ==
+                                    AudioDownloadMode.selectedAyat
+                                ? 'وضع التنزيل الحالي: اختيار آيات من الإعدادات'
+                                : 'وضع التنزيل الحالي: السورة كاملة من الإعدادات',
+                            style: TextStyle(
+                              color: cs.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 16),
+                      Card(
+                        elevation: 0,
+                        color: cs.surfaceContainerHigh,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          side: BorderSide(color: cs.outlineVariant),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: TransportControls(state: s),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -317,7 +359,7 @@ class _PlayerAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'سورة $surahName • استماع وتنزيل سريع',
+            '$surahName • استماع، تقدم كامل، وتنزيل سريع',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -339,7 +381,7 @@ class _PlayerAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               const SizedBox(width: 8),
               _PlayerAppBarAction(
-                tooltip: 'تنزيل السورة',
+                tooltip: 'تنزيل الصوت',
                 icon: Icons.download_rounded,
                 onPressed: onDownload,
               ),
