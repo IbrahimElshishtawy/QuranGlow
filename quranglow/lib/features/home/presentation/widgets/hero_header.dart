@@ -9,16 +9,13 @@ class HomeHeroTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
     final compact = MediaQuery.sizeOf(context).width < 380;
 
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Colors.transparent,
         border: Border(
-          bottom: BorderSide(
-            color: cs.outlineVariant.withValues(alpha: 0.18),
-          ),
+          bottom: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.18)),
         ),
       ),
       child: SafeArea(
@@ -56,9 +53,7 @@ class HeroHeader extends StatelessWidget {
     final cardEnd = cs.primary.withValues(alpha: isDark ? 0.08 : 0.05);
 
     return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-      ),
+      decoration: BoxDecoration(color: Colors.transparent),
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -156,8 +151,14 @@ class HeroHeader extends StatelessWidget {
                     runSpacing: 6,
                     children: [
                       _InfoChip(icon: Icons.menu_book_rounded, label: 'مصحف'),
-                      _InfoChip(icon: Icons.headphones_rounded, label: 'استماع'),
-                      _InfoChip(icon: Icons.auto_stories_rounded, label: 'تفسير'),
+                      _InfoChip(
+                        icon: Icons.headphones_rounded,
+                        label: 'استماع',
+                      ),
+                      _InfoChip(
+                        icon: Icons.auto_stories_rounded,
+                        label: 'تفسير',
+                      ),
                     ],
                   ),
                   const SizedBox(height: 10),

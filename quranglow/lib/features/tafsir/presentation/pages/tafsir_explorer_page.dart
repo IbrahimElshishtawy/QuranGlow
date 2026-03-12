@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/model/book/surah.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/core/widgets/pro_app_bar.dart';
 import 'package:quranglow/features/tafsir/presentation/widgets/ayah_card.dart';
@@ -25,8 +24,7 @@ class TafsirExplorerPage extends ConsumerStatefulWidget {
   final int initialAyah;
 
   @override
-  ConsumerState<TafsirExplorerPage> createState() =>
-      _TafsirExplorerPageState();
+  ConsumerState<TafsirExplorerPage> createState() => _TafsirExplorerPageState();
 }
 
 class _TafsirExplorerPageState extends ConsumerState<TafsirExplorerPage> {

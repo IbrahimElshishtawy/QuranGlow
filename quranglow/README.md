@@ -121,6 +121,48 @@ git tag v1.0.0
 git push origin v1.0.0
 ```
 
+### إعداد توقيع Android للـ CD
+
+ملف `cd.yml` الآن يدعم التوقيع الحقيقي للـ APK عبر GitHub Secrets بدل debug signing.
+
+أضف هذه الـ secrets داخل:
+
+`GitHub > Settings > Secrets and variables > Actions`
+
+- `ANDROID_KEYSTORE_BASE64`
+- `ANDROID_KEYSTORE_PASSWORD`
+- `ANDROID_KEY_ALIAS`
+- `ANDROID_KEY_PASSWORD`
+
+أنشئ قيمة `ANDROID_KEYSTORE_BASE64` من ملف الـ keystore المحلي:
+
+```bash
+base64 -w 0 upload-keystore.jks
+```
+
+أو على PowerShell:
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("upload-keystore.jks"))
+```
+
+وللتشغيل المحلي، ضع ملفًا اسمه:
+
+`android/key.properties`
+
+بالمحتوى التالي:
+
+```properties
+storeFile=upload-keystore.jks
+storePassword=YOUR_STORE_PASSWORD
+keyAlias=YOUR_KEY_ALIAS
+keyPassword=YOUR_KEY_PASSWORD
+```
+
+ثم ضع ملف `upload-keystore.jks` داخل مجلد `android/`.
+
+إذا لم تضف الـ secrets، سيبني الـ workflow النسخة باستخدام debug signing فقط، وهذا مناسب للتجربة وليس لـ Google Play.
+
 ## التقنيات المستخدمة
 
 - Flutter

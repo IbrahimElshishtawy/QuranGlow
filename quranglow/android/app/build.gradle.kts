@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
@@ -7,6 +9,29 @@ plugins {
     id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
+}
+
+fun readSigningValue(propertyKey: String, envKey: String): String? {
+    return (keystoreProperties.getProperty(propertyKey)
+        ?: System.getenv(envKey))
+        ?.takeIf { it.isNotBlank() }
+}
+
+val signingStoreFile = readSigningValue("storeFile", "ANDROID_KEYSTORE_PATH")
+val signingStorePassword = readSigningValue("storePassword", "ANDROID_KEYSTORE_PASSWORD")
+val signingKeyAlias = readSigningValue("keyAlias", "ANDROID_KEY_ALIAS")
+val signingKeyPassword = readSigningValue("keyPassword", "ANDROID_KEY_PASSWORD")
+val hasReleaseSigning =
+    !signingStoreFile.isNullOrBlank() &&
+        !signingStorePassword.isNullOrBlank() &&
+        !signingKeyAlias.isNullOrBlank() &&
+        !signingKeyPassword.isNullOrBlank()
 
 android {
     namespace = "com.example.quranglow"
@@ -31,9 +56,24 @@ android {
         jvmTarget = "17"
     }
 
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = rootProject.file(signingStoreFile!!)
+                storePassword = signingStorePassword
+                keyAlias = signingKeyAlias
+                keyPassword = signingKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("debug")
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            } else {
+                signingConfig = signingConfigs.getByName("debug")
+            }
         }
     }
 }

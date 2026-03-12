@@ -32,6 +32,17 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Decode Android keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/upload-keystore.jks
+          else
+            echo "ANDROID_KEYSTORE_BASE64 is not configured. Release build will fall back to debug signing."
+          fi
+        shell: bash
+
       - name: Analyze
         run: flutter analyze
 
@@ -44,6 +55,11 @@ jobs:
           fi
 
       - name: Build release APK
+        env:
+          ANDROID_KEYSTORE_PATH: android/upload-keystore.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: flutter build apk --release
 
       - name: Upload APK artifact
