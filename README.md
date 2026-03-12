@@ -10,7 +10,6 @@
 
 #### تطبيق قرآني متكامل — اقرأ · استمع · تدبّر · تابع<br>
 
-[![Release](https://img.shields.io/github/v/release/IbrahimElshishtawy/QuranGlow?display_name=tag&style=flat-square&color=c9a84c&labelColor=074f4f&label=Latest)](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest)
 [![Download APK](https://img.shields.io/badge/Download_APK-0f766e?style=flat-square&logo=android&logoColor=white)](https://github.com/IbrahimElshishtawy/QuranGlow/releases/download/v1.0.0/QuranGlow.apk)
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat-square&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat-square&logo=dart&logoColor=white)](https://dart.dev)
