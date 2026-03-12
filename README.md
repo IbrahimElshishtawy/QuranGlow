@@ -140,7 +140,7 @@
 
 <div align="center">
 
-**إبراهيم الششتاوي**
+**Ibrahim Elshishtawy**
 
 [![GitHub](https://img.shields.io/badge/GitHub-IbrahimElshishtawy-181717?style=flat-square&logo=github)](https://github.com/IbrahimElshishtawy)
 [![Email](https://img.shields.io/badge/Email-shishtawyhima@gmail.com-EA4335?style=flat-square&logo=gmail&logoColor=white)](mailto:shishtawyhima@gmail.com)
@@ -154,7 +154,7 @@
 
 <br>
 
-صُنع بـ ❤️ بواسطة [إبراهيم الششتاوي](https://github.com/IbrahimElshishtawy) و [Flutter](https://flutter.dev)
+صُنع بـ ❤️ بواسطة [Ibrahim Elshishtawy ](https://github.com/IbrahimElshishtawy) و [Flutter](https://flutter.dev)
 
 <br>
 
