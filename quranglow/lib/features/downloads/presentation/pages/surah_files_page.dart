@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:quranglow/core/widgets/pro_app_bar.dart';
 
 class SurahFilesPage extends StatefulWidget {
   final String reciterId;
@@ -99,9 +100,9 @@ class _SurahFilesPageState extends State<SurahFilesPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text('ملفات السورة ${widget.surah} • ${widget.reciterId}'),
-          centerTitle: true,
+        appBar: ProAppBar(
+          title: 'ملفات السورة',
+          subtitle: 'سورة ${widget.surah} • ${widget.reciterId}',
           actions: [
             IconButton(icon: const Icon(Icons.refresh), onPressed: _scan),
             IconButton(

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:quranglow/core/data/surah_names_ar.dart';
+import 'package:quranglow/core/widgets/pro_app_bar.dart';
 import 'package:quranglow/features/mushaf/presentation/pages/mushaf_page.dart';
 
 class SurahListPage extends StatelessWidget {
@@ -12,7 +13,10 @@ class SurahListPage extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(title: const Text('قائمة السور'), centerTitle: true),
+        appBar: const ProAppBar(
+          title: 'السور',
+          subtitle: 'ابدأ من السورة ثم انتقل مباشرة إلى القراءة',
+        ),
         body: ListView.separated(
           padding: const EdgeInsets.fromLTRB(12, 10, 12, 16),
           itemCount: kSurahNamesAr.length,

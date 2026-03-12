@@ -15,12 +15,14 @@ import 'package:flutter/foundation.dart'
 /// );
 /// ```
 class DefaultFirebaseOptions {
+  static bool get isConfigured =>
+      android.appId != 'YOUR_APP_ID' &&
+      android.apiKey != 'YOUR_API_KEY' &&
+      android.projectId != 'YOUR_PROJECT_ID';
+
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -44,36 +46,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    appId: 'YOUR_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
+    apiKey: 'AIzaSyBiYiSrCUNOXa3OBUSrsLA8wFsAXOC76y0',
+    appId: '1:382659412362:android:95775f621567a215804873',
+    messagingSenderId: '382659412362',
+    projectId: 'quran-glow',
+    storageBucket: 'quran-glow.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    appId: 'YOUR_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
+    apiKey: 'AIzaSyCFaA6QuGPpBwcxIC9hcM5S-PEGFlGX4ac',
+    appId: '1:382659412362:ios:5fe904b618102223804873',
+    messagingSenderId: '382659412362',
+    projectId: 'quran-glow',
+    storageBucket: 'quran-glow.firebasestorage.app',
     iosBundleId: 'com.example.quranglow',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    appId: 'YOUR_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
+    apiKey: 'AIzaSyCFaA6QuGPpBwcxIC9hcM5S-PEGFlGX4ac',
+    appId: '1:382659412362:ios:5fe904b618102223804873',
+    messagingSenderId: '382659412362',
+    projectId: 'quran-glow',
+    storageBucket: 'quran-glow.firebasestorage.app',
     iosBundleId: 'com.example.quranglow',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    appId: 'YOUR_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
+    apiKey: 'AIzaSyDyaAJxDhuOUnusybeGXVd-_CNXURXqAT8',
+    appId: '1:382659412362:web:aaafb3d4917a630e804873',
+    messagingSenderId: '382659412362',
+    projectId: 'quran-glow',
+    authDomain: 'quran-glow.firebaseapp.com',
+    storageBucket: 'quran-glow.firebasestorage.app',
+    measurementId: 'G-J5CP8J49YF',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyDyaAJxDhuOUnusybeGXVd-_CNXURXqAT8',
+    appId: '1:382659412362:web:e884140da2092469804873',
+    messagingSenderId: '382659412362',
+    projectId: 'quran-glow',
+    authDomain: 'quran-glow.firebaseapp.com',
+    storageBucket: 'quran-glow.firebasestorage.app',
+    measurementId: 'G-23SNLDMV41',
+  );
+
 }

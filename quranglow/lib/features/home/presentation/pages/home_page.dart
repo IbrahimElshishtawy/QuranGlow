@@ -11,9 +11,9 @@ import 'package:quranglow/features/home/presentation/widgets/prayer_times_card.d
 import 'package:quranglow/features/home/presentation/widgets/quick_actions_grid.dart';
 import 'package:quranglow/features/home/presentation/widgets/section_spacing.dart';
 import 'package:quranglow/features/home/presentation/widgets/shortcuts_list.dart';
-import 'package:quranglow/features/mushaf/presentation/pages/mushaf_page.dart';
 import 'package:quranglow/features/player/presentation/pages/player_page.dart';
 import 'package:quranglow/features/search/presentation/pages/search_page.dart';
+import 'package:quranglow/features/surah/presentation/pages/surah_list_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -59,15 +59,10 @@ class _HomePageState extends State<HomePage> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         drawer: AppDrawer(
-          onNavigate: (r) {
+          onNavigate: (route) {
             Navigator.pop(context);
-            Navigator.pushNamed(context, r);
+            Navigator.pushNamed(context, route);
           },
-        ),
-        appBar: AppBar(
-          flexibleSpace: const HeroHeader(),
-          toolbarHeight: 120,
-          centerTitle: true,
         ),
         bottomNavigationBar: _GlassNavigationBar(
           tabs: _tabs,
@@ -84,7 +79,7 @@ class _HomePageState extends State<HomePage> {
       case 0:
         return const _HomeSections();
       case 1:
-        return const MushafPage();
+        return const SurahListPage();
       case 2:
         return const AzkarTasbihPage();
       case 3:
@@ -229,6 +224,10 @@ class _HomeSections extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final mediaQuery = MediaQuery.of(context);
+    final isCompactWidth = mediaQuery.size.width < 380;
+    final topBarHeight = mediaQuery.padding.top + (isCompactWidth ? 66.0 : 68.0);
+    final heroHeight = isCompactWidth ? 238.0 : 222.0;
 
     return Stack(
       children: [
@@ -256,15 +255,30 @@ class _HomeSections extends StatelessWidget {
           color: cs.tertiary.withValues(alpha: 0.09),
         ),
         CustomScrollView(
-          physics: const BouncingScrollPhysics(),
+          physics: const ClampingScrollPhysics(),
           slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _PinnedHeaderDelegate(
+                height: topBarHeight,
+                child: HomeHeroTopBar(),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: heroHeight,
+                child: HeroHeader(),
+              ),
+            ),
             const SliverToBoxAdapter(
               child: SectionSpacing(child: PrayerTimesCard()),
             ),
             const SliverToBoxAdapter(
               child: SectionSpacing(child: DailyAyahCard()),
             ),
-            const SliverToBoxAdapter(child: SectionSpacing(child: GoalsStrip())),
+            const SliverToBoxAdapter(
+              child: SectionSpacing(child: GoalsStrip()),
+            ),
             const SliverToBoxAdapter(
               child: SectionSpacing(child: LastReadCard()),
             ),
@@ -275,12 +289,44 @@ class _HomeSections extends StatelessWidget {
               child: SectionSpacing(child: ShortcutsList()),
             ),
             SliverToBoxAdapter(
-              child: SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+              child: SizedBox(
+                height: MediaQuery.of(context).padding.bottom + 16,
+              ),
             ),
           ],
         ),
       ],
     );
+  }
+}
+
+class _PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
+  _PinnedHeaderDelegate({
+    required this.height,
+    required this.child,
+  });
+
+  final double height;
+  final Widget child;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return child;
+  }
+
+  @override
+  bool shouldRebuild(covariant _PinnedHeaderDelegate oldDelegate) {
+    return oldDelegate.height != height || oldDelegate.child != child;
   }
 }
 

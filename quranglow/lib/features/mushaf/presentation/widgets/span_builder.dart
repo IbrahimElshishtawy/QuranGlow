@@ -7,22 +7,22 @@ class AyahSpanBuilder {
   AyahSpanBuilder({
     required this.onAyahTap,
     required this.onAyahLongPress,
+    required this.fontScale,
   });
   final void Function(int index) onAyahTap;
   final void Function(int index) onAyahLongPress;
+  final double fontScale;
 
   final Map<int, List<InlineSpan>> _cache = {};
 
-  static const _base = TextStyle(
-    fontSize: 20,
+  TextStyle get _base => TextStyle(
+    fontSize: 20 * fontScale,
     height: 1.9,
-    fontFamilyFallback: ['Noto Naskh Arabic', 'Scheherazade'],
+    fontFamilyFallback: const ['Noto Naskh Arabic', 'Scheherazade'],
   );
 
   List<InlineSpan> buildSpans({
     required List<Aya> ayat,
-    required bool showBasmala,
-    required String basmala,
     required int? currentAyahIndex,
     Color? ayahNumberColor,
     required List<GestureRecognizer> recognizersBucket,
@@ -30,7 +30,6 @@ class AyahSpanBuilder {
     final cacheKey = Object.hash(
       ayat.first.number,
       ayat.last.number,
-      showBasmala,
       currentAyahIndex,
     );
     if (_cache.containsKey(cacheKey)) {
@@ -38,9 +37,6 @@ class AyahSpanBuilder {
     }
 
     final out = <InlineSpan>[];
-    if (showBasmala) {
-      out.add(TextSpan(text: '$basmala  ', style: _base));
-    }
     for (final r in recognizersBucket) {
       r.dispose();
     }
@@ -64,7 +60,7 @@ class AyahSpanBuilder {
         onTap: () => onAyahTap(i),
         onLongPress: () => onAyahLongPress(i),
       ));
-      out.add(const TextSpan(text: '  ', style: _base));
+      out.add(TextSpan(text: '  ', style: _base));
     }
     _cache[cacheKey] = out;
     return out;

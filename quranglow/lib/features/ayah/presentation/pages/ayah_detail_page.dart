@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/core/model/book/surah.dart';
 import 'package:quranglow/core/di/providers.dart';
+import 'package:quranglow/core/widgets/pro_app_bar.dart';
 import 'package:quranglow/features/ayah/presentation/widgets/ayah_audio_card.dart';
 
 class AyahDetailPage extends ConsumerWidget {
@@ -48,7 +49,10 @@ class AyahDetailPage extends ConsumerWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(title: const Text('تفاصيل الآية'), centerTitle: true),
+        appBar: ProAppBar(
+          title: 'تفاصيل الآية',
+          subtitle: '${surah.name} • آية $ayahNo',
+        ),
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(

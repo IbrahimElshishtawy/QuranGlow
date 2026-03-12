@@ -1,17 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:quranglow/core/service/sync/firebase_guard.dart';
 import 'package:quranglow/core/utils/logger.dart';
 
 class FirebaseSyncService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseFirestore? get _firestore =>
+      FirebaseGuard.isReady ? FirebaseFirestore.instance : null;
+
+  FirebaseAuth? get _auth => FirebaseGuard.isReady ? FirebaseAuth.instance : null;
 
   Future<void> syncTasbih(Map<String, dynamic> data) async {
-    final user = _auth.currentUser;
-    if (user == null) return;
+    final auth = _auth;
+    final firestore = _firestore;
+    final user = auth?.currentUser;
+    if (user == null || firestore == null) return;
     try {
-      await _firestore
+      await firestore
           .collection('users')
           .doc(user.uid)
           .collection('azkar')
@@ -27,11 +32,13 @@ class FirebaseSyncService {
   }
 
   Future<void> syncStats(Map<String, dynamic> stats) async {
-    final user = _auth.currentUser;
-    if (user == null) return;
+    final auth = _auth;
+    final firestore = _firestore;
+    final user = auth?.currentUser;
+    if (user == null || firestore == null) return;
 
     try {
-      await _firestore
+      await firestore
           .collection('users')
           .doc(user.uid)
           .collection('stats')
@@ -43,31 +50,31 @@ class FirebaseSyncService {
       L.d('FirebaseSyncService', 'Stats synced successfully');
     } catch (e, st) {
       L.e('FirebaseSyncService', 'Failed to sync stats', st);
-      FirebaseCrashlytics.instance.recordError(
-        e,
-        st,
-        reason: 'Failed to sync stats to Firestore',
-      );
+      if (FirebaseGuard.isReady) {
+        FirebaseCrashlytics.instance.recordError(
+          e,
+          st,
+          reason: 'Failed to sync stats to Firestore',
+        );
+      }
     }
   }
 
   Future<void> syncBookmarks(List<Map<String, dynamic>> bookmarks) async {
-    final user = _auth.currentUser;
-    if (user == null) return;
+    final auth = _auth;
+    final firestore = _firestore;
+    final user = auth?.currentUser;
+    if (user == null || firestore == null) return;
 
     try {
-      final batch = _firestore.batch();
-      final bookmarksCol = _firestore
+      final batch = firestore.batch();
+      final bookmarksCol = firestore
           .collection('users')
           .doc(user.uid)
           .collection('bookmarks');
 
-      // Simple implementation: overwrite all bookmarks
-      // In a real app, you might want a more sophisticated merge strategy
-      for (var bookmark in bookmarks) {
-        final docRef = bookmarksCol.doc(
-          '${bookmark['surah']}_${bookmark['ayah']}',
-        );
+      for (final bookmark in bookmarks) {
+        final docRef = bookmarksCol.doc('${bookmark['surah']}_${bookmark['ayah']}');
         batch.set(docRef, {
           ...bookmark,
           'updatedAt': FieldValue.serverTimestamp(),
@@ -81,8 +88,10 @@ class FirebaseSyncService {
   }
 
   Future<void> signInAnonymously() async {
+    final auth = _auth;
+    if (auth == null) return;
     try {
-      await _auth.signInAnonymously();
+      await auth.signInAnonymously();
       L.d('FirebaseSyncService', 'Signed in anonymously');
     } catch (e, st) {
       L.e('FirebaseSyncService', 'Failed to sign in anonymously', st);

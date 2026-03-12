@@ -3,14 +3,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/model/book/surah.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
+import 'package:quranglow/core/widgets/pro_app_bar.dart';
 import 'package:quranglow/features/tafsir/presentation/widgets/ayah_card.dart';
 import 'package:quranglow/features/tafsir/presentation/widgets/selection_card.dart';
 import 'package:quranglow/features/tafsir/presentation/widgets/tafsir_card.dart';
 
-class TafsirReaderPage extends ConsumerStatefulWidget {
-  const TafsirReaderPage({
+class TafsirExplorerPage extends ConsumerStatefulWidget {
+  const TafsirExplorerPage({
     super.key,
     this.initialEditionId,
     this.initialEditionName,
@@ -24,10 +24,10 @@ class TafsirReaderPage extends ConsumerStatefulWidget {
   final int initialAyah;
 
   @override
-  ConsumerState<TafsirReaderPage> createState() => _TafsirReaderPageState();
+  ConsumerState<TafsirExplorerPage> createState() => _TafsirExplorerPageState();
 }
 
-class _TafsirReaderPageState extends ConsumerState<TafsirReaderPage> {
+class _TafsirExplorerPageState extends ConsumerState<TafsirExplorerPage> {
   String? _editionId;
   String? _editionName;
   int _surah = 1;
@@ -61,32 +61,36 @@ class _TafsirReaderPageState extends ConsumerState<TafsirReaderPage> {
         : ref.watch(tafsirForAyahProvider((_surah, _ayah, _editionId!)));
 
     // سورة واحدة فقط
-    final surahAsync = (_editionId == null)
-        ? const AsyncValue<Surah>.loading()
-        : ref.watch(quranSurahProvider((_surah, 'quran-uthmani')));
+    final quranAll = ref.watch(quranAllProvider('quran-uthmani'));
 
     String surahName = 'سورة $_surah';
     String ayahText = '';
     int maxAyat = 286; // افتراضي
-    surahAsync.whenData((s) {
-      surahName = s.name;
-      maxAyat = s.ayat.length;
-      if (_ayah >= 1 && _ayah <= s.ayat.length) {
-        final Aya a = s.ayat[_ayah - 1];
-        ayahText = a.text;
+    quranAll.whenData((all) {
+      if (_surah >= 1 && _surah <= all.length) {
+        final s = all[_surah - 1];
+        surahName = s.name;
+        maxAyat = s.ayat.length;
+        if (_ayah >= 1 && _ayah <= s.ayat.length) {
+          final Aya a = s.ayat[_ayah - 1];
+          ayahText = a.text;
+        }
       }
     });
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(title: const Text('التفسير'), centerTitle: true),
+        appBar: const ProAppBar(
+          title: 'التفسير',
+          subtitle: 'استكشف السور والآيات واختر التفسير المناسب',
+        ),
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             SelectionCard(
               editions: editions,
-              quranAll: surahAsync.whenData((s) => [s]),
+              quranAll: quranAll,
               editionId: _editionId,
               surah: _surah,
               ayah: _ayah,
@@ -96,9 +100,6 @@ class _TafsirReaderPageState extends ConsumerState<TafsirReaderPage> {
                   _editionName = name;
                 });
                 ref.refresh(tafsirForAyahProvider((_surah, _ayah, id)).future);
-                ref.refresh(
-                  quranSurahProvider((_surah, 'quran-uthmani')).future,
-                );
               },
               onSurahChange: (v, _) {
                 setState(() {
@@ -106,9 +107,6 @@ class _TafsirReaderPageState extends ConsumerState<TafsirReaderPage> {
                   _ayah = 1;
                 });
                 if (_editionId != null) {
-                  ref.refresh(
-                    quranSurahProvider((_surah, 'quran-uthmani')).future,
-                  );
                   ref.refresh(
                     tafsirForAyahProvider((_surah, _ayah, _editionId!)).future,
                   );

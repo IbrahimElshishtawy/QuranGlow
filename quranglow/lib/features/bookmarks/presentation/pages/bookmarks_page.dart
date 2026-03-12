@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
+import 'package:quranglow/core/widgets/pro_app_bar.dart';
 import 'package:quranglow/features/bookmarks/presentation/widgets/add_bookmark_dialog.dart';
 import 'package:quranglow/features/bookmarks/presentation/widgets/bookmark_list_tile.dart';
 import 'package:quranglow/features/bookmarks/presentation/widgets/empty_bookmarks_view.dart';
@@ -18,9 +19,9 @@ class BookmarksPage extends ConsumerWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('المحفوظات'),
-          centerTitle: true,
+        appBar: ProAppBar(
+          title: 'المحفوظات',
+          subtitle: 'ارجع بسرعة إلى الآيات والمقاطع التي حفظتها',
           actions: [
             if (items.isNotEmpty)
               IconButton(

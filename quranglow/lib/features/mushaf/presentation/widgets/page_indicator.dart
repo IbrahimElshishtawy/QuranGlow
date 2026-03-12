@@ -20,14 +20,22 @@ class PageIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          '${_toArabicDigits(current)} / ${_toArabicDigits(total)}',
-          style: TextStyle(color: cs.outline),
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: cs.surface.withValues(alpha: 0.82),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.7)),
         ),
-      ],
+        child: Text(
+          'صفحة ${_toArabicDigits(current)} من ${_toArabicDigits(total)}',
+          style: TextStyle(
+            color: cs.onSurfaceVariant,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
     );
   }
 }

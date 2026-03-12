@@ -2,46 +2,40 @@
 // ignore_for_file: implementation_imports, unnecessary_this
 
 import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:just_audio/just_audio.dart';
-
 import 'package:http/http.dart' as http;
-
+import 'package:just_audio/just_audio.dart';
 import 'package:quranglow/core/api/alquran_cloud_source.dart';
 import 'package:quranglow/core/api/fawaz_cdn_source.dart';
 import 'package:quranglow/core/data/surah_names_ar.dart';
 import 'package:quranglow/core/model/book/Play_list_State.dart';
-import 'package:quranglow/core/model/setting/App_Settings.dart';
-
 import 'package:quranglow/core/model/book/bookmark.dart';
 import 'package:quranglow/core/model/book/surah.dart';
+import 'package:quranglow/core/model/setting/reader_settings.dart';
 import 'package:quranglow/core/model/setting/goal.dart';
+import 'package:quranglow/core/service/audio/audio_service.dart';
+import 'package:quranglow/core/service/audio/my_audio_handler.dart';
+import 'package:quranglow/core/service/quran/quran_service.dart';
 import 'package:quranglow/core/service/quran/settings_service.dart';
+import 'package:quranglow/core/service/quran/stats_service.dart';
+import 'package:quranglow/core/service/quran/stats_service_impl.dart';
 import 'package:quranglow/core/service/setting/download_service.dart';
 import 'package:quranglow/core/service/setting/goals_service.dart';
 import 'package:quranglow/core/service/setting/location_service.dart';
 import 'package:quranglow/core/service/setting/prayer_times_service.dart';
-import 'package:quranglow/core/service/audio/audio_service.dart';
-import 'package:quranglow/core/service/audio/my_audio_handler.dart';
-import 'package:quranglow/core/service/quran/quran_service.dart';
-import 'package:quranglow/core/service/quran/stats_service.dart';
-import 'package:quranglow/core/service/quran/stats_service_impl.dart';
 import 'package:quranglow/core/service/sync/firebase_sync_service.dart';
 import 'package:quranglow/core/service/sync/reminders_service.dart';
 import 'package:quranglow/core/service/tracking_service.dart';
 import 'package:quranglow/core/storage/hive_storage_impl.dart';
 import 'package:quranglow/core/storage/local_storage.dart';
 import 'package:quranglow/core/theme/theme_controller.dart';
-
-// Bookmarks
 import 'package:quranglow/features/bookmarks/presentation/providers/bookmarks_controller.dart';
 import 'package:quranglow/features/bookmarks/presentation/providers/bookmarks_usecase.dart';
-
-// Downloads
 import 'package:quranglow/features/downloads/presentation/providers/download_controller.dart';
-
-/// --- HTTP & Dio -------------------------------------------------------------
+import 'package:quranglow/features/player/presentation/widgets/CombinedPositionData.dart';
 
 final httpClientProvider = Provider<http.Client>((ref) => http.Client());
 
@@ -56,11 +50,7 @@ final dioProvider = Provider<Dio>((ref) {
   );
 });
 
-/// --- Storage ----------------------------------------------------------------
-
 final storageProvider = Provider<LocalStorage>((ref) => HiveStorageImpl());
-
-/// --- API Sources ------------------------------------------------------------
 
 final fawazProvider = Provider<FawazCdnSource>((ref) {
   final client = ref.watch(httpClientProvider);
@@ -72,8 +62,6 @@ final alQuranProvider = Provider<AlQuranCloudSource>((ref) {
   final dio = ref.watch(dioProvider);
   return AlQuranCloudSource(dio: dio);
 });
-
-/// --- Services ---------------------------------------------------------------
 
 final goalsServiceProvider = Provider<GoalsService>((ref) {
   final svc = GoalsService(storage: ref.watch(storageProvider));
@@ -129,13 +117,9 @@ final prayerTimesServiceProvider = Provider<PrayerTimesService>((ref) {
   );
 });
 
-/// --- Goals (Stream) ---------------------------------------------------------
-
 final goalsStreamProvider = StreamProvider.autoDispose<List<Goal>>((ref) {
   return ref.watch(goalsServiceProvider).watchGoalsWithInitial();
 });
-
-/// --- Quran Text -------------------------------------------------------------
 
 final quranAllProvider = FutureProvider.autoDispose.family<List<Surah>, String>(
   (ref, editionId) {
@@ -143,8 +127,6 @@ final quranAllProvider = FutureProvider.autoDispose.family<List<Surah>, String>(
     return service.getQuranAllText(editionId);
   },
 );
-
-/// --- Settings (StateNotifier) -----------------------------------------------
 
 final settingsProvider =
     StateNotifierProvider<SettingsController, AsyncValue<AppSettings>>(
@@ -155,6 +137,7 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
   SettingsController(this.ref) : super(const AsyncValue.loading()) {
     _init();
   }
+
   final Ref ref;
 
   Future<void> _init() async {
@@ -166,8 +149,17 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
   Future<void> setDark(bool v) async {
     final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
     if (cur == null) return;
-    state = AsyncValue.data(cur.copyWith(darkMode: v));
+    state = AsyncValue.data(
+      cur.copyWith(themeMode: v ? ThemeMode.dark : ThemeMode.light),
+    );
     await ref.read(settingsServiceProvider).setDark(v);
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(themeMode: mode));
+    await ref.read(settingsServiceProvider).setThemeMode(mode);
   }
 
   Future<void> setFontScale(double v) async {
@@ -197,9 +189,35 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
     state = AsyncValue.data(cur.copyWith(colorScheme: scheme));
     await ref.read(settingsServiceProvider).setColorScheme(scheme);
   }
-}
 
-/// --- Audio Editions ---------------------------------------------------------
+  Future<void> setAudioDownloadMode(AudioDownloadMode mode) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(audioDownloadMode: mode));
+    await ref.read(settingsServiceProvider).setAudioDownloadMode(mode);
+  }
+
+  Future<void> setTasbihTarget(int target) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(tasbihTarget: target));
+    await ref.read(settingsServiceProvider).setTasbihTarget(target);
+  }
+
+  Future<void> setTasbihVibrate(bool enabled) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(tasbihVibrate: enabled));
+    await ref.read(settingsServiceProvider).setTasbihVibrate(enabled);
+  }
+
+  Future<void> setTasbihSound(bool enabled) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(tasbihSound: enabled));
+    await ref.read(settingsServiceProvider).setTasbihSound(enabled);
+  }
+}
 
 final audioEditionsProvider = FutureProvider<List<dynamic>>((ref) async {
   return ref.read(quranServiceProvider).listAudioEditions();
@@ -213,11 +231,13 @@ class PlayerUiState extends PlaylistState {
   final String? currentUrl;
   final String? surahName;
   final String? reciterName;
+  final int? currentAyah;
 
   const PlayerUiState({
     required super.editionId,
     required super.chapter,
     required super.total,
+    required super.timelineStream,
     required super.durationStream,
     required super.positionStream,
     required super.bufferedStream,
@@ -229,11 +249,12 @@ class PlayerUiState extends PlaylistState {
     this.currentUrl,
     this.surahName,
     this.reciterName,
+    this.currentAyah,
   });
 }
 
 final playerControllerProvider =
-    StateNotifierProvider<PlayerController, AsyncValue<PlayerUiState>>(
+    StateNotifierProvider.autoDispose<PlayerController, AsyncValue<PlayerUiState>>(
       (ref) => PlayerController(ref),
     );
 
@@ -250,8 +271,10 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
   StreamSubscription<int?>? _indexSub;
   List<String> _urls = const <String>[];
   String _reciterName = '';
+  bool _disposed = false;
 
   Future<void> _init() async {
+    if (_disposed || !mounted) return;
     final editionId = ref.read(editionIdProvider);
     final chapter = ref.read(chapterProvider).clamp(1, 114);
     await _loadSurah(editionId: editionId, chapter: chapter, autoPlay: false);
@@ -262,16 +285,19 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
     required int chapter,
     required bool autoPlay,
   }) async {
+    if (_disposed || !mounted) return;
     state = const AsyncValue.loading();
     try {
       final service = ref.read(quranServiceProvider);
       final urls = await service.getSurahAudioUrls(editionId, chapter);
+      if (_disposed || !mounted) return;
       if (urls.isEmpty) {
         throw Exception('No audio URLs found');
       }
 
       _urls = urls;
       _reciterName = await _resolveReciterName(editionId);
+      if (_disposed || !mounted) return;
 
       await _player.setAudioSource(
         // ignore: deprecated_member_use
@@ -283,13 +309,16 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
         initialIndex: 0,
         initialPosition: Duration.zero,
       );
+      if (_disposed || !mounted) return;
 
       if (autoPlay) {
         await _player.play();
+        if (_disposed || !mounted) return;
       }
 
       _emitState();
     } catch (e, st) {
+      if (_disposed || !mounted) return;
       state = AsyncValue.error(e, st);
     }
   }
@@ -310,14 +339,15 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
   }
 
   void _emitState() {
+    if (_disposed || !mounted) return;
     if (_urls.isEmpty) return;
 
     final editionId = ref.read(editionIdProvider);
     final chapter = ref.read(chapterProvider).clamp(1, 114);
     final index = _player.currentIndex ?? 0;
     final safeIndex = index.clamp(0, _urls.length - 1);
-    final surahName = (chapter >= 1 && chapter < kSurahNamesAr.length)
-        ? kSurahNamesAr[chapter]
+    final surahName = (chapter >= 1 && chapter <= kSurahNamesAr.length)
+        ? kSurahNamesAr[chapter - 1]
         : 'سورة $chapter';
 
     state = AsyncValue.data(
@@ -325,6 +355,7 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
         editionId: editionId,
         chapter: chapter,
         total: _urls.length,
+        timelineStream: combinedPositionStream(_player),
         durationStream: _player.durationStream,
         positionStream: _player.positionStream,
         bufferedStream: _player.bufferedPositionStream,
@@ -336,27 +367,32 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
         currentUrl: _urls[safeIndex],
         surahName: surahName,
         reciterName: _reciterName,
+        currentAyah: safeIndex + 1,
       ),
     );
   }
 
   Future<void> play() async {
     await _player.play();
+    if (_disposed || !mounted) return;
     _emitState();
   }
 
   Future<void> pause() async {
     await _player.pause();
+    if (_disposed || !mounted) return;
     _emitState();
   }
 
   Future<void> next() async {
     await _player.seekToNext();
+    if (_disposed || !mounted) return;
     _emitState();
   }
 
   Future<void> previous() async {
     await _player.seekToPrevious();
+    if (_disposed || !mounted) return;
     _emitState();
   }
 
@@ -366,6 +402,7 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
 
   Future<void> setSpeed(double speed) async {
     await _player.setSpeed(speed);
+    if (_disposed || !mounted) return;
     _emitState();
   }
 
@@ -374,12 +411,14 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
         ? LoopMode.all
         : LoopMode.off;
     await _player.setLoopMode(nextMode);
+    if (_disposed || !mounted) return;
     _emitState();
   }
 
   Future<void> toggleMute() async {
     final nextVolume = _player.volume > 0 ? 0.0 : 1.0;
     await _player.setVolume(nextVolume);
+    if (_disposed || !mounted) return;
     _emitState();
   }
 
@@ -402,14 +441,13 @@ class PlayerController extends StateNotifier<AsyncValue<PlayerUiState>> {
 
   @override
   void dispose() {
+    _disposed = true;
     _playingSub?.cancel();
     _indexSub?.cancel();
     _player.dispose();
     super.dispose();
   }
 }
-
-/// --- Daily Ayah -------------------------------------------------------------
 
 final dailyAyahProvider = FutureProvider.autoDispose<Map<String, String>>((
   ref,
@@ -442,13 +480,10 @@ final dailyAyahProvider = FutureProvider.autoDispose<Map<String, String>>((
   return {'text': text, 'ref': '$surahName • $nInSurah'};
 });
 
-/// --- Tafsir -----------------------------------------------------------------
-
 final tafsirEditionsProvider = FutureProvider<List<Map<String, String>>>((ref) {
   return ref.read(quranServiceProvider).listTafsirEditions();
 });
 
-/// tuple: (surah, ayah, editionId)
 final tafsirForAyahProvider = FutureProvider.family<String, (int, int, String)>(
   (ref, t) {
     final (surah, ayah, editionId) = t;
@@ -456,7 +491,6 @@ final tafsirForAyahProvider = FutureProvider.family<String, (int, int, String)>(
   },
 );
 
-/// تصحيح الأنواع: (surah:int, editionId:String) -> getSurahText(editionId, surah)
 final quranSurahProvider = FutureProvider.autoDispose
     .family<Surah, (int, String)>((ref, t) {
       final (surah, editionId) = t;
@@ -474,14 +508,11 @@ final tafsirFutureProvider = FutureProvider.autoDispose
       }
     });
 
-/// يجلب جميع روابط الصوت لسورة واحدة لقارئ معيّن
 final surahAudioUrlsProvider = FutureProvider.autoDispose
     .family<List<String>, ({int surah, String reciterId})>((ref, p) async {
       final svc = ref.read(quranServiceProvider);
       return svc.getSurahAudioUrls(p.reciterId, p.surah);
     });
-
-/// --- download service -------------------------------------------------------
 
 final downloadControllerProvider =
     StateNotifierProvider<DownloadController, DownloadState>((ref) {
@@ -491,8 +522,6 @@ final downloadControllerProvider =
 final downloadServiceProvider = Provider<DownloadService>((ref) {
   return DownloadService(dio: ref.read(dioProvider));
 });
-
-/// --- bookmarks controller ----------------------------------------------------
 
 final bookmarksProvider =
     StateNotifierProvider<BookmarksController, List<Bookmark>>(
@@ -512,8 +541,6 @@ final surahAyatCountProvider = FutureProvider.family<int, int>((ref, n) {
   final uc = ref.read(bookmarksUseCaseProvider);
   return uc.getAyatCount(n);
 });
-
-/// --- Stats Service ----------------------------------------------------------
 
 final statsServiceProvider = Provider<StatsService>((ref) {
   return StatsServiceImpl(ref.watch(trackingServiceProvider));

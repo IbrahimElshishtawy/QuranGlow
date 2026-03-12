@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/features/mushaf/presentation/widgets/mushaf_header.dart';
+import 'package:quranglow/features/mushaf/presentation/widgets/mushaf_page_card.dart';
 import 'package:quranglow/features/mushaf/presentation/widgets/page_indicator.dart';
 import 'package:quranglow/features/mushaf/presentation/widgets/page_rich_block.dart';
 import 'package:quranglow/features/mushaf/presentation/widgets/position_store.dart';
@@ -145,37 +146,32 @@ class PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
       itemCount: _pages.length,
       itemBuilder: (context, pageIndex) {
         final r = _pages[pageIndex];
+        final cs = Theme.of(context).colorScheme;
         return Directionality(
           textDirection: TextDirection.rtl,
           child: SafeArea(
             child: Stack(
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      MushafHeader(surahName: widget.surahName),
-                      const SizedBox(height: 6),
-                      Divider(color: Theme.of(context).colorScheme.outlineVariant),
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: PageRichBlock(
-                          ayat: widget.ayat,
-                          range: r,
-                          showBasmala: widget.showBasmala && pageIndex == 0,
-                          basmalaText: widget.basmalaText,
-                          currentAyahIndex: _currentAyahIdx0,
-                          onTapIndex: _onAyahTap,
-                          onLongPressIndex: _onAyahLongPress,
-                          ayahNumberColor:
-                              widget.ayahNumberColor ??
-                              Theme.of(context).colorScheme.primary,
-                        ),
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 18),
+                  child: MushafPageCard(
+                    header: MushafHeader(surahName: widget.surahName),
+                    content: Expanded(
+                      child: PageRichBlock(
+                        ayat: widget.ayat,
+                        range: r,
+                        showBasmala: widget.showBasmala && pageIndex == 0,
+                        basmalaText: widget.basmalaText,
+                        currentAyahIndex: _currentAyahIdx0,
+                        onTapIndex: _onAyahTap,
+                        onLongPressIndex: _onAyahLongPress,
+                        ayahNumberColor: widget.ayahNumberColor ?? cs.primary,
                       ),
-                      const SizedBox(height: 8),
-                      PageIndicator(current: pageIndex + 1, total: _pages.length),
-                    ],
+                    ),
+                    indicator: PageIndicator(
+                      current: pageIndex + 1,
+                      total: _pages.length,
+                    ),
                   ),
                 ),
                 SavedPositionBanner(
@@ -190,8 +186,6 @@ class PagedMushafState extends State<PagedMushaf> with WidgetsBindingObserver {
         );
       },
       onPageChanged: (newPageIndex) {
-        final pr = _pages[newPageIndex];
-        setState(() => _currentAyahIdx0 = pr.start);
         _saveCurrentIfAny();
       },
     );

@@ -7,7 +7,9 @@ import 'package:quranglow/core/data/surah_names_ar.dart';
 import 'package:quranglow/core/di/providers.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
 import 'package:quranglow/core/model/book/surah.dart';
+import 'package:quranglow/core/model/setting/reader_settings.dart';
 import 'package:quranglow/core/service/audio/audio_locator.dart';
+import 'package:quranglow/features/downloads/presentation/widgets/AyahPickerSheet.dart';
 import 'package:quranglow/features/player/presentation/widgets/reader_row.dart';
 import 'package:quranglow/features/player/presentation/widgets/track_card.dart';
 import 'package:quranglow/features/player/presentation/widgets/transport_controls.dart';
@@ -15,28 +17,42 @@ import 'package:quranglow/features/ui/routes/app_routes.dart';
 
 class PlayerPage extends ConsumerStatefulWidget {
   const PlayerPage({super.key});
+
   @override
   ConsumerState<PlayerPage> createState() => _PlayerPageState();
 }
 
 class _PlayerPageState extends ConsumerState<PlayerPage> {
   ProviderSubscription? _playbackSub;
+  DateTime? _listeningStartedAt;
+  bool _trackingSessionStarted = false;
+  late final dynamic _trackingService;
 
   @override
   void initState() {
     super.initState();
+    _trackingService = ref.read(trackingServiceProvider);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await _trackingService.startSession();
+      if (!mounted) return;
+      _trackingSessionStarted = true;
+    });
     _playbackSub = ref.listenManual(playerControllerProvider, (
       prev,
       next,
     ) async {
+      if (!mounted) return;
       if (!isAudioHandlerReady) return;
       await next.when(
         data: (s) async {
-          final bool isPlaying = (s.isPlaying ?? false);
-          final String? url = s.currentUrl;
-          final String title =
+          if (!mounted) return;
+          final isPlaying = s.isPlaying ?? false;
+          final url = s.currentUrl;
+          final title =
               (s.surahName ?? 'سورة') +
               (s.reciterName != null ? ' - ${s.reciterName}' : '');
+          _trackListeningState(isPlaying);
           if (isPlaying && url != null && url.isNotEmpty) {
             await audioHandler.playUri(Uri.parse(url), title: title);
           } else if (!isPlaying) {
@@ -44,6 +60,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
           }
         },
         error: (e, st) async {
+          if (!mounted) return;
           await audioHandler.stop();
         },
         loading: () async {},
@@ -53,14 +70,57 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
 
   @override
   void dispose() {
+    _flushListeningTime();
+    if (_trackingSessionStarted) {
+      _trackingService.endSession();
+    }
     _playbackSub?.close();
     super.dispose();
+  }
+
+  void _trackListeningState(bool isPlaying) {
+    if (isPlaying) {
+      _listeningStartedAt ??= DateTime.now();
+      return;
+    }
+    _flushListeningTime();
+  }
+
+  void _flushListeningTime() {
+    if (!mounted) return;
+    final startedAt = _listeningStartedAt;
+    if (startedAt == null) return;
+    final seconds = DateTime.now().difference(startedAt).inSeconds;
+    _listeningStartedAt = null;
+    if (seconds > 0) {
+      _trackingService.addListeningTime(seconds);
+    }
   }
 
   Future<void> _downloadCurrent(BuildContext context, WidgetRef ref) async {
     final cs = Theme.of(context).colorScheme;
     final editionId = ref.read(editionIdProvider);
     final chapter = ref.read(chapterProvider).clamp(1, 114);
+    final settings = ref.read(settingsProvider).whenOrNull(data: (s) => s);
+
+    if (settings?.audioDownloadMode == AudioDownloadMode.selectedAyat) {
+      await showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        builder: (ctx) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            child: AyahPickerSheet(reciterId: editionId, surah: chapter),
+          );
+        },
+      );
+      return;
+    }
+
     final service = ref.read(quranServiceProvider);
 
     showDialog(
@@ -71,7 +131,9 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
 
     try {
       final urls = await service.getSurahAudioUrls(editionId, chapter);
-      if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
       if (urls.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -88,10 +150,12 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
         arguments: {'surah': chapter, 'reciterId': editionId},
       );
     } catch (e) {
-      if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('تعذّر بدء التنزيل: $e'),
+          content: Text('تعذر بدء التنزيل: $e'),
           backgroundColor: cs.error,
         ),
       );
@@ -105,6 +169,13 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
     final ed = ref.watch(editionIdProvider);
     final ch = ref.watch(chapterProvider).clamp(1, 114);
     final editions = ref.watch(audioEditionsProvider);
+    final settings = ref.watch(settingsProvider).whenOrNull(data: (s) => s);
+    final surahName = kSurahNamesAr[ch - 1];
+    final downloadLabel = settings?.audioDownloadMode ==
+            AudioDownloadMode.selectedAyat
+        ? 'اختيار آيات'
+        : 'تنزيل السورة';
+
     final surahs = AsyncValue.data(
       List<Surah>.generate(
         kSurahNamesAr.length,
@@ -120,6 +191,12 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        appBar: _PlayerAppBar(
+          surahName: surahName,
+          onOpenLibrary: () =>
+              Navigator.pushNamed(context, AppRoutes.downloadsLibrary),
+          onDownload: () => _downloadCurrent(context, ref),
+        ),
         body: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -129,6 +206,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
             ),
           ),
           child: SafeArea(
+            top: false,
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
@@ -136,11 +214,11 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                   elevation: 0,
                   color: cs.surfaceContainerHigh,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(20),
                     side: BorderSide(color: cs.outlineVariant),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     child: ReaderRow(
                       editions: editions,
                       surahs: surahs,
@@ -155,43 +233,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
-                Card(
-                  elevation: 0,
-                  color: cs.surfaceContainer,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: cs.outlineVariant),
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.fromLTRB(12, 16, 12, 16),
-                    child: TrackCard(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: () => _downloadCurrent(context, ref),
-                        icon: const Icon(Icons.download_rounded),
-                        label: const Text('تنزيل السورة'),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => Navigator.pushNamed(
-                          context,
-                          AppRoutes.downloadsLibrary,
-                        ),
-                        icon: const Icon(Icons.library_music),
-                        label: const Text('المكتبة'),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 14),
                 ctrl.when(
                   loading: () => const Center(
                     child: Padding(
@@ -202,27 +244,71 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                   error: (e, st) => Card(
                     color: cs.errorContainer,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(18),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Text(
-                        'تعذّر التحميل: $e',
+                        'تعذر التحميل: $e',
                         style: TextStyle(color: cs.onErrorContainer),
                       ),
                     ),
                   ),
-                  data: (s) => Card(
-                    elevation: 0,
-                    color: cs.surfaceContainerHigh,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(color: cs.outlineVariant),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: TransportControls(state: s),
-                    ),
+                  data: (s) => Column(
+                    children: [
+                      TrackCard(state: s),
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: FilledButton.icon(
+                              onPressed: () => _downloadCurrent(context, ref),
+                              icon: const Icon(Icons.download_rounded),
+                              label: Text(downloadLabel),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () => Navigator.pushNamed(
+                                context,
+                                AppRoutes.downloadsLibrary,
+                              ),
+                              icon: const Icon(Icons.library_music),
+                              label: const Text('المكتبة'),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      if (settings != null)
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            settings.audioDownloadMode ==
+                                    AudioDownloadMode.selectedAyat
+                                ? 'وضع التنزيل الحالي: اختيار آيات من الإعدادات'
+                                : 'وضع التنزيل الحالي: السورة كاملة من الإعدادات',
+                            style: TextStyle(
+                              color: cs.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 16),
+                      Card(
+                        elevation: 0,
+                        color: cs.surfaceContainerHigh,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          side: BorderSide(color: cs.outlineVariant),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: TransportControls(state: s),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -230,6 +316,144 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _PlayerAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _PlayerAppBar({
+    required this.surahName,
+    required this.onOpenLibrary,
+    required this.onDownload,
+  });
+
+  final String surahName;
+  final VoidCallback onOpenLibrary;
+  final VoidCallback onDownload;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(112);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return AppBar(
+      toolbarHeight: 112,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      automaticallyImplyLeading: false,
+      titleSpacing: 16,
+      flexibleSpace: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              cs.primary.withValues(alpha: 0.18),
+              cs.tertiary.withValues(alpha: 0.10),
+              cs.surface,
+            ],
+          ),
+          border: Border(
+            bottom: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.55)),
+          ),
+        ),
+      ),
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: cs.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: cs.primary.withValues(alpha: 0.18),
+                  ),
+                ),
+                child: Icon(Icons.graphic_eq_rounded, color: cs.primary),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'التشغيل',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '$surahName • استماع، تقدم كامل، وتنزيل سريع',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: cs.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsetsDirectional.only(end: 8),
+          child: Row(
+            children: [
+              _PlayerAppBarAction(
+                tooltip: 'المكتبة الصوتية',
+                icon: Icons.library_music_rounded,
+                onPressed: onOpenLibrary,
+              ),
+              const SizedBox(width: 8),
+              _PlayerAppBarAction(
+                tooltip: 'تنزيل الصوت',
+                icon: Icons.download_rounded,
+                onPressed: onDownload,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PlayerAppBarAction extends StatelessWidget {
+  const _PlayerAppBarAction({
+    required this.tooltip,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return IconButton.filledTonal(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      style: IconButton.styleFrom(
+        backgroundColor: cs.surface.withValues(alpha: 0.82),
+        foregroundColor: cs.primary,
+        side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.7)),
+      ),
+      icon: Icon(icon),
     );
   }
 }

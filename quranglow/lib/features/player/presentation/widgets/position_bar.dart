@@ -1,61 +1,119 @@
-// lib/features/ui/pages/player/widgets/position_bar.dart
-// ignore_for_file: unnecessary_import
-
-import 'dart:ui' show FontFeature;
 import 'package:flutter/material.dart';
+import 'package:quranglow/features/player/presentation/widgets/CombinedPositionData.dart';
 
 class PositionBar extends StatelessWidget {
   const PositionBar({
     super.key,
-    required this.durationStream,
-    required this.positionStream,
+    required this.timelineStream,
     required this.onSeek,
-    required Stream<Duration> bufferedStream,
   });
 
-  final Stream<Duration?> durationStream;
-  final Stream<Duration> positionStream;
+  final Stream<CombinedPositionData> timelineStream;
   final Future<void> Function(Duration) onSeek;
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Duration>(
-      stream: positionStream,
-      initialData: Duration.zero,
-      builder: (_, posSnap) {
-        final pos = posSnap.data ?? Duration.zero;
-        return StreamBuilder<Duration?>(
-          stream: durationStream,
-          initialData: const Duration(minutes: 1),
-          builder: (_, durSnap) {
-            final dur = durSnap.data ?? const Duration(minutes: 1);
-            final v = dur.inMilliseconds == 0
-                ? 0.0
-                : pos.inMilliseconds / dur.inMilliseconds;
-            return Column(
+    final cs = Theme.of(context).colorScheme;
+
+    return StreamBuilder<CombinedPositionData>(
+      stream: timelineStream,
+      initialData: CombinedPositionData(
+        Duration.zero,
+        Duration.zero,
+        Duration.zero,
+      ),
+      builder: (_, snap) {
+        final timeline =
+            snap.data ??
+            CombinedPositionData(Duration.zero, Duration.zero, Duration.zero);
+        final total = timeline.total;
+        final position = timeline.position > total ? total : timeline.position;
+        final buffered = timeline.bufferedPosition > total
+            ? total
+            : timeline.bufferedPosition;
+        final sliderMax = total.inMilliseconds <= 0
+            ? 1.0
+            : total.inMilliseconds.toDouble();
+
+        return Column(
+          children: [
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                trackHeight: 5,
+                inactiveTrackColor: cs.surfaceContainerHighest,
+                secondaryActiveTrackColor: cs.primary.withValues(alpha: 0.22),
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+                overlayShape: const RoundSliderOverlayShape(overlayRadius: 18),
+              ),
+              child: Slider(
+                min: 0,
+                max: sliderMax,
+                value: position.inMilliseconds.clamp(0, sliderMax).toDouble(),
+                secondaryTrackValue: buffered.inMilliseconds
+                    .clamp(0, sliderMax)
+                    .toDouble(),
+                onChanged: total.inMilliseconds <= 0
+                    ? null
+                    : (value) => onSeek(Duration(milliseconds: value.round())),
+              ),
+            ),
+            Row(
               children: [
-                Slider(
-                  value: v.clamp(0.0, 1.0),
-                  onChanged: (x) => onSeek(dur * x),
-                ),
+                _TimeChip(label: 'الآن', value: _fmt(position)),
+                const Spacer(),
                 Text(
-                  '${_fmt(pos)} / ${_fmt(dur)}',
-                  style: const TextStyle(
-                    fontFeatures: [FontFeature.tabularFigures()],
+                  '${_fmt(position)} / ${_fmt(total)}',
+                  style: TextStyle(
+                    color: cs.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
+                const Spacer(),
+                _TimeChip(label: 'المتبقي', value: _fmt(total - position)),
               ],
-            );
-          },
+            ),
+          ],
         );
       },
     );
   }
 
   String _fmt(Duration d) {
+    if (d.isNegative) {
+      d = Duration.zero;
+    }
     final mm = d.inMinutes.remainder(60).toString().padLeft(2, '0');
     final ss = d.inSeconds.remainder(60).toString().padLeft(2, '0');
     final hh = d.inHours;
     return hh > 0 ? '$hh:$mm:$ss' : '$mm:$ss';
+  }
+}
+
+class _TimeChip extends StatelessWidget {
+  const _TimeChip({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        '$label $value',
+        style: TextStyle(
+          color: cs.onSurfaceVariant,
+          fontWeight: FontWeight.w700,
+          fontFeatures: const [FontFeature.tabularFigures()],
+        ),
+      ),
+    );
   }
 }

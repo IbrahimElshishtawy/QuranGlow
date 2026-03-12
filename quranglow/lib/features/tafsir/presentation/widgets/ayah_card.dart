@@ -14,26 +14,49 @@ class AyahCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 0,
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [
+            cs.primary.withValues(alpha: 0.14),
+            cs.surfaceContainerHigh,
+            cs.surface,
+          ],
+        ),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.6)),
+      ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
+        padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '$surahName • آية $ayah',
-              style: Theme.of(context).textTheme.titleMedium,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: cs.primary.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                '$surahName • الآية $ayah',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: cs.primary,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 14),
             Text(
-              ayahText.isEmpty ? '—' : ayahText,
+              ayahText.isEmpty ? 'لا يوجد نص للآية.' : ayahText,
               textAlign: TextAlign.right,
-              style: const TextStyle(
-                fontSize: 18,
-                height: 1.8,
-                fontWeight: FontWeight.w700,
+              style: theme.textTheme.titleMedium?.copyWith(
+                height: 1.95,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ],

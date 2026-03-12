@@ -2,9 +2,11 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:quranglow/features/azkar/presentation/widgets/tasbih_counter.dart';
-import 'package:quranglow/features/azkar/presentation/widgets/reminder_list.dart';
+import 'package:quranglow/core/widgets/pro_app_bar.dart';
 import 'package:quranglow/features/azkar/presentation/widgets/duas_list.dart';
+import 'package:quranglow/features/azkar/presentation/widgets/reminder_list.dart';
+import 'package:quranglow/features/azkar/presentation/widgets/tasbih_counter.dart';
+import 'package:quranglow/features/ui/routes/app_routes.dart';
 
 class AzkarTasbihPage extends StatefulWidget {
   const AzkarTasbihPage({super.key});
@@ -29,23 +31,52 @@ class _AzkarTasbihPageState extends State<AzkarTasbihPage>
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        // لا AppBar
+        appBar: ProAppBar(
+          title: 'الأذكار والتسبيح',
+          subtitle: 'عداد يومي مع التذكيرات والأدعية',
+          onBack: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).maybePop();
+            } else {
+              Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+            }
+          },
+        ),
         body: SafeArea(
           child: Column(
             children: [
-              // تبويب علوي بسيط بدل الشريط العالي
-              Material(
-                color: cs.surface,
-                child: TabBar(
-                  controller: _tab,
-                  labelColor: cs.primary,
-                  unselectedLabelColor: cs.onSurfaceVariant,
-                  indicatorColor: cs.primary,
-                  tabs: const [
-                    Tab(icon: Icon(Icons.bubble_chart), text: 'التسبيح'),
-                    Tab(icon: Icon(Icons.alarm), text: 'تذكير بالأدعية'),
-                    Tab(icon: Icon(Icons.menu_book), text: 'أدعية'),
-                  ],
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topRight,
+                      end: Alignment.bottomLeft,
+                      colors: [
+                        cs.primary.withValues(alpha: 0.10),
+                        cs.surfaceContainerHigh,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(
+                      color: cs.outlineVariant.withValues(alpha: 0.72),
+                    ),
+                  ),
+                  child: TabBar(
+                    controller: _tab,
+                    labelColor: cs.onPrimaryContainer,
+                    unselectedLabelColor: cs.onSurfaceVariant,
+                    indicator: BoxDecoration(
+                      color: cs.primaryContainer,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    dividerColor: Colors.transparent,
+                    tabs: const [
+                      Tab(icon: Icon(Icons.bubble_chart), text: 'التسبيح'),
+                      Tab(icon: Icon(Icons.alarm), text: 'تذكير بالأدعية'),
+                      Tab(icon: Icon(Icons.menu_book), text: 'أدعية'),
+                    ],
+                  ),
                 ),
               ),
               Expanded(

@@ -31,11 +31,15 @@ class StatsServiceImpl implements StatsService {
 
   @override
   Future<MonthlyGoal> getMonthlyGoal() async {
-    // This could be further integrated with a real goal tracking system
-    return const MonthlyGoal(
+    final stats = await trackingService.getStats();
+    final readAyat = (stats['ayatCount'] as int?) ?? 0;
+    const targetAyat = 500;
+    final progress = (readAyat / targetAyat).clamp(0.0, 1.0);
+
+    return MonthlyGoal(
       title: 'الهدف الشهري',
-      hint: 'استمر في القراءة لتحقيق هدفك',
-      progress: 0.0,
+      hint: 'قرأت $readAyat من أصل $targetAyat آية هذا الشهر',
+      progress: progress,
     );
   }
 }

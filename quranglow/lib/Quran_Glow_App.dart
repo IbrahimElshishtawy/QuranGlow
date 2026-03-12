@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/model/setting/App_Settings.dart';
+import 'package:quranglow/core/model/setting/reader_settings.dart';
 import 'package:quranglow/core/theme/app_themes.dart';
 import 'package:quranglow/core/theme/theme_controller.dart';
 import 'package:quranglow/core/widgets/error_boundary.dart';
@@ -99,7 +99,7 @@ class QuranGlowApp extends ConsumerWidget {
       data: (settings) => _buildApp(
         theme: _getTheme(settings, false),
         darkTheme: _getTheme(settings, true),
-        themeMode: settings.darkMode ? ThemeMode.dark : ThemeMode.light,
+        themeMode: settings.themeMode,
         onGenerateRoute: onGenerateRoute,
         home: const SplashScreen(),
       ),

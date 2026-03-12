@@ -31,20 +31,22 @@ class HomeSurfaceCard extends StatelessWidget {
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
           colors: [
-            emphasis ? cs.primary.withValues(alpha: 0.14) : cs.surface,
-            cs.surface.withValues(alpha: 0.99),
+            emphasis
+                ? cs.primary.withValues(alpha: 0.08)
+                : cs.surface.withValues(alpha: 0.28),
+            cs.surface.withValues(alpha: 0.12),
           ],
         ),
         border: Border.all(
           color: emphasis
-              ? cs.primary.withValues(alpha: 0.35)
-              : cs.outlineVariant.withValues(alpha: 0.70),
+              ? cs.primary.withValues(alpha: 0.22)
+              : cs.outlineVariant.withValues(alpha: 0.38),
         ),
         boxShadow: [
           BoxShadow(
-            color: cs.shadow.withValues(alpha: emphasis ? 0.13 : 0.08),
-            blurRadius: emphasis ? 18 : 14,
-            offset: const Offset(0, 7),
+            color: cs.shadow.withValues(alpha: emphasis ? 0.08 : 0.04),
+            blurRadius: emphasis ? 14 : 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),

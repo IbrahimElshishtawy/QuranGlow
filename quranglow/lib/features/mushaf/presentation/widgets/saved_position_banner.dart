@@ -12,6 +12,8 @@ class SavedPositionBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Positioned(
       top: 0,
       left: 0,
@@ -27,8 +29,15 @@ class SavedPositionBanner extends StatelessWidget {
               margin: const EdgeInsets.fromLTRB(12, 8, 12, 0),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(.28),
-                borderRadius: BorderRadius.circular(12),
+                color: cs.primary.withOpacity(.92),
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(.14),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Text(
                 text,

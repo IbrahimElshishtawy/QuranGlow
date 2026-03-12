@@ -18,35 +18,53 @@ class TafsirCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     return tafsir.when(
-      loading: () => Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        elevation: 0,
-        child: const Padding(
-          padding: EdgeInsets.all(20),
-          child: LinearProgressIndicator(),
+      loading: () => Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(24),
         ),
+        child: const LinearProgressIndicator(),
       ),
       error: (e, _) => ErrorCard(msg: 'خطأ في جلب التفسير: $e'),
-      data: (text) => Card(
-        color: cs.surfaceContainerHigh,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        elevation: 0,
+      data: (text) => Container(
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.55)),
+        ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
+          padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      editionName?.isNotEmpty == true
-                          ? editionName!
-                          : 'التفسير',
-                      style: Theme.of(context).textTheme.titleMedium,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'التفسير',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          editionName?.isNotEmpty == true
+                              ? editionName!
+                              : 'مصدر التفسير الحالي',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   IconButton(
@@ -66,11 +84,14 @@ class TafsirCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 14),
               Text(
-                text.isEmpty ? 'لا يوجد نص.' : text,
+                text.isEmpty ? 'لا يوجد نص تفسير متاح.' : text,
                 textAlign: TextAlign.justify,
-                style: const TextStyle(height: 1.9, fontSize: 16),
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  height: 1.95,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
