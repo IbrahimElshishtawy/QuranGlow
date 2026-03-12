@@ -38,7 +38,7 @@
 ## 📸 لقطات الشاشة
 
 <div align="center" style="border: 2px solid #7EC8E0; padding: 10px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
-  <img src="assets/iosn/photo_2026-03-12_20-45-16.jpg" width="80%" style="border-radius: 8px;"/>
+  <img src="quranglow/assets/iosn/photo_2026-03-12_20-45-16.jpg" width="80%" style="border-radius: 8px;"/>
 </div>
 ---
 
