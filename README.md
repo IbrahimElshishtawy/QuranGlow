@@ -85,7 +85,7 @@
 
 | الطريقة | الرابط |
 |---------|--------|
-| ⬇️ تحميل APK مباشرة | [app-release.apk](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest/download/app-release.apk) |
+| ⬇️ تحميل APK مباشرة | [app-release.apk](https://github.com/IbrahimElshishtawy/QuranGlow/releases/download/v1.0.0/QuranGlow.apk) |
 | 🏷️ صفحة الإصدارات | [GitHub Releases](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest) |
 
 > **تنبيه:** عند رفع إصدار جديد، تأكد من تسمية الملف `app-release.apk` بالضبط حتى يعمل رابط التحميل تلقائياً.
