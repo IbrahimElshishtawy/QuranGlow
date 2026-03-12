@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/iosn/icongrowquran.jpg" alt="QuranGlow Logo" width="120" />
+<img src="quranglow/assets/iosn/icongrowquran.jpg" alt="QuranGlow Logo" width="120" />
 
 # QuranGlow
 
