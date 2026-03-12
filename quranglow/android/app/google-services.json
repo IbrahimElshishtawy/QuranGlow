@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "382659412362",
+    "project_id": "quran-glow",
+    "storage_bucket": "quran-glow.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:382659412362:android:95775f621567a215804873",
+        "android_client_info": {
+          "package_name": "com.example.quranglow"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiYiSrCUNOXa3OBUSrsLA8wFsAXOC76y0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
