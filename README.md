@@ -19,9 +19,12 @@
 [![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat-square&logo=firebase&logoColor=black)](https://firebase.google.com)
 [![Android](https://img.shields.io/badge/Android-3DDC84?style=flat-square&logo=android&logoColor=white)](https://github.com/IbrahimElshishtawy/QuranGlow/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-
 <br>
-[تحميل التطبيق](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest/download/app-release.apk) · [آخر إصدار](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest) · [الإبلاغ عن مشكلة](https://github.com/IbrahimElshishtawy/QuranGlow/issues/new) · [اقتراح ميزة](https://github.com/IbrahimElshishtawy/QuranGlow/issues/new?template=feature_request.md))
+
+[تحميل التطبيق](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest/download/app-release.apk) · 
+[آخر إصدار](https://github.com/IbrahimElshishtawy/QuranGlow/releases/latest) · 
+[الإبلاغ عن مشكلة](https://github.com/IbrahimElshishtawy/QuranGlow/issues/new) · 
+[اقتراح ميزة](https://github.com/IbrahimElshishtawy/QuranGlow/issues/new?template=feature_request.md)
 
 <br>
 
