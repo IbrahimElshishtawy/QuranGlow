@@ -39,9 +39,9 @@ class AppDrawer extends StatelessWidget {
       final selected = route != null && currentRoute == route;
       return AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        margin: const EdgeInsets.only(bottom: 8),
+        margin: const EdgeInsets.only(bottom: 6),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(16),
           gradient: selected
               ? LinearGradient(
                   begin: Alignment.topRight,
@@ -59,18 +59,25 @@ class AppDrawer extends StatelessWidget {
           ),
         ),
         child: ListTile(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          dense: true,
+          minTileHeight: 62,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 2,
+          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           leading: Container(
-            width: 42,
-            height: 42,
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
               color: selected
                   ? cs.primary.withValues(alpha: 0.18)
                   : cs.surfaceContainerHighest.withValues(alpha: 0.75),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               icon,
+              size: 20,
               color: selected ? cs.primary : cs.onSurfaceVariant,
             ),
           ),
@@ -78,6 +85,7 @@ class AppDrawer extends StatelessWidget {
             title,
             style: TextStyle(
               fontWeight: FontWeight.w800,
+              fontSize: 14,
               color: selected ? cs.primary : cs.onSurface,
             ),
           ),
@@ -87,12 +95,13 @@ class AppDrawer extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: cs.onSurfaceVariant,
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w600,
             ),
           ),
           trailing: Icon(
             Icons.chevron_left_rounded,
+            size: 18,
             color: selected ? cs.primary : cs.outline,
           ),
           onTap: onTap ?? () => go(route!),
@@ -197,7 +206,7 @@ class AppDrawer extends StatelessWidget {
                     ),
                     Expanded(
                       child: ListView(
-                        padding: const EdgeInsets.fromLTRB(14, 16, 14, 8),
+                        padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
                         children: [
                           tile(
                             icon: Icons.menu_book_rounded,
@@ -239,12 +248,12 @@ class AppDrawer extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
-                              vertical: 10,
+                              vertical: 8,
                             ),
                             child: Text(
                               'أدوات إضافية',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 11,
                                 color: cs.onSurfaceVariant,
                                 fontWeight: FontWeight.w800,
                               ),

@@ -196,6 +196,27 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
     state = AsyncValue.data(cur.copyWith(audioDownloadMode: mode));
     await ref.read(settingsServiceProvider).setAudioDownloadMode(mode);
   }
+
+  Future<void> setTasbihTarget(int target) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(tasbihTarget: target));
+    await ref.read(settingsServiceProvider).setTasbihTarget(target);
+  }
+
+  Future<void> setTasbihVibrate(bool enabled) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(tasbihVibrate: enabled));
+    await ref.read(settingsServiceProvider).setTasbihVibrate(enabled);
+  }
+
+  Future<void> setTasbihSound(bool enabled) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(tasbihSound: enabled));
+    await ref.read(settingsServiceProvider).setTasbihSound(enabled);
+  }
 }
 
 final audioEditionsProvider = FutureProvider<List<dynamic>>((ref) async {

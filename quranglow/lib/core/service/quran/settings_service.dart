@@ -11,6 +11,9 @@ class SettingsService {
   static const _kFontFamily = 'settings.fontFamily';
   static const _kColorScheme = 'settings.colorScheme';
   static const _kAudioDownloadMode = 'settings.audioDownloadMode';
+  static const _kTasbihTarget = 'settings.tasbihTarget';
+  static const _kTasbihVibrate = 'settings.tasbihVibrate';
+  static const _kTasbihSound = 'settings.tasbihSound';
 
   Future<AppSettings> load() async {
     final sp = await SharedPreferences.getInstance();
@@ -28,6 +31,9 @@ class SettingsService {
     final colorSchemeStr = sp.getString(_kColorScheme) ?? 'green';
     final audioDownloadModeStr =
         sp.getString(_kAudioDownloadMode) ?? AudioDownloadMode.fullSurah.name;
+    final tasbihTarget = sp.getInt(_kTasbihTarget) ?? 33;
+    final tasbihVibrate = sp.getBool(_kTasbihVibrate) ?? true;
+    final tasbihSound = sp.getBool(_kTasbihSound) ?? false;
     final colorScheme = AppColorScheme.values.firstWhere(
       (e) => e.name == colorSchemeStr,
       orElse: () => AppColorScheme.green,
@@ -44,6 +50,9 @@ class SettingsService {
       fontFamily: fontFamily,
       colorScheme: colorScheme,
       audioDownloadMode: audioDownloadMode,
+      tasbihTarget: tasbihTarget,
+      tasbihVibrate: tasbihVibrate,
+      tasbihSound: tasbihSound,
     );
   }
 
@@ -85,5 +94,20 @@ class SettingsService {
   Future<void> setAudioDownloadMode(AudioDownloadMode v) async {
     final sp = await SharedPreferences.getInstance();
     await sp.setString(_kAudioDownloadMode, v.name);
+  }
+
+  Future<void> setTasbihTarget(int v) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setInt(_kTasbihTarget, v);
+  }
+
+  Future<void> setTasbihVibrate(bool v) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setBool(_kTasbihVibrate, v);
+  }
+
+  Future<void> setTasbihSound(bool v) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setBool(_kTasbihSound, v);
   }
 }
