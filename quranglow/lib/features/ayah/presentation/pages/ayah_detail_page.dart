@@ -75,6 +75,7 @@ class AyahDetailPage extends ConsumerWidget {
                 ayahInSurah: ayahNo,
                 reciterIdLabel: effectiveReciterId,
                 effectiveReciterId: effectiveReciterId,
+                initialAudioUrl: aya.audioUrl,
               ),
 
               const SizedBox(height: 16),
