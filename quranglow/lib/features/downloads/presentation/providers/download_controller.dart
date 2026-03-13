@@ -1,8 +1,7 @@
-// lib/features/ui/pages/downloads/controller/download_controller.dart
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:quranglow/core/di/providers.dart';
@@ -17,6 +16,7 @@ class DownloadState {
     this.total = 0,
     this.message,
   });
+
   final DownloadStatus status;
   final double progress;
   final int current;
@@ -41,18 +41,19 @@ class DownloadState {
 }
 
 class AyahDownload {
-  final int ayah; // 1-based
+  const AyahDownload({required this.ayah, required this.url});
+
+  final int ayah;
   final String url;
-  AyahDownload({required this.ayah, required this.url});
 }
 
 class DownloadController extends StateNotifier<DownloadState> {
   DownloadController(this.ref) : super(const DownloadState());
+
   final Ref ref;
   CancelToken? _token;
 
-  // تنزيل سورة كاملة (يحفظ 001.mp3 .. nnn.mp3)
-  Future<void> downloadSurah({
+  Future<bool> downloadSurah({
     required int surah,
     required String reciterId,
     required List<String> ayahUrls,
@@ -61,11 +62,10 @@ class DownloadController extends StateNotifier<DownloadState> {
       for (int i = 0; i < ayahUrls.length; i++)
         AyahDownload(ayah: i + 1, url: ayahUrls[i]),
     ];
-    await downloadAyat(surah: surah, reciterId: reciterId, items: items);
+    return downloadAyat(surah: surah, reciterId: reciterId, items: items);
   }
 
-  // تنزيل آيات محدّدة مع الحفاظ على رقم الآية في اسم الملف
-  Future<void> downloadAyat({
+  Future<bool> downloadAyat({
     required int surah,
     required String reciterId,
     required List<AyahDownload> items,
@@ -73,9 +73,9 @@ class DownloadController extends StateNotifier<DownloadState> {
     if (items.isEmpty) {
       state = state.copyWith(
         status: DownloadStatus.error,
-        message: 'لا توجد روابط صوت',
+        message: 'لا توجد روابط صوت متاحة للتنزيل.',
       );
-      return;
+      return false;
     }
 
     final svc = ref.read(downloadServiceProvider);
@@ -95,48 +95,72 @@ class DownloadController extends StateNotifier<DownloadState> {
     try {
       for (int i = 0; i < items.length; i++) {
         final item = items[i];
-        final fileName = item.ayah.toString().padLeft(3, '0'); // 001, 002...
+        final fileName = item.ayah.toString().padLeft(3, '0');
         final file = File('${dir.path}/$fileName.mp3');
 
-        await svc.downloadOne(
-          url: item.url,
-          savePath: file.path,
-          cancelToken: _token,
-          onProgress: (r, t) {
-            final pFile = (t > 0) ? (r / t) : 0.0;
-            final overall = (i + pFile) / items.length;
-            state = state.copyWith(
-              status: DownloadStatus.running,
-              current: i,
-              progress: overall.clamp(0, 1),
-            );
-          },
-        );
+        if (await file.exists() && await file.length() > 0) {
+          state = state.copyWith(
+            current: i + 1,
+            progress: (i + 1) / items.length,
+            message: 'تم استخدام الملفات المحفوظة مسبقًا عند توفرها.',
+          );
+          continue;
+        }
+
+        try {
+          await svc.downloadOne(
+            url: item.url,
+            savePath: file.path,
+            cancelToken: _token,
+            onProgress: (received, total) {
+              final fileProgress = total > 0 ? (received / total) : 0.0;
+              final overall = (i + fileProgress) / items.length;
+              state = state.copyWith(
+                status: DownloadStatus.running,
+                current: i,
+                progress: overall.clamp(0, 1),
+              );
+            },
+          );
+        } catch (_) {
+          if (await file.exists()) {
+            try {
+              await file.delete();
+            } catch (_) {}
+          }
+          rethrow;
+        }
 
         state = state.copyWith(
           current: i + 1,
-          progress: ((i + 1) / items.length),
+          progress: (i + 1) / items.length,
         );
       }
 
       state = state.copyWith(
         status: DownloadStatus.done,
-        message: 'اكتمل التنزيل',
+        message: 'اكتمل التنزيل بنجاح.',
       );
+      return true;
     } on DioException catch (e) {
       if (CancelToken.isCancel(e)) {
         state = state.copyWith(
           status: DownloadStatus.cancelled,
-          message: 'تم الإلغاء',
+          message: 'تم إلغاء التنزيل.',
         );
       } else {
         state = state.copyWith(
           status: DownloadStatus.error,
-          message: e.message,
+          message: e.message ?? 'تعذر تنزيل الملفات بسبب الشبكة.',
         );
       }
+      return false;
     } catch (e) {
-      state = state.copyWith(status: DownloadStatus.error, message: '$e');
+      state = state.copyWith(
+        status: DownloadStatus.error,
+        message: 'تعذر إكمال التنزيل: $e',
+      );
+      return false;
     }
   }
 

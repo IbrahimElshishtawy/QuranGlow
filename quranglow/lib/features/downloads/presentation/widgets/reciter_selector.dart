@@ -1,19 +1,12 @@
-// lib/features/ui/pages/downloads/widgets/reciter_selector.dart
-// ignore_for_file: unnecessary_underscores
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart'
     hide downloadControllerProvider;
-import 'package:quranglow/features/downloads/presentation/providers/download_controller.dart';
 import 'package:quranglow/features/downloads/presentation/pages/surah_files_page.dart';
+import 'package:quranglow/features/downloads/presentation/providers/download_controller.dart';
+import 'package:quranglow/features/downloads/presentation/widgets/audio_loading_state.dart';
 
 class ReciterSelector extends ConsumerStatefulWidget {
-  final List<Map<String, String>> editions;
-  final String? value;
-  final int surah;
-  final ValueChanged<String?>? onChanged;
-
   const ReciterSelector({
     super.key,
     required this.editions,
@@ -21,6 +14,11 @@ class ReciterSelector extends ConsumerStatefulWidget {
     required this.surah,
     this.onChanged,
   });
+
+  final List<Map<String, String>> editions;
+  final String? value;
+  final int surah;
+  final ValueChanged<String?>? onChanged;
 
   @override
   ConsumerState<ReciterSelector> createState() => _ReciterSelectorState();
@@ -32,6 +30,7 @@ class _ReciterSelectorState extends ConsumerState<ReciterSelector> {
   final Set<int> _selectedAyahs = {};
   bool _selectAllAyahs = false;
   bool _busy = false;
+  String? _loadError;
 
   @override
   void initState() {
@@ -48,37 +47,40 @@ class _ReciterSelectorState extends ConsumerState<ReciterSelector> {
       _ayahUrls = [];
       _selectedAyahs.clear();
       _selectAllAyahs = false;
+      _loadError = null;
       _loadAyahsIfNeeded();
     }
   }
 
   Future<void> _loadAyahsIfNeeded() async {
     if (_selected == null || _selected!.isEmpty) return;
-    setState(() => _busy = true);
+    setState(() {
+      _busy = true;
+      _loadError = null;
+    });
     try {
       final service = ref.read(quranServiceProvider);
       final urls = await service.getSurahAudioUrls(_selected!, widget.surah);
-      if (mounted) {
-        setState(() {
-          _ayahUrls = urls.toList();
-          _selectedAyahs.clear();
-          _selectAllAyahs = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('خطأ جلب الآيات: ${e.toString()}')),
-        );
-      }
+      if (!mounted) return;
+      setState(() {
+        _ayahUrls = urls.toList();
+        _selectedAyahs.clear();
+        _selectAllAyahs = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _loadError =
+            'تعذر جلب الآيات الصوتية. تحقق من الإنترنت ثم أعد المحاولة.';
+      });
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
 
-  void _toggleAyah(int index, bool? v) {
+  void _toggleAyah(int index, bool? value) {
     setState(() {
-      if (v == true) {
+      if (value == true) {
         _selectedAyahs.add(index);
       } else {
         _selectedAyahs.remove(index);
@@ -87,9 +89,9 @@ class _ReciterSelectorState extends ConsumerState<ReciterSelector> {
     });
   }
 
-  void _toggleSelectAll(bool? v) {
+  void _toggleSelectAll(bool? value) {
     setState(() {
-      _selectAllAyahs = v == true;
+      _selectAllAyahs = value == true;
       _selectedAyahs.clear();
       if (_selectAllAyahs) {
         for (int i = 0; i < _ayahUrls.length; i++) {
@@ -103,51 +105,56 @@ class _ReciterSelectorState extends ConsumerState<ReciterSelector> {
     if (_selected == null || _selected!.isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('اختر قارئًا أولاً')));
+      ).showSnackBar(const SnackBar(content: Text('اختر قارئًا أولًا.')));
       return;
     }
     if (_ayahUrls.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('لا توجد آيات محمّلة')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('لا توجد آيات صوتية محملة بعد.')),
+      );
       return;
     }
     if (_selectedAyahs.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('اختر آية واحدة على الأقل')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('اختر آية واحدة على الأقل.')),
+      );
       return;
     }
 
     setState(() => _busy = true);
     final downloader = ref.read(downloadControllerProvider.notifier);
-    try {
-      final selected = _selectedAyahs.toList()..sort();
-      final items = <AyahDownload>[
-        for (final i in selected) AyahDownload(ayah: i + 1, url: _ayahUrls[i]),
-      ];
-      await downloader.downloadAyat(
-        surah: widget.surah,
-        reciterId: _selected!,
-        items: items,
-      );
+    final selected = _selectedAyahs.toList()..sort();
+    final items = <AyahDownload>[
+      for (final i in selected) AyahDownload(ayah: i + 1, url: _ayahUrls[i]),
+    ];
 
-      if (!mounted) return;
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) =>
-              SurahFilesPage(reciterId: _selected!, surah: widget.surah),
+    final success = await downloader.downloadAyat(
+      surah: widget.surah,
+      reciterId: _selected!,
+      items: items,
+    );
+
+    if (!mounted) return;
+    setState(() => _busy = false);
+
+    final downloadState = ref.read(downloadControllerProvider);
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            downloadState.message ?? 'تعذر إكمال التحميل. حاول مرة أخرى.',
+          ),
         ),
       );
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('خطأ أثناء البدء: ${e.toString()}')),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _busy = false);
+      return;
     }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) =>
+            SurahFilesPage(reciterId: _selected!, surah: widget.surah),
+      ),
+    );
   }
 
   @override
@@ -172,34 +179,42 @@ class _ReciterSelectorState extends ConsumerState<ReciterSelector> {
                 ),
               )
               .toList(),
-          onChanged: (v) {
+          onChanged: (value) {
             setState(() {
-              _selected = v;
+              _selected = value;
               _ayahUrls = [];
               _selectedAyahs.clear();
               _selectAllAyahs = false;
+              _loadError = null;
             });
-            widget.onChanged?.call(v);
+            widget.onChanged?.call(value);
             _loadAyahsIfNeeded();
           },
-          validator: (v) => (v == null || v.isEmpty) ? 'اختر قارئًا' : null,
+          validator: (value) =>
+              (value == null || value.isEmpty) ? 'اختر قارئًا' : null,
         ),
         const SizedBox(height: 8),
-        if (_busy) const LinearProgressIndicator(),
-        if (!_busy &&
-            _selected != null &&
+        if (_busy && _ayahUrls.isEmpty)
+          const AudioLoadingState.loading()
+        else if (_loadError != null)
+          AudioLoadingState.error(
+            message: _loadError!,
+            onAction: _loadAyahsIfNeeded,
+          )
+        else if (_selected != null &&
             _selected!.isNotEmpty &&
             _ayahUrls.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Text('لم تُحمّل بعد لائحة الآيات. أعد اختيار القارئ.'),
+          AudioLoadingState.empty(
+            message: 'لم نجد روابط صوتية لهذه السورة الآن.',
+            onAction: _loadAyahsIfNeeded,
           ),
         if (_ayahUrls.isNotEmpty) ...[
+          if (_busy) const LinearProgressIndicator(),
           Row(
             children: [
               Checkbox(value: _selectAllAyahs, onChanged: _toggleSelectAll),
               const SizedBox(width: 8),
-              const Text('تحديد الكل آيات'),
+              const Text('تحديد كل الآيات'),
               const Spacer(),
               ElevatedButton.icon(
                 onPressed: _busy ? null : _downloadSelected,
@@ -219,15 +234,12 @@ class _ReciterSelectorState extends ConsumerState<ReciterSelector> {
             height: 280,
             child: ListView.separated(
               itemCount: _ayahUrls.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (c, idx) {
+              separatorBuilder: (_, _) => const Divider(height: 1),
+              itemBuilder: (_, idx) {
                 final selected = _selectedAyahs.contains(idx);
                 return ListTile(
                   dense: true,
-                  title: Text(
-                    'آية ${idx + 1}',
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  title: Text('آية ${idx + 1}'),
                   subtitle: Text(
                     _ayahUrls[idx],
                     maxLines: 1,
@@ -235,7 +247,7 @@ class _ReciterSelectorState extends ConsumerState<ReciterSelector> {
                   ),
                   trailing: Checkbox(
                     value: selected,
-                    onChanged: (v) => _toggleAyah(idx, v),
+                    onChanged: (value) => _toggleAyah(idx, value),
                   ),
                   onTap: () => _toggleAyah(idx, !selected),
                 );

@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quranglow/core/di/providers.dart';
+import 'package:quranglow/core/model/setting/adhan_sound.dart';
 import 'package:quranglow/core/service/setting/daily_reminder_kind.dart';
 import 'package:quranglow/core/service/setting/notification_service.dart';
 
@@ -187,6 +189,8 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
     final dailyKind = ref.watch(dailyReminderKindProvider);
     final salawatEnabled = ref.watch(salawatEnabledProvider);
     final salawatInterval = ref.watch(salawatIntervalMinutesProvider);
+    final settings = ref.watch(settingsProvider).valueOrNull;
+    final selectedAdhan = settings?.adhanSound ?? AdhanSounds.makkah;
 
     return Container(
       margin: const EdgeInsets.all(12),
@@ -231,6 +235,28 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
                   ref.read(reminderTimeProvider.notifier).state = picked;
                 }
               },
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('صوت أذان الإشعار'),
+              subtitle: Text(selectedAdhan.label),
+              trailing: DropdownButton<String>(
+                value: selectedAdhan.id,
+                onChanged: (value) async {
+                  if (value == null) return;
+                  await ref.read(settingsProvider.notifier).setAdhanSoundId(value);
+                  if (!mounted) return;
+                  _snack('تم تغيير صوت الأذان إلى ${AdhanSounds.byId(value).label}');
+                },
+                items: AdhanSounds.values
+                    .map(
+                      (sound) => DropdownMenuItem<String>(
+                        value: sound.id,
+                        child: Text(sound.label),
+                      ),
+                    )
+                    .toList(),
+              ),
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,

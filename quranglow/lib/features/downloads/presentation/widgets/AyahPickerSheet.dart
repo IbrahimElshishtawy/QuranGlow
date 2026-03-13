@@ -1,21 +1,20 @@
-// lib/features/ui/pages/downloads/widgets/AyahPickerSheet.dart
-// ignore_for_file: unnecessary_underscores
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/di/providers.dart'
     hide downloadControllerProvider;
-import 'package:quranglow/features/downloads/presentation/providers/download_controller.dart';
 import 'package:quranglow/features/downloads/presentation/pages/surah_files_page.dart';
+import 'package:quranglow/features/downloads/presentation/providers/download_controller.dart';
+import 'package:quranglow/features/downloads/presentation/widgets/audio_loading_state.dart';
 
 class AyahPickerSheet extends ConsumerStatefulWidget {
-  final String reciterId;
-  final int surah;
   const AyahPickerSheet({
     required this.reciterId,
     required this.surah,
     super.key,
   });
+
+  final String reciterId;
+  final int surah;
 
   @override
   ConsumerState<AyahPickerSheet> createState() => AyahPickerSheetState();
@@ -27,6 +26,7 @@ class AyahPickerSheetState extends ConsumerState<AyahPickerSheet> {
   final Set<int> _selected = <int>{};
   bool _busy = false;
   bool _all = false;
+  String? _loadError;
 
   @override
   void initState() {
@@ -35,7 +35,10 @@ class AyahPickerSheetState extends ConsumerState<AyahPickerSheet> {
   }
 
   Future<void> _load() async {
-    setState(() => _loading = true);
+    setState(() {
+      _loading = true;
+      _loadError = null;
+    });
     try {
       final service = ref.read(quranServiceProvider);
       final urls = await service.getSurahAudioUrls(
@@ -49,31 +52,32 @@ class AyahPickerSheetState extends ConsumerState<AyahPickerSheet> {
         _all = false;
         _loading = false;
       });
-    } catch (e) {
+    } catch (_) {
       if (!mounted) return;
-      setState(() => _loading = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('خطأ جلب الروابط: $e')));
+      setState(() {
+        _loading = false;
+        _loadError =
+            'تعذر تحميل الروابط الصوتية. تحقق من الإنترنت ثم أعد المحاولة.';
+      });
     }
   }
 
-  void _toggle(int i, bool v) {
+  void _toggle(int index, bool value) {
     setState(() {
-      if (v) {
-        _selected.add(i);
+      if (value) {
+        _selected.add(index);
       } else {
-        _selected.remove(i);
+        _selected.remove(index);
       }
       _all = _selected.length == _ayahUrls.length;
     });
   }
 
-  void _toggleAll(bool v) {
+  void _toggleAll(bool value) {
     setState(() {
-      _all = v;
+      _all = value;
       _selected.clear();
-      if (v) {
+      if (value) {
         for (int i = 0; i < _ayahUrls.length; i++) {
           _selected.add(i);
         }
@@ -85,39 +89,45 @@ class AyahPickerSheetState extends ConsumerState<AyahPickerSheet> {
     if (_selected.isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('اختر آيات أولًا')));
+      ).showSnackBar(const SnackBar(content: Text('اختر آيات أولًا.')));
       return;
     }
+
     setState(() => _busy = true);
-    try {
-      final downloader = ref.read(downloadControllerProvider.notifier);
-      final idx = _selected.toList()..sort();
-      final items = <AyahDownload>[
-        for (final i in idx) AyahDownload(ayah: i + 1, url: _ayahUrls[i]),
-      ];
+    final downloader = ref.read(downloadControllerProvider.notifier);
+    final idx = _selected.toList()..sort();
+    final items = <AyahDownload>[
+      for (final i in idx) AyahDownload(ayah: i + 1, url: _ayahUrls[i]),
+    ];
 
-      await downloader.downloadAyat(
-        surah: widget.surah,
-        reciterId: widget.reciterId,
-        items: items,
-      );
+    final success = await downloader.downloadAyat(
+      surah: widget.surah,
+      reciterId: widget.reciterId,
+      items: items,
+    );
 
-      if (!mounted) return;
-      Navigator.of(context).pop();
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) =>
-              SurahFilesPage(reciterId: widget.reciterId, surah: widget.surah),
+    if (!mounted) return;
+    setState(() => _busy = false);
+
+    final downloadState = ref.read(downloadControllerProvider);
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            downloadState.message ?? 'تعذر إكمال التحميل. حاول مرة أخرى.',
+          ),
         ),
       );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('تعذّر البدء: $e')));
-    } finally {
-      if (mounted) setState(() => _busy = false);
+      return;
     }
+
+    Navigator.of(context).pop();
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) =>
+            SurahFilesPage(reciterId: widget.reciterId, surah: widget.surah),
+      ),
+    );
   }
 
   @override
@@ -152,13 +162,25 @@ class AyahPickerSheetState extends ConsumerState<AyahPickerSheet> {
           const Divider(height: 1),
           Expanded(
             child: _loading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: AudioLoadingState.loading())
+                : _loadError != null
+                ? Center(
+                    child: AudioLoadingState.error(
+                      message: _loadError!,
+                      onAction: _load,
+                    ),
+                  )
                 : _ayahUrls.isEmpty
-                ? const Center(child: Text('لا توجد آيات'))
+                ? Center(
+                    child: AudioLoadingState.empty(
+                      message: 'لا توجد آيات صوتية متاحة لهذه السورة الآن.',
+                      onAction: _load,
+                    ),
+                  )
                 : ListView.separated(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     itemCount: _ayahUrls.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    separatorBuilder: (_, _) => const Divider(height: 1),
                     itemBuilder: (_, i) {
                       final selected = _selected.contains(i);
                       return ListTile(

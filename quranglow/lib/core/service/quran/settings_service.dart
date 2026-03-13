@@ -14,6 +14,7 @@ class SettingsService {
   static const _kTasbihTarget = 'settings.tasbihTarget';
   static const _kTasbihVibrate = 'settings.tasbihVibrate';
   static const _kTasbihSound = 'settings.tasbihSound';
+  static const _kAdhanSoundId = 'settings.adhanSoundId';
 
   Future<AppSettings> load() async {
     final sp = await SharedPreferences.getInstance();
@@ -34,6 +35,7 @@ class SettingsService {
     final tasbihTarget = sp.getInt(_kTasbihTarget) ?? 33;
     final tasbihVibrate = sp.getBool(_kTasbihVibrate) ?? true;
     final tasbihSound = sp.getBool(_kTasbihSound) ?? false;
+    final adhanSoundId = sp.getString(_kAdhanSoundId) ?? 'makkah';
     final colorScheme = AppColorScheme.values.firstWhere(
       (e) => e.name == colorSchemeStr,
       orElse: () => AppColorScheme.green,
@@ -53,6 +55,7 @@ class SettingsService {
       tasbihTarget: tasbihTarget,
       tasbihVibrate: tasbihVibrate,
       tasbihSound: tasbihSound,
+      adhanSoundId: adhanSoundId,
     );
   }
 
@@ -109,5 +112,10 @@ class SettingsService {
   Future<void> setTasbihSound(bool v) async {
     final sp = await SharedPreferences.getInstance();
     await sp.setBool(_kTasbihSound, v);
+  }
+
+  Future<void> setAdhanSoundId(String v) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setString(_kAdhanSoundId, v);
   }
 }
