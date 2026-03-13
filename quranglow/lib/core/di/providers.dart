@@ -114,6 +114,7 @@ final prayerTimesServiceProvider = Provider<PrayerTimesService>((ref) {
   return PrayerTimesService(
     client: ref.watch(httpClientProvider),
     locationService: ref.watch(locationServiceProvider),
+    storage: ref.watch(storageProvider),
   );
 });
 
@@ -216,6 +217,13 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
     if (cur == null) return;
     state = AsyncValue.data(cur.copyWith(tasbihSound: enabled));
     await ref.read(settingsServiceProvider).setTasbihSound(enabled);
+  }
+
+  Future<void> setAdhanSoundId(String adhanSoundId) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(adhanSoundId: adhanSoundId));
+    await ref.read(settingsServiceProvider).setAdhanSoundId(adhanSoundId);
   }
 }
 

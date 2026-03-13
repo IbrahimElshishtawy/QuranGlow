@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quranglow/core/model/setting/adhan_sound.dart';
 import 'package:quranglow/core/theme/theme_controller.dart';
 
 enum AudioDownloadMode { fullSurah, selectedAyat }
@@ -13,6 +14,7 @@ class AppSettings {
   final int tasbihTarget;
   final bool tasbihVibrate;
   final bool tasbihSound;
+  final String adhanSoundId;
 
   const AppSettings({
     ThemeMode? themeMode,
@@ -24,11 +26,13 @@ class AppSettings {
     this.tasbihTarget = 33,
     this.tasbihVibrate = true,
     this.tasbihSound = false,
+    this.adhanSoundId = 'makkah',
   }) : _themeMode = themeMode;
 
   ThemeMode get themeMode => _themeMode ?? ThemeMode.system;
 
   bool get darkMode => themeMode == ThemeMode.dark;
+  AdhanSoundOption get adhanSound => AdhanSounds.byId(adhanSoundId);
 
   AppSettings copyWith({
     ThemeMode? themeMode,
@@ -40,6 +44,7 @@ class AppSettings {
     int? tasbihTarget,
     bool? tasbihVibrate,
     bool? tasbihSound,
+    String? adhanSoundId,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     fontScale: fontScale ?? this.fontScale,
@@ -50,5 +55,6 @@ class AppSettings {
     tasbihTarget: tasbihTarget ?? this.tasbihTarget,
     tasbihVibrate: tasbihVibrate ?? this.tasbihVibrate,
     tasbihSound: tasbihSound ?? this.tasbihSound,
+    adhanSoundId: adhanSoundId ?? this.adhanSoundId,
   );
 }

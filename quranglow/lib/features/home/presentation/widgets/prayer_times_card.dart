@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quranglow/core/di/providers.dart';
+import 'package:quranglow/core/model/setting/adhan_sound.dart';
 import 'package:quranglow/core/service/setting/notification_service.dart';
 import 'package:quranglow/features/home/presentation/providers/prayer_times_provider.dart';
 import 'package:quranglow/features/home/presentation/widgets/home_surface_card.dart';
@@ -15,14 +17,7 @@ class PrayerTimesCard extends ConsumerStatefulWidget {
 }
 
 class _PrayerTimesCardState extends ConsumerState<PrayerTimesCard> {
-  static const _muezzins = <String>[
-    'مشاري العفاسي',
-    'ناصر القطامي',
-    'علي الملا',
-  ];
-
   late final Timer _ticker;
-  String _selectedMuezzin = _muezzins.first;
 
   @override
   void initState() {
@@ -42,6 +37,8 @@ class _PrayerTimesCardState extends ConsumerState<PrayerTimesCard> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final prayerState = ref.watch(prayerTimesProvider);
+    final settings = ref.watch(settingsProvider).valueOrNull;
+    final selectedAdhan = settings?.adhanSound ?? AdhanSounds.makkah;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,7 +61,7 @@ class _PrayerTimesCardState extends ConsumerState<PrayerTimesCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('تعذّر تحميل المواقيت: $e'),
+                Text('تعذر تحميل المواقيت: $e'),
                 const SizedBox(height: 8),
                 FilledButton.tonal(
                   onPressed: () => ref.refresh(prayerTimesProvider),
@@ -75,7 +72,7 @@ class _PrayerTimesCardState extends ConsumerState<PrayerTimesCard> {
           ),
           data: (data) {
             final remaining = _formatRemaining(data.nextPrayerTime);
-            final ordered = const [
+            const ordered = [
               'Fajr',
               'Sunrise',
               'Dhuhr',
@@ -122,9 +119,9 @@ class _PrayerTimesCardState extends ConsumerState<PrayerTimesCard> {
                                 .schedulePrayerNotifications(data: data);
                             if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                 content: Text(
-                                  'تم جدولة تنبيهات الصلاة لباقي اليوم خارج التطبيق',
+                                  'تم تفعيل أذان اليوم بصوت ${selectedAdhan.label}',
                                 ),
                               ),
                             );
@@ -168,19 +165,29 @@ class _PrayerTimesCardState extends ConsumerState<PrayerTimesCard> {
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
                             isExpanded: true,
-                            value: _selectedMuezzin,
+                            value: selectedAdhan.id,
                             icon: const Icon(Icons.keyboard_arrow_down_rounded),
                             borderRadius: BorderRadius.circular(12),
-                            onChanged: (v) {
-                              if (v == null) return;
-                              setState(() => _selectedMuezzin = v);
+                            onChanged: (value) async {
+                              if (value == null) return;
+                              await ref
+                                  .read(settingsProvider.notifier)
+                                  .setAdhanSoundId(value);
+                              if (!context.mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'تم اختيار ${AdhanSounds.byId(value).label} لصوت الأذان',
+                                  ),
+                                ),
+                              );
                             },
-                            items: _muezzins
+                            items: AdhanSounds.values
                                 .map(
-                                  (m) => DropdownMenuItem<String>(
-                                    value: m,
+                                  (sound) => DropdownMenuItem<String>(
+                                    value: sound.id,
                                     child: Text(
-                                      m,
+                                      sound.label,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(fontSize: 12),
@@ -192,6 +199,17 @@ class _PrayerTimesCardState extends ConsumerState<PrayerTimesCard> {
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 4),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      'الصوت المختار سيُستخدم عند إشعار الأذان القادم',
+                      style: TextStyle(
+                        color: cs.onSurfaceVariant,
+                        fontSize: 11,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   GridView.builder(
