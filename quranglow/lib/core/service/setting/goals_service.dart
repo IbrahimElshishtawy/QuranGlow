@@ -15,18 +15,22 @@ class GoalsService {
   final _controller = StreamController<List<Goal>>.broadcast();
 
   Future<List<Goal>> listGoals() async {
+    await _storage.init();
     if (_cache.isNotEmpty) return _cache;
 
     final raw =
         _storage.getString(_kStorageKey) ?? _storage.getString('goals.v1');
     if (raw != null && raw.isNotEmpty) {
       try {
-        final List<dynamic> list = jsonDecode(raw) as List<dynamic>;
+        final list = jsonDecode(raw) as List<dynamic>;
         _cache = list
             .whereType<Map>()
             .map((e) => Goal.fromMap(Map<String, dynamic>.from(e)))
             .toList();
-        if (_cache.isNotEmpty) return _cache;
+        if (_cache.isNotEmpty) {
+          await _syncGoalReminders(_cache);
+          return _cache;
+        }
       } catch (_) {}
     }
 
@@ -41,6 +45,7 @@ class GoalsService {
   }
 
   Future<void> saveAll(List<Goal> goals) async {
+    await _storage.init();
     _cache = goals;
     final encoded = jsonEncode(goals.map((g) => g.toMap()).toList());
     await _storage.putString(_kStorageKey, encoded);
@@ -91,10 +96,13 @@ class GoalsService {
 
   Future<void> trackReading({int verses = 1}) =>
       _bump(GoalType.reading, verses);
+
   Future<void> trackListening({int verses = 1}) =>
       _bump(GoalType.listening, verses);
+
   Future<void> trackMemorization({int verses = 1}) =>
       _bump(GoalType.memorization, verses);
+
   Future<void> trackTafsir({int verses = 1}) => _bump(GoalType.tafsir, verses);
 
   Future<void> _bump(GoalType type, int by) async {
