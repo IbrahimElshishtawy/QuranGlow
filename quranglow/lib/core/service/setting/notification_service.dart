@@ -16,6 +16,10 @@ class NotificationService {
   static const _dailyChannelId = 'daily_reminder_ch';
   static const _salawatChannelId = 'salawat_ch';
   static const _remindersChannelId = 'reminders_ch';
+  static const _prayerChannelId = 'prayer_adhan_ch_v1';
+  static const _prayerSound = RawResourceAndroidNotificationSound(
+    'adhan_makkah',
+  );
 
   static const _dailyId = 1001;
   static const _salawatId = 1002;
@@ -333,15 +337,17 @@ class NotificationService {
     if (!enabled || kIsWeb) return;
 
     const android = AndroidNotificationDetails(
-      _dailyChannelId,
-      'Prayer Times',
-      channelDescription: 'Prayer time alerts scheduled from the prayer times API',
+      _prayerChannelId,
+      'أذان الصلوات',
+      channelDescription: 'تنبيهات الأذان مع صوت أذان مخصص',
       importance: Importance.max,
       priority: Priority.high,
       category: AndroidNotificationCategory.alarm,
       showWhen: true,
       enableVibration: true,
       playSound: true,
+      sound: _prayerSound,
+      channelShowBadge: true,
     );
     const ios = DarwinNotificationDetails();
     const mac = DarwinNotificationDetails();
