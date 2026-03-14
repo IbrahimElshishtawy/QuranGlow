@@ -115,19 +115,25 @@ class _PrayerTimesCardState extends ConsumerState<PrayerTimesCard> {
                           onPressed: () async {
                             await NotificationService.instance
                                 .requestPermissionsIfNeededFromUI(context);
+                            final days = await ref
+                                .read(prayerTimesServiceProvider)
+                                .fetchUpcomingDays();
+                            await ref
+                                .read(settingsProvider.notifier)
+                                .setPrayerNotificationsEnabled(true);
                             await NotificationService.instance
-                                .schedulePrayerNotifications(data: data);
+                                .schedulePrayerNotifications(days: days);
                             if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'تم تفعيل أذان اليوم بصوت ${selectedAdhan.label}',
+                                  'تم تفعيل إشعارات الأذان بصوت ${selectedAdhan.label}',
                                 ),
                               ),
                             );
                           },
                           icon: const Icon(Icons.notifications_active_rounded),
-                          label: const Text('تفعيل أذان اليوم'),
+                          label: const Text('تفعيل إشعارات الأذان'),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -135,6 +141,9 @@ class _PrayerTimesCardState extends ConsumerState<PrayerTimesCard> {
                         onPressed: () async {
                           await NotificationService.instance
                               .cancelPrayerNotifications();
+                          await ref
+                              .read(settingsProvider.notifier)
+                              .setPrayerNotificationsEnabled(false);
                           if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
