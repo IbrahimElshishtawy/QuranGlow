@@ -1,4 +1,4 @@
-// ignore_for_file: implementation_imports, avoid_print, unnecessary_import
+// ignore_for_file: depend_on_referenced_packages, implementation_imports, avoid_print, unnecessary_import
 
 import 'dart:async';
 import 'dart:typed_data';
@@ -125,33 +125,33 @@ class QuranService {
         root['verses'] ?? root['ayahs'] ?? root['aya'] ?? root['list'] ?? [];
     final List list = versesAny is List ? versesAny : [];
 
-    final ayat = list.map((e) {
-      final m = Map<String, dynamic>.from(e as Map);
-      return Aya.fromMap({
-        'global': m['global'] ?? m['globalId'] ?? m['id'] ?? m['number'],
-        'surah': chapter,
-        'numberInSurah':
-            m['numberInSurah'] ??
-            m['number_in_surah'] ??
-            m['verse'] ??
-            m['verse_number'] ??
-            m['ayah'] ??
-            m['aya'],
-        'number':
-            m['number'] ??
-            m['numberInSurah'] ??
-            m['verse'] ??
-            m['verse_number'] ??
-            m['id'] ??
-            0,
-        'text': m['text'] ?? m['arabic'] ?? m['quran'] ?? '',
-      });
-    }).toList()
-      ..sort((a, b) {
-        final bySurahOrder = a.numberInSurah.compareTo(b.numberInSurah);
-        if (bySurahOrder != 0) return bySurahOrder;
-        return a.number.compareTo(b.number);
-      });
+    final ayat =
+        list.map((e) {
+          final m = Map<String, dynamic>.from(e as Map);
+          return Aya.fromMap({
+            'global': m['global'] ?? m['globalId'] ?? m['id'] ?? m['number'],
+            'surah': chapter,
+            'numberInSurah':
+                m['numberInSurah'] ??
+                m['number_in_surah'] ??
+                m['verse'] ??
+                m['verse_number'] ??
+                m['ayah'] ??
+                m['aya'],
+            'number':
+                m['number'] ??
+                m['numberInSurah'] ??
+                m['verse'] ??
+                m['verse_number'] ??
+                m['id'] ??
+                0,
+            'text': m['text'] ?? m['arabic'] ?? m['quran'] ?? '',
+          });
+        }).toList()..sort((a, b) {
+          final bySurahOrder = a.numberInSurah.compareTo(b.numberInSurah);
+          if (bySurahOrder != 0) return bySurahOrder;
+          return a.number.compareTo(b.number);
+        });
 
     return Surah(number: chapter, name: name, ayat: ayat.cast<Aya>());
   }
@@ -282,25 +282,34 @@ class QuranService {
   }
 
   Future<List<String>> getSurahAudioUrls(String editionId, int surah) async {
-    final localFiles = await _getLocalDownloadedSurahAudioFiles(editionId, surah);
+    final localFiles = await _getLocalDownloadedSurahAudioFiles(
+      editionId,
+      surah,
+    );
     if (localFiles.isNotEmpty) {
       return localFiles.map((file) => Uri.file(file.path).toString()).toList();
     }
 
     final map = await cloud.getSurahAudio(editionId, surah);
-    final data = map['data'];
-    if (data is Map && data['ayahs'] is List) {
-      final ayahs = data['ayahs'] as List;
+    final ayahs = _extractAudioAyahs(map);
+    if (ayahs.isNotEmpty) {
       return ayahs
-          .map((e) => (e as Map)['audio'] as String?)
+          .map(_readAudioUrl)
           .whereType<String>()
-          .toList();
+          .where((url) => url.trim().isNotEmpty)
+          .toList(growable: false);
     }
-    return <String>[];
+    throw Exception('No ayah audio URLs found for $editionId in surah $surah');
   }
 
-  Future<Map<int, String>> getSurahAudioUrlMap(String editionId, int surah) async {
-    final localFiles = await _getLocalDownloadedSurahAudioFiles(editionId, surah);
+  Future<Map<int, String>> getSurahAudioUrlMap(
+    String editionId,
+    int surah,
+  ) async {
+    final localFiles = await _getLocalDownloadedSurahAudioFiles(
+      editionId,
+      surah,
+    );
     if (localFiles.isNotEmpty) {
       final out = <int, String>{};
       for (final file in localFiles) {
@@ -314,14 +323,13 @@ class QuranService {
     }
 
     final map = await cloud.getSurahAudio(editionId, surah);
-    final data = map['data'];
-    if (data is! Map || data['ayahs'] is! List) {
+    final ayahs = _extractAudioAyahs(map);
+    if (ayahs.isEmpty) {
       return <int, String>{};
     }
 
     final out = <int, String>{};
-    for (final item in data['ayahs'] as List) {
-      if (item is! Map) continue;
+    for (final item in ayahs) {
       final rawAyahNumber =
           item['numberInSurah'] ??
           item['number_in_surah'] ??
@@ -334,7 +342,7 @@ class QuranService {
         String value => int.tryParse(value),
         _ => null,
       };
-      final audio = item['audio']?.toString();
+      final audio = _readAudioUrl(item);
       if (ayahNumber == null || audio == null || audio.trim().isEmpty) {
         continue;
       }
@@ -343,31 +351,70 @@ class QuranService {
     return out;
   }
 
+  List<Map<String, dynamic>> _extractAudioAyahs(Map<String, dynamic> payload) {
+    final data = payload['data'];
+    final candidates = <dynamic>[
+      data is Map ? data['ayahs'] : null,
+      payload['ayahs'],
+      data is Map ? data['verses'] : null,
+      payload['verses'],
+    ];
+
+    for (final candidate in candidates) {
+      if (candidate is List) {
+        return candidate
+            .whereType<Map>()
+            .map((item) => Map<String, dynamic>.from(item))
+            .toList(growable: false);
+      }
+    }
+
+    return const <Map<String, dynamic>>[];
+  }
+
+  String? _readAudioUrl(Map<String, dynamic> ayah) {
+    final direct = ayah['audio']?.toString().trim();
+    if (direct != null && direct.isNotEmpty) {
+      return direct;
+    }
+
+    final secondary = ayah['audioSecondary'];
+    if (secondary is List) {
+      for (final item in secondary) {
+        final value = item?.toString().trim();
+        if (value != null && value.isNotEmpty) {
+          return value;
+        }
+      }
+    }
+
+    final audioUrl = ayah['audioUrl']?.toString().trim();
+    if (audioUrl != null && audioUrl.isNotEmpty) {
+      return audioUrl;
+    }
+
+    return null;
+  }
+
   Future<List<File>> _getLocalDownloadedSurahAudioFiles(
     String editionId,
     int surah,
   ) async {
     final docs = await getApplicationDocumentsDirectory();
     final dir = Directory(
-      p.join(
-        docs.path,
-        'QuranGlow',
-        'downloads',
-        'audio',
-        editionId,
-        '$surah',
-      ),
+      p.join(docs.path, 'QuranGlow', 'downloads', 'audio', editionId, '$surah'),
     );
     if (!await dir.exists()) {
       return const <File>[];
     }
 
-    final files = dir
-        .listSync()
-        .whereType<File>()
-        .where((file) => file.path.toLowerCase().endsWith('.mp3'))
-        .toList()
-      ..sort((a, b) => a.path.compareTo(b.path));
+    final files =
+        dir
+            .listSync()
+            .whereType<File>()
+            .where((file) => file.path.toLowerCase().endsWith('.mp3'))
+            .toList()
+          ..sort((a, b) => a.path.compareTo(b.path));
     return files;
   }
 }

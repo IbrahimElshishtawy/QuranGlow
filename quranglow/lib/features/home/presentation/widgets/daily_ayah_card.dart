@@ -32,7 +32,7 @@ class DailyAyahCard extends ConsumerWidget {
           ),
           error: (e, _) => HomeSurfaceCard(
             child: Container(
-              padding: const EdgeInsets.all(4),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: cs.errorContainer,
                 borderRadius: BorderRadius.circular(12),
@@ -41,7 +41,7 @@ class DailyAyahCard extends ConsumerWidget {
                 children: [
                   Icon(Icons.error_outline_rounded, color: cs.error),
                   const SizedBox(width: 8),
-                  Expanded(child: Text('تعذّر تحميل آيات اليوم: $e')),
+                  Expanded(child: Text('تعذر تحميل آيات اليوم: $e')),
                   TextButton(
                     onPressed: () => ref.refresh(dailyAyatLocalProvider),
                     child: const Text('إعادة المحاولة'),
@@ -115,7 +115,7 @@ class DailyAyahCard extends ConsumerWidget {
                         ),
                         const SizedBox(width: 8),
                         IconButton(
-                          tooltip: 'اذهب للآية',
+                          tooltip: 'اذهب إلى الآية',
                           visualDensity: VisualDensity.compact,
                           style: ButtonStyle(
                             side: WidgetStatePropertyAll(

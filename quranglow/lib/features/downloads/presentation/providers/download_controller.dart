@@ -23,19 +23,21 @@ class DownloadState {
   final int total;
   final String? message;
 
+  static const Object _sentinel = Object();
+
   DownloadState copyWith({
     DownloadStatus? status,
     double? progress,
     int? current,
     int? total,
-    String? message,
+    Object? message = _sentinel,
   }) {
     return DownloadState(
       status: status ?? this.status,
       progress: progress ?? this.progress,
       current: current ?? this.current,
       total: total ?? this.total,
-      message: message ?? this.message,
+      message: identical(message, _sentinel) ? this.message : message as String?,
     );
   }
 }
@@ -73,7 +75,7 @@ class DownloadController extends StateNotifier<DownloadState> {
     if (items.isEmpty) {
       state = state.copyWith(
         status: DownloadStatus.error,
-        message: 'لا توجد روابط صوت متاحة للتنزيل.',
+        message: 'No audio links are available for download.',
       );
       return false;
     }
@@ -102,7 +104,7 @@ class DownloadController extends StateNotifier<DownloadState> {
           state = state.copyWith(
             current: i + 1,
             progress: (i + 1) / items.length,
-            message: 'تم استخدام الملفات المحفوظة مسبقًا عند توفرها.',
+            message: 'Previously downloaded files were reused when available.',
           );
           continue;
         }
@@ -117,7 +119,7 @@ class DownloadController extends StateNotifier<DownloadState> {
               final overall = (i + fileProgress) / items.length;
               state = state.copyWith(
                 status: DownloadStatus.running,
-                current: i,
+                current: i + 1,
                 progress: overall.clamp(0, 1),
               );
             },
@@ -139,26 +141,41 @@ class DownloadController extends StateNotifier<DownloadState> {
 
       state = state.copyWith(
         status: DownloadStatus.done,
-        message: 'اكتمل التنزيل بنجاح.',
+        message: 'Download completed successfully.',
       );
       return true;
     } on DioException catch (e) {
       if (CancelToken.isCancel(e)) {
         state = state.copyWith(
           status: DownloadStatus.cancelled,
-          message: 'تم إلغاء التنزيل.',
+          message: 'Download was cancelled.',
         );
       } else {
+        final statusCode = e.response?.statusCode;
+        final networkMessage = switch (e.type) {
+          DioExceptionType.connectionTimeout =>
+            'Connection timed out while downloading audio.',
+          DioExceptionType.sendTimeout =>
+            'Request send timed out while downloading audio.',
+          DioExceptionType.receiveTimeout =>
+            'Server response timed out while downloading audio.',
+          DioExceptionType.connectionError =>
+            'Network connection failed while downloading audio.',
+          DioExceptionType.badResponse =>
+            'Audio download failed with HTTP ${statusCode ?? '-'}',
+          _ => e.message ?? 'Audio download failed because of a network error.',
+        };
+
         state = state.copyWith(
           status: DownloadStatus.error,
-          message: e.message ?? 'تعذر تنزيل الملفات بسبب الشبكة.',
+          message: networkMessage,
         );
       }
       return false;
     } catch (e) {
       state = state.copyWith(
         status: DownloadStatus.error,
-        message: 'تعذر إكمال التنزيل: $e',
+        message: 'Could not finish downloading audio: $e',
       );
       return false;
     }
@@ -187,7 +204,7 @@ Future<File> saveAudioFile(
   if (response.statusCode == 200) {
     await file.writeAsBytes(response.bodyBytes);
   } else {
-    throw Exception('فشل تحميل الآية رقم $index');
+    throw Exception('Failed to download ayah $index');
   }
 
   return file;
