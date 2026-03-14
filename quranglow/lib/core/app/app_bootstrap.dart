@@ -67,17 +67,11 @@ class AppBootstrap {
       timeout: const Duration(seconds: 5),
     );
 
-    final shouldInitAudioService =
-        !(defaultTargetPlatform == TargetPlatform.android && kDebugMode);
-    if (shouldInitAudioService) {
-      await _safeInit(
-        'audio-handler',
-        () => initAudioHandler(),
-        timeout: const Duration(seconds: 10),
-      );
-    } else {
-      debugPrint('[BOOT] audio-handler skipped on Android debug build');
-    }
+    await _safeInit(
+      'audio-handler',
+      () => initAudioHandler(),
+      timeout: const Duration(seconds: 10),
+    );
 
     await _safeInit(
       'notifications',
@@ -136,7 +130,10 @@ class AppBootstrap {
         locationService: locationService,
         storage: HiveStorageImpl(),
       );
-      final days = await prayerService.fetchUpcomingDays();
+      final days = await prayerService.fetchUpcomingDays(
+        preferCache: true,
+        allowNetwork: false,
+      );
       await NotificationService.instance.schedulePrayerNotifications(
         days: days,
         enabled: true,

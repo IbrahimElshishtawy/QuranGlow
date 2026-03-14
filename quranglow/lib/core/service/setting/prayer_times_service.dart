@@ -20,7 +20,7 @@ class PrayerTimesService {
   static const _baseHost = 'api.aladhan.com';
   static const _cacheKey = 'prayer_times.cache.v1';
   static const _maxCacheDistanceMeters = 50000.0;
-  static const _defaultScheduleDays = 7;
+  static const _defaultScheduleDays = 30;
   static const _prayerKeys = <String>[
     'Fajr',
     'Sunrise',
@@ -52,15 +52,40 @@ class PrayerTimesService {
 
   Future<List<PrayerScheduleDay>> fetchUpcomingDays({
     int days = _defaultScheduleDays,
+    bool preferCache = false,
+    bool allowNetwork = true,
   }) async {
     await storage.init();
 
     final normalizedNow = _normalizeDate(DateTime.now());
+    final requestedDays = days < 1 ? 1 : days;
     final cachedBundle = await _readCacheBundle();
     final currentPosition = await locationService.getCurrentOnce();
     final cachedPosition = _positionFromCache(cachedBundle);
     final effectivePosition = currentPosition ?? cachedPosition;
-    final requestedDays = days < 1 ? 1 : days;
+
+    if (preferCache) {
+      final cachedDays = _collectCachedDays(
+        bundle: cachedBundle,
+        startDate: normalizedNow,
+        requestedDays: requestedDays,
+      );
+      if (cachedDays.isNotEmpty) {
+        return cachedDays;
+      }
+    }
+
+    if (!allowNetwork) {
+      final cachedDays = _collectCachedDays(
+        bundle: cachedBundle,
+        startDate: normalizedNow,
+        requestedDays: requestedDays,
+      );
+      if (cachedDays.isNotEmpty) {
+        return cachedDays;
+      }
+      throw Exception('لا توجد مواقيت محفوظة كافية للتشغيل الأوفلاين.');
+    }
 
     if (effectivePosition == null) {
       throw Exception(
@@ -78,6 +103,7 @@ class PrayerTimesService {
           ),
         );
       }
+
       await _writeCacheBundle(position: effectivePosition, days: onlineDays);
       return onlineDays.map(_toScheduleDay).toList(growable: false);
     } catch (_) {
@@ -87,13 +113,11 @@ class PrayerTimesService {
         );
       }
 
-      final cachedDays = <PrayerScheduleDay>[];
-      for (var offset = 0; offset < requestedDays; offset++) {
-        final date = normalizedNow.add(Duration(days: offset));
-        final cachedDay = _readCachedDay(cachedBundle, _dateKey(date));
-        if (cachedDay == null) continue;
-        cachedDays.add(_toScheduleDay(cachedDay));
-      }
+      final cachedDays = _collectCachedDays(
+        bundle: cachedBundle,
+        startDate: normalizedNow,
+        requestedDays: requestedDays,
+      );
 
       if (cachedDays.isEmpty) {
         throw Exception(
@@ -212,6 +236,21 @@ class PrayerTimesService {
       'savedAt': DateTime.now().toIso8601String(),
       'days': dayMaps,
     });
+  }
+
+  List<PrayerScheduleDay> _collectCachedDays({
+    required Map<String, dynamic>? bundle,
+    required DateTime startDate,
+    required int requestedDays,
+  }) {
+    final cachedDays = <PrayerScheduleDay>[];
+    for (var offset = 0; offset < requestedDays; offset++) {
+      final date = startDate.add(Duration(days: offset));
+      final cachedDay = _readCachedDay(bundle, _dateKey(date));
+      if (cachedDay == null) continue;
+      cachedDays.add(_toScheduleDay(cachedDay));
+    }
+    return cachedDays;
   }
 
   _PrayerDay? _readCachedDay(Map<String, dynamic>? bundle, String dateKey) {

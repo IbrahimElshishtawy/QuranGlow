@@ -14,6 +14,7 @@ class AyahSpanBuilder {
   final double fontScale;
 
   final Map<int, List<InlineSpan>> _cache = {};
+  static final _selectedAyahColor = Colors.green.withValues(alpha: 0.16);
 
   TextStyle get _base => TextStyle(
     fontSize: 20 * fontScale,
@@ -49,7 +50,7 @@ class AyahSpanBuilder {
       final selected = currentAyahIndex == i;
       final s = selected
           ? _base.copyWith(
-              backgroundColor: Colors.amber.withValues(alpha: 0.18),
+              backgroundColor: _selectedAyahColor,
             )
           : _base;
       out.add(TextSpan(text: '${a.text.trim()} ', style: s, recognizer: r));
@@ -89,7 +90,7 @@ class AyahSpanBuilder {
               height: 1.0,
               color: ayahNumberColor,
               backgroundColor: selected
-                  ? Colors.amber.withValues(alpha: 0.18)
+                  ? _selectedAyahColor
                   : null,
               fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
             ),

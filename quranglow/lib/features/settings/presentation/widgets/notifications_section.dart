@@ -165,7 +165,9 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
                     contentPadding: EdgeInsets.zero,
                     value: settings.prayerNotificationsEnabled,
                     title: const Text('تفعيل إشعارات الأذان'),
-                    subtitle: const Text('جدولة المواقيت القادمة محليًا على الجهاز'),
+                    subtitle: const Text(
+                      'جدولة المواقيت القادمة محليًا على الجهاز',
+                    ),
                     onChanged: (value) async {
                       try {
                         await ref
@@ -230,43 +232,73 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
                   Row(
                     children: [
                       Expanded(
-                        child: OutlinedButton.icon(
-                          icon: Icon(
-                            _busyPreview
-                                ? Icons.hourglass_top_rounded
-                                : Icons.play_arrow_rounded,
+                        child: SizedBox(
+                          height: 42,
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                              textStyle: const TextStyle(fontSize: 12),
+                            ),
+                            icon: Icon(
+                              _busyPreview
+                                  ? Icons.hourglass_top_rounded
+                                  : Icons.play_arrow_rounded,
+                              size: 18,
+                            ),
+                            label: Text(
+                              _busyPreview ? 'جارٍ التشغيل' : 'استماع للصوت',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            onPressed: _busyPreview
+                                ? null
+                                : () => _previewSelectedAdhan(selectedAdhan),
                           ),
-                          label: Text(
-                            _busyPreview ? 'جارٍ التشغيل' : 'استماع للصوت',
-                          ),
-                          onPressed: _busyPreview
-                              ? null
-                              : () => _previewSelectedAdhan(selectedAdhan),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 6),
                       Expanded(
-                        child: FilledButton.tonalIcon(
-                          icon: const Icon(Icons.notifications_active_outlined),
-                          label: const Text('اختبار الإشعار'),
-                          onPressed: () async {
-                            try {
-                              await NotificationService.instance
-                                  .requestPermissionsIfNeededFromUI(context);
-                              await NotificationService.instance.showAdhanPreview(
-                                title: 'اختبار أذان ${selectedAdhan.label}',
-                                body:
-                                    'هذا إشعار محلي تجريبي للتأكد من عمل صوت الأذان خارج التطبيق.',
-                                settings: settings,
-                              );
-                              _snack('تم إرسال إشعار أذان تجريبي');
-                            } catch (e) {
-                              _snack(
-                                'تعذر إرسال إشعار الأذان التجريبي: $e',
-                                bg: cs.error,
-                              );
-                            }
-                          },
+                        child: SizedBox(
+                          height: 42,
+                          child: FilledButton.tonalIcon(
+                            style: FilledButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                              textStyle: const TextStyle(fontSize: 12),
+                            ),
+                            icon: const Icon(
+                              Icons.notifications_active_outlined,
+                              size: 18,
+                            ),
+                            label: const Text(
+                              'اختبار الإشعار',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            onPressed: () async {
+                              try {
+                                await NotificationService.instance
+                                    .requestPermissionsIfNeededFromUI(context);
+                                await NotificationService.instance.showAdhanPreview(
+                                  title: 'اختبار أذان ${selectedAdhan.label}',
+                                  body:
+                                      'هذا إشعار محلي تجريبي للتأكد من عمل صوت الأذان خارج التطبيق.',
+                                  settings: settings,
+                                );
+                                _snack('تم إرسال إشعار أذان تجريبي');
+                              } catch (e) {
+                                _snack(
+                                  'تعذر إرسال إشعار الأذان التجريبي: $e',
+                                  bg: cs.error,
+                                );
+                              }
+                            },
+                          ),
                         ),
                       ),
                     ],
