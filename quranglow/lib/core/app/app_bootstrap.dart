@@ -9,9 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:http/http.dart' as http;
 import 'package:quranglow/core/service/audio/audio_locator.dart';
+import 'package:quranglow/core/service/quran/settings_service.dart';
+import 'package:quranglow/core/service/setting/location_service.dart';
 import 'package:quranglow/core/service/setting/notification_service.dart';
+import 'package:quranglow/core/service/setting/prayer_times_service.dart';
 import 'package:quranglow/core/service/sync/firebase_sync_service.dart';
+import 'package:quranglow/core/storage/hive_storage_impl.dart';
 import 'package:quranglow/firebase_options.dart';
 
 class AppBootstrap {
@@ -62,22 +67,24 @@ class AppBootstrap {
       timeout: const Duration(seconds: 5),
     );
 
-    final shouldInitAudioService =
-        !(defaultTargetPlatform == TargetPlatform.android && kDebugMode);
-    if (shouldInitAudioService) {
-      await _safeInit(
-        'audio-handler',
-        () => initAudioHandler(),
-        timeout: const Duration(seconds: 10),
-      );
-    } else {
-      debugPrint('[BOOT] audio-handler skipped on Android debug build');
-    }
+    await _safeInit(
+      'audio-handler',
+      () => initAudioHandler(),
+      timeout: const Duration(seconds: 10),
+    );
 
     await _safeInit(
       'notifications',
       () => NotificationService.instance.init(),
       timeout: const Duration(seconds: 5),
+    );
+
+    unawaited(
+      _safeInit(
+        'notification-sync',
+        () => _syncLocalNotificationsFromSettings(),
+        timeout: const Duration(seconds: 20),
+      ),
     );
   }
 
@@ -93,6 +100,47 @@ class AppBootstrap {
       debugPrint('[BOOT] $name failed/skipped: $e');
       debugPrintStack(stackTrace: st);
       return false;
+    }
+  }
+
+  static Future<void> _syncLocalNotificationsFromSettings() async {
+    final settings = await SettingsService().load();
+
+    await NotificationService.instance.scheduleDailyReminder(
+      enabled: settings.dailyReminderEnabled,
+      time: settings.dailyReminderTime,
+      kind: settings.dailyReminderKind,
+    );
+
+    await NotificationService.instance.scheduleSalawat(
+      enabled: settings.salawatEnabled,
+      intervalMinutes: settings.salawatIntervalMinutes,
+    );
+
+    if (!settings.prayerNotificationsEnabled) {
+      await NotificationService.instance.cancelPrayerNotifications();
+      return;
+    }
+
+    final locationService = LocationService();
+    final client = http.Client();
+    try {
+      final prayerService = PrayerTimesService(
+        client: client,
+        locationService: locationService,
+        storage: HiveStorageImpl(),
+      );
+      final days = await prayerService.fetchUpcomingDays(
+        preferCache: true,
+        allowNetwork: false,
+      );
+      await NotificationService.instance.schedulePrayerNotifications(
+        days: days,
+        enabled: true,
+      );
+    } finally {
+      client.close();
+      locationService.dispose();
     }
   }
 }

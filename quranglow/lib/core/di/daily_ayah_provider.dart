@@ -5,9 +5,7 @@ import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 
-import 'package:quranglow/core/di/providers.dart'; // فيه quranServiceProvider
-
-/// موديل آية اليوم من التخزين المحلي
+/// Ù…ÙˆØ¯ÙŠÙ„ Ø¢ÙŠØ© Ø§Ù„ÙŠÙˆÙ… Ù…Ù† Ø§Ù„ØªØ®Ø²ÙŠÙ† Ø§Ù„Ù…Ø­Ù„ÙŠ
 class DailyAyah {
   final String text;
   final String ref;
@@ -21,42 +19,39 @@ class DailyAyah {
   });
 }
 
-/// مزوّد يسحب آيات عشوائية من السور المحفوظة على الجهاز (Hive)
+/// Ù…Ø²ÙˆÙ‘Ø¯ ÙŠØ³Ø­Ø¨ Ø¢ÙŠØ§Øª Ø¹Ø´ÙˆØ§Ø¦ÙŠØ© Ù…Ù† Ø§Ù„Ø³ÙˆØ± Ø§Ù„Ù…Ø­ÙÙˆØ¸Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø¬Ù‡Ø§Ø² (Hive)
 final dailyAyatLocalProvider = FutureProvider.autoDispose<List<DailyAyah>>((
   ref,
 ) async {
   const editionId = 'quran-uthmani';
-  const count = 3; // عدد الآيات المعروضة
+  const count = 3; // Ø¹Ø¯Ø¯ Ø§Ù„Ø¢ÙŠØ§Øª Ø§Ù„Ù…Ø¹Ø±ÙˆØ¶Ø©
   final rnd = Random();
 
-  final service = ref.read(quranServiceProvider);
   final box = await Hive.openBox('quran_cache');
 
-  // مفاتيح السور المخزّنة: بصيغة editionId-chapter
+  // Ù…ÙØ§ØªÙŠØ­ Ø§Ù„Ø³ÙˆØ± Ø§Ù„Ù…Ø®Ø²Ù‘Ù†Ø©: Ø¨ØµÙŠØºØ© editionId-chapter
   List<String> _surahKeys() => box.keys
       .where((k) => k.toString().startsWith('$editionId-'))
       .map((e) => e.toString())
       .toList();
 
-  var keys = _surahKeys();
+  final keys = _surahKeys();
 
-  // لو ما فيش بيانات محليًا، نزّل مرة واحدة ثم أعد المحاولة
+  // Ø¨Ø·Ø§Ù‚Ø© Ø¢ÙŠØ§Øª Ø§Ù„ÙŠÙˆÙ… Ù„Ø§Ø²Ù… ØªØ´ØªØºÙ„ Ù…Ù† Ø§Ù„ÙƒØ§Ø´ Ø§Ù„Ù…Ø­Ù„ÙŠ ÙÙ‚Ø·.
   if (keys.isEmpty) {
-    await service.getQuranAllText(editionId);
-    keys = _surahKeys();
-    if (keys.isEmpty) {
-      throw Exception('لا توجد بيانات محلية للقرآن.');
-    }
+    throw Exception(
+      'Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¢ÙŠØ§Øª Ù…Ø­ÙÙˆØ¸Ø© Ù…Ø­Ù„ÙŠÙ‹Ø§ Ø¨Ø¹Ø¯. Ø§ÙØªØ­ Ø³ÙˆØ±Ø© Ù…Ø±Ø© ÙˆØ§Ø­Ø¯Ø© Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ø§Ù„Ø¥Ù†ØªØ±Ù†Øª Ù„ÙŠØªÙ… Ø­ÙØ¸Ù‡Ø§ Ù„Ù„Ø£ÙˆÙÙ„Ø§ÙŠÙ†.',
+    );
   }
 
-  // أدوات parsing آمنة لأي شكل JSON محتمل
+  // Ø£Ø¯ÙˆØ§Øª parsing Ø¢Ù…Ù†Ø© Ù„Ø£ÙŠ Ø´ÙƒÙ„ JSON Ù…Ø­ØªÙ…Ù„
   Map<String, dynamic> _asStringKeyMap(Object? raw) {
     if (raw is Map) {
       return Map<String, dynamic>.from(
         raw.map((k, v) => MapEntry(k.toString(), v)),
       );
     }
-    throw Exception('صيغة غير متوقعة لبيانات السورة.');
+    throw Exception('ØµÙŠØºØ© ØºÙŠØ± Ù…ØªÙˆÙ‚Ø¹Ø© Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø³ÙˆØ±Ø©.');
   }
 
   Map<String, dynamic> _root(Map<String, dynamic> j) =>
@@ -111,13 +106,13 @@ final dailyAyatLocalProvider = FutureProvider.autoDispose<List<DailyAyah>>((
     if (chosen.contains(keyUniq)) continue;
     chosen.add(keyUniq);
 
-    final ref = name.isEmpty ? 'آية $ayahNum' : 'سورة $name • آية $ayahNum';
+    final ref = name.isEmpty ? 'Ø¢ÙŠØ© $ayahNum' : 'Ø³ÙˆØ±Ø© $name â€¢ Ø¢ÙŠØ© $ayahNum';
 
     out.add(DailyAyah(text: text, ref: ref, surah: surahNum, ayah: ayahNum));
   }
 
   if (out.isEmpty) {
-    throw Exception('تعذر اختيار آيات عشوائية من التخزين المحلي.');
+    throw Exception('ØªØ¹Ø°Ø± Ø§Ø®ØªÙŠØ§Ø± Ø¢ÙŠØ§Øª Ø¹Ø´ÙˆØ§Ø¦ÙŠØ© Ù…Ù† Ø§Ù„ØªØ®Ø²ÙŠÙ† Ø§Ù„Ù…Ø­Ù„ÙŠ.');
   }
   return out;
 });

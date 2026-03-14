@@ -2,9 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quranglow/core/di/providers.dart';
-import 'package:quranglow/core/model/setting/adhan_sound.dart';
-import 'package:quranglow/core/service/setting/notification_service.dart';
 import 'package:quranglow/features/home/presentation/providers/prayer_times_provider.dart';
 import 'package:quranglow/features/home/presentation/widgets/home_surface_card.dart';
 import 'package:quranglow/features/home/presentation/widgets/section_title.dart';
@@ -37,8 +34,6 @@ class _PrayerTimesCardState extends ConsumerState<PrayerTimesCard> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final prayerState = ref.watch(prayerTimesProvider);
-    final settings = ref.watch(settingsProvider).valueOrNull;
-    final selectedAdhan = settings?.adhanSound ?? AdhanSounds.makkah;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,106 +103,27 @@ class _PrayerTimesCardState extends ConsumerState<PrayerTimesCard> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: FilledButton.tonalIcon(
-                          onPressed: () async {
-                            await NotificationService.instance
-                                .requestPermissionsIfNeededFromUI(context);
-                            await NotificationService.instance
-                                .schedulePrayerNotifications(data: data);
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'تم تفعيل أذان اليوم بصوت ${selectedAdhan.label}',
-                                ),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.notifications_active_rounded),
-                          label: const Text('تفعيل أذان اليوم'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      OutlinedButton(
-                        onPressed: () async {
-                          await NotificationService.instance
-                              .cancelPrayerNotifications();
-                          if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('تم إيقاف تنبيهات الصلاة المجدولة'),
-                            ),
-                          );
-                        },
-                        child: const Text('إيقاف'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'طريقة الحساب: ${data.methodName}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: cs.onSurfaceVariant,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Flexible(
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            isExpanded: true,
-                            value: selectedAdhan.id,
-                            icon: const Icon(Icons.keyboard_arrow_down_rounded),
-                            borderRadius: BorderRadius.circular(12),
-                            onChanged: (value) async {
-                              if (value == null) return;
-                              await ref
-                                  .read(settingsProvider.notifier)
-                                  .setAdhanSoundId(value);
-                              if (!context.mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'تم اختيار ${AdhanSounds.byId(value).label} لصوت الأذان',
-                                  ),
-                                ),
-                              );
-                            },
-                            items: AdhanSounds.values
-                                .map(
-                                  (sound) => DropdownMenuItem<String>(
-                                    value: sound.id,
-                                    child: Text(
-                                      sound.label,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
                   Align(
                     alignment: Alignment.centerRight,
                     child: Text(
-                      'الصوت المختار سيُستخدم عند إشعار الأذان القادم',
+                      'تفعيل إشعارات الأذان واختيار صوتها من صفحة الإعدادات.',
                       style: TextStyle(
                         color: cs.onSurfaceVariant,
-                        fontSize: 11,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      'طريقة الحساب: ${data.methodName}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: cs.onSurfaceVariant,
+                        fontSize: 12,
                       ),
                     ),
                   ),

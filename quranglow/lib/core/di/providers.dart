@@ -22,6 +22,7 @@ import 'package:quranglow/core/service/quran/quran_service.dart';
 import 'package:quranglow/core/service/quran/settings_service.dart';
 import 'package:quranglow/core/service/quran/stats_service.dart';
 import 'package:quranglow/core/service/quran/stats_service_impl.dart';
+import 'package:quranglow/core/service/setting/daily_reminder_kind.dart';
 import 'package:quranglow/core/service/setting/download_service.dart';
 import 'package:quranglow/core/service/setting/goals_service.dart';
 import 'package:quranglow/core/service/setting/location_service.dart';
@@ -224,6 +225,55 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
     if (cur == null) return;
     state = AsyncValue.data(cur.copyWith(adhanSoundId: adhanSoundId));
     await ref.read(settingsServiceProvider).setAdhanSoundId(adhanSoundId);
+  }
+
+  Future<void> setDailyReminderEnabled(bool enabled) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(dailyReminderEnabled: enabled));
+    await ref.read(settingsServiceProvider).setDailyReminderEnabled(enabled);
+  }
+
+  Future<void> setDailyReminderTime(TimeOfDay time) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(
+      cur.copyWith(
+        dailyReminderHour: time.hour,
+        dailyReminderMinute: time.minute,
+      ),
+    );
+    await ref.read(settingsServiceProvider).setDailyReminderTime(time);
+  }
+
+  Future<void> setDailyReminderKind(DailyReminderKind kind) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(dailyReminderKind: kind));
+    await ref.read(settingsServiceProvider).setDailyReminderKind(kind);
+  }
+
+  Future<void> setSalawatEnabled(bool enabled) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(salawatEnabled: enabled));
+    await ref.read(settingsServiceProvider).setSalawatEnabled(enabled);
+  }
+
+  Future<void> setSalawatIntervalMinutes(int minutes) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(salawatIntervalMinutes: minutes));
+    await ref.read(settingsServiceProvider).setSalawatIntervalMinutes(minutes);
+  }
+
+  Future<void> setPrayerNotificationsEnabled(bool enabled) async {
+    final cur = state.maybeWhen(data: (s) => s, orElse: () => null);
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(prayerNotificationsEnabled: enabled));
+    await ref.read(settingsServiceProvider).setPrayerNotificationsEnabled(
+      enabled,
+    );
   }
 }
 

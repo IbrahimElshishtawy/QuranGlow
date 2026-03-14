@@ -2,10 +2,13 @@
 
 import 'dart:async';
 import 'dart:typed_data';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show NetworkAssetBundle;
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:quranglow/core/api/fawaz_cdn_source.dart';
 import 'package:quranglow/core/api/alquran_cloud_source.dart';
 import 'package:quranglow/core/model/aya/aya.dart';
@@ -279,6 +282,11 @@ class QuranService {
   }
 
   Future<List<String>> getSurahAudioUrls(String editionId, int surah) async {
+    final localFiles = await _getLocalDownloadedSurahAudioFiles(editionId, surah);
+    if (localFiles.isNotEmpty) {
+      return localFiles.map((file) => Uri.file(file.path).toString()).toList();
+    }
+
     final map = await cloud.getSurahAudio(editionId, surah);
     final data = map['data'];
     if (data is Map && data['ayahs'] is List) {
@@ -292,6 +300,19 @@ class QuranService {
   }
 
   Future<Map<int, String>> getSurahAudioUrlMap(String editionId, int surah) async {
+    final localFiles = await _getLocalDownloadedSurahAudioFiles(editionId, surah);
+    if (localFiles.isNotEmpty) {
+      final out = <int, String>{};
+      for (final file in localFiles) {
+        final ayahNumber = int.tryParse(p.basenameWithoutExtension(file.path));
+        if (ayahNumber == null) continue;
+        out[ayahNumber] = Uri.file(file.path).toString();
+      }
+      if (out.isNotEmpty) {
+        return out;
+      }
+    }
+
     final map = await cloud.getSurahAudio(editionId, surah);
     final data = map['data'];
     if (data is! Map || data['ayahs'] is! List) {
@@ -320,5 +341,33 @@ class QuranService {
       out[ayahNumber] = audio;
     }
     return out;
+  }
+
+  Future<List<File>> _getLocalDownloadedSurahAudioFiles(
+    String editionId,
+    int surah,
+  ) async {
+    final docs = await getApplicationDocumentsDirectory();
+    final dir = Directory(
+      p.join(
+        docs.path,
+        'QuranGlow',
+        'downloads',
+        'audio',
+        editionId,
+        '$surah',
+      ),
+    );
+    if (!await dir.exists()) {
+      return const <File>[];
+    }
+
+    final files = dir
+        .listSync()
+        .whereType<File>()
+        .where((file) => file.path.toLowerCase().endsWith('.mp3'))
+        .toList()
+      ..sort((a, b) => a.path.compareTo(b.path));
+    return files;
   }
 }

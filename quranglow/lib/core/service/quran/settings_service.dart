@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quranglow/core/model/setting/reader_settings.dart';
+import 'package:quranglow/core/service/setting/daily_reminder_kind.dart';
 import 'package:quranglow/core/theme/theme_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,6 +16,14 @@ class SettingsService {
   static const _kTasbihVibrate = 'settings.tasbihVibrate';
   static const _kTasbihSound = 'settings.tasbihSound';
   static const _kAdhanSoundId = 'settings.adhanSoundId';
+  static const _kDailyReminderEnabled = 'settings.dailyReminderEnabled';
+  static const _kDailyReminderHour = 'settings.dailyReminderHour';
+  static const _kDailyReminderMinute = 'settings.dailyReminderMinute';
+  static const _kDailyReminderKind = 'settings.dailyReminderKind';
+  static const _kSalawatEnabled = 'settings.salawatEnabled';
+  static const _kSalawatIntervalMinutes = 'settings.salawatIntervalMinutes';
+  static const _kPrayerNotificationsEnabled =
+      'settings.prayerNotificationsEnabled';
 
   Future<AppSettings> load() async {
     final sp = await SharedPreferences.getInstance();
@@ -36,6 +45,15 @@ class SettingsService {
     final tasbihVibrate = sp.getBool(_kTasbihVibrate) ?? true;
     final tasbihSound = sp.getBool(_kTasbihSound) ?? false;
     final adhanSoundId = sp.getString(_kAdhanSoundId) ?? 'makkah';
+    final dailyReminderEnabled = sp.getBool(_kDailyReminderEnabled) ?? false;
+    final dailyReminderHour = sp.getInt(_kDailyReminderHour) ?? 7;
+    final dailyReminderMinute = sp.getInt(_kDailyReminderMinute) ?? 30;
+    final dailyReminderKindStr =
+        sp.getString(_kDailyReminderKind) ?? DailyReminderKind.quran.name;
+    final salawatEnabled = sp.getBool(_kSalawatEnabled) ?? false;
+    final salawatIntervalMinutes = sp.getInt(_kSalawatIntervalMinutes) ?? 5;
+    final prayerNotificationsEnabled =
+        sp.getBool(_kPrayerNotificationsEnabled) ?? false;
     final colorScheme = AppColorScheme.values.firstWhere(
       (e) => e.name == colorSchemeStr,
       orElse: () => AppColorScheme.green,
@@ -43,6 +61,10 @@ class SettingsService {
     final audioDownloadMode = AudioDownloadMode.values.firstWhere(
       (e) => e.name == audioDownloadModeStr,
       orElse: () => AudioDownloadMode.fullSurah,
+    );
+    final dailyReminderKind = DailyReminderKind.values.firstWhere(
+      (e) => e.name == dailyReminderKindStr,
+      orElse: () => DailyReminderKind.quran,
     );
 
     return AppSettings(
@@ -56,6 +78,13 @@ class SettingsService {
       tasbihVibrate: tasbihVibrate,
       tasbihSound: tasbihSound,
       adhanSoundId: adhanSoundId,
+      dailyReminderEnabled: dailyReminderEnabled,
+      dailyReminderHour: dailyReminderHour,
+      dailyReminderMinute: dailyReminderMinute,
+      dailyReminderKind: dailyReminderKind,
+      salawatEnabled: salawatEnabled,
+      salawatIntervalMinutes: salawatIntervalMinutes,
+      prayerNotificationsEnabled: prayerNotificationsEnabled,
     );
   }
 
@@ -117,5 +146,36 @@ class SettingsService {
   Future<void> setAdhanSoundId(String v) async {
     final sp = await SharedPreferences.getInstance();
     await sp.setString(_kAdhanSoundId, v);
+  }
+
+  Future<void> setDailyReminderEnabled(bool v) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setBool(_kDailyReminderEnabled, v);
+  }
+
+  Future<void> setDailyReminderTime(TimeOfDay v) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setInt(_kDailyReminderHour, v.hour);
+    await sp.setInt(_kDailyReminderMinute, v.minute);
+  }
+
+  Future<void> setDailyReminderKind(DailyReminderKind v) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setString(_kDailyReminderKind, v.name);
+  }
+
+  Future<void> setSalawatEnabled(bool v) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setBool(_kSalawatEnabled, v);
+  }
+
+  Future<void> setSalawatIntervalMinutes(int v) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setInt(_kSalawatIntervalMinutes, v);
+  }
+
+  Future<void> setPrayerNotificationsEnabled(bool v) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setBool(_kPrayerNotificationsEnabled, v);
   }
 }

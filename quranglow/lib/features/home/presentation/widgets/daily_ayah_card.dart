@@ -62,64 +62,77 @@ class DailyAyahCard extends ConsumerWidget {
               ),
               itemBuilder: (_, i) {
                 final a = list[i];
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            a.text,
-                            textAlign: TextAlign.right,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              height: 1.8,
-                              fontWeight: FontWeight.w700,
-                            ),
+
+                void openAyah() {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => MushafPage(
+                        chapter: a.surah,
+                        editionId: 'quran-uthmani',
+                        initialAyah: a.ayah,
+                      ),
+                    ),
+                  );
+                }
+
+                return InkWell(
+                  borderRadius: BorderRadius.circular(14),
+                  onTap: openAyah,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 2,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                a.text,
+                                textAlign: TextAlign.right,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  height: 1.8,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Opacity(
+                                opacity: .82,
+                                child: Text(
+                                  a.ref,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 6),
-                          Opacity(
-                            opacity: .82,
-                            child: Text(
-                              a.ref,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          tooltip: 'اذهب للآية',
+                          visualDensity: VisualDensity.compact,
+                          style: ButtonStyle(
+                            side: WidgetStatePropertyAll(
+                              BorderSide(
+                                color: cs.outlineVariant.withValues(alpha: .65),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      tooltip: 'اذهب للآية',
-                      visualDensity: VisualDensity.compact,
-                      style: ButtonStyle(
-                        side: WidgetStatePropertyAll(
-                          BorderSide(
-                            color: cs.outlineVariant.withValues(alpha: .65),
-                          ),
-                        ),
-                        overlayColor: WidgetStatePropertyAll(
-                          cs.primary.withValues(alpha: .08),
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => MushafPage(
-                              chapter: a.surah,
-                              editionId: 'quran-uthmani',
-                              initialAyah: a.ayah,
+                            overlayColor: WidgetStatePropertyAll(
+                              cs.primary.withValues(alpha: .08),
                             ),
                           ),
-                        );
-                      },
-                      icon: const Icon(Icons.menu_book_outlined, size: 20),
+                          onPressed: openAyah,
+                          icon: const Icon(Icons.menu_book_outlined, size: 20),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 );
               },
             ),

@@ -13,3 +13,17 @@ class PrayerTimesData {
   final String nextPrayerName;
   final DateTime nextPrayerTime;
 }
+
+class PrayerScheduleDay {
+  const PrayerScheduleDay({
+    required this.date,
+    required this.timezone,
+    required this.methodName,
+    required this.prayers,
+  });
+
+  final DateTime date;
+  final String timezone;
+  final String methodName;
+  final Map<String, DateTime> prayers;
+}

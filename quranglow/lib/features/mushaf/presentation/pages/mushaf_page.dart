@@ -54,7 +54,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
     super.initState();
     _trackingService = ref.read(trackingServiceProvider);
     _chapter = widget.chapter.clamp(1, 114);
-    _lastAyahNumber = null;
+    _lastAyahNumber = widget.initialAyah;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);

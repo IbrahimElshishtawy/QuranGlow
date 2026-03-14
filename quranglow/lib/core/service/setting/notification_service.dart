@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:quranglow/core/model/prayer/prayer_times_data.dart';
+import 'package:quranglow/core/model/setting/reader_settings.dart';
 import 'package:quranglow/core/service/quran/settings_service.dart';
 import 'package:quranglow/core/service/setting/daily_reminder_kind.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -24,6 +25,8 @@ class NotificationService {
   static const _salawatId = 1002;
   static const _salawatBatchSize = 96;
   static const _prayerBaseId = 2000;
+  static const _prayerScheduleWindowDays = 7;
+  static const _prayerCount = 5;
   static const _azkarMorningId = 3001;
   static const _azkarEveningId = 3002;
   static const _azkarPrayerBaseId = 3100;
@@ -107,8 +110,9 @@ class NotificationService {
     }
   }
 
-  Future<AndroidScheduleMode> _androidScheduleMode() async =>
-      AndroidScheduleMode.exactAllowWhileIdle;
+  Future<AndroidScheduleMode> _androidScheduleMode() async {
+    return AndroidScheduleMode.exactAllowWhileIdle;
+  }
 
   tz.TZDateTime _nextInstanceOf(TimeOfDay t) {
     final now = tz.TZDateTime.now(tz.local);
@@ -139,7 +143,7 @@ class NotificationService {
     const android = AndroidNotificationDetails(
       _dailyChannelId,
       'التذكير اليومي',
-      channelDescription: 'تذكير يومي لقراءة الورد',
+      channelDescription: 'تذكير يومي للورد والذكر والاستعداد للصلاة',
       importance: Importance.max,
       priority: Priority.high,
       showWhen: true,
@@ -152,16 +156,16 @@ class NotificationService {
 
     final (title, body) = switch (kind) {
       DailyReminderKind.quran => (
-        '📖 وردك القرآني ينتظرك',
+        'وردك القرآني ينتظرك',
         'افتح المصحف الآن وخذ دقائق هادئة مع التلاوة والقراءة.',
       ),
       DailyReminderKind.adhan => (
-        '🕌 استعد للصلاة',
+        'استعد للصلاة',
         'اقترب وقت الصلاة، توضأ وتهيأ للوقوف بين يدي الله.',
       ),
       DailyReminderKind.dhikr => (
-        '🌿 وقت الذكر',
-        'جدّد قلبك الآن بذكر الله واستحضر الطمأنينة.',
+        'وقت الذكر',
+        'جدد قلبك الآن بذكر الله واستحضر الطمأنينة.',
       ),
     };
 
@@ -195,7 +199,7 @@ class NotificationService {
     const android = AndroidNotificationDetails(
       _salawatChannelId,
       'تذكير الصلاة على النبي ﷺ',
-      channelDescription: 'تذكير يومي للصلاة على النبي ﷺ',
+      channelDescription: 'تذكير دوري محلي للصلاة على النبي ﷺ',
       importance: Importance.max,
       priority: Priority.high,
       showWhen: true,
@@ -211,7 +215,7 @@ class NotificationService {
       final scheduled = now.add(Duration(minutes: intervalMinutes * (i + 1)));
       await _plugin.zonedSchedule(
         _salawatId + i,
-        '🤍 الصلاة على النبي ﷺ',
+        'الصلاة على النبي ﷺ',
         'اللهم صل وسلم على نبينا محمد ﷺ',
         scheduled,
         const NotificationDetails(
@@ -325,12 +329,47 @@ class NotificationService {
     );
   }
 
+  Future<void> showAdhanPreview({
+    required String title,
+    required String body,
+    AppSettings? settings,
+  }) async {
+    if (kIsWeb) return;
+
+    final activeSettings = settings ?? await SettingsService().load();
+    final adhanSound = activeSettings.adhanSound;
+    await _plugin.show(
+      991002,
+      title,
+      body,
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          _prayerChannelId(adhanSound.id),
+          'أذان الصلوات',
+          channelDescription: 'تنبيهات الأذان مع صوت أذان مخصص',
+          importance: Importance.max,
+          priority: Priority.high,
+          category: AndroidNotificationCategory.alarm,
+          audioAttributesUsage: AudioAttributesUsage.alarm,
+          showWhen: true,
+          enableVibration: true,
+          playSound: true,
+          sound: RawResourceAndroidNotificationSound(adhanSound.resourceName),
+          channelShowBadge: true,
+        ),
+        iOS: const DarwinNotificationDetails(),
+        macOS: const DarwinNotificationDetails(),
+        windows: const WindowsNotificationDetails(),
+      ),
+    );
+  }
+
   Future<void> schedulePrayerNotifications({
-    required PrayerTimesData data,
+    required List<PrayerScheduleDay> days,
     bool enabled = true,
   }) async {
     await cancelPrayerNotifications();
-    if (!enabled || kIsWeb) return;
+    if (!enabled || kIsWeb || days.isEmpty) return;
 
     final settings = await SettingsService().load();
     final adhanSound = settings.adhanSound;
@@ -353,35 +392,41 @@ class NotificationService {
     const win = WindowsNotificationDetails();
 
     final mode = await _androidScheduleMode();
+    final now = tz.TZDateTime.now(tz.local);
     const orderedPrayerKeys = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
-    for (var i = 0; i < orderedPrayerKeys.length; i++) {
-      final key = orderedPrayerKeys[i];
-      final time = data.prayers[key];
-      if (time == null) continue;
+    for (var dayIndex = 0; dayIndex < days.length; dayIndex++) {
+      final day = days[dayIndex];
+      for (var prayerIndex = 0; prayerIndex < orderedPrayerKeys.length; prayerIndex++) {
+        final key = orderedPrayerKeys[prayerIndex];
+        final time = day.prayers[key];
+        if (time == null) continue;
 
-      final scheduled = tz.TZDateTime.from(time, tz.local);
-      if (scheduled.isBefore(tz.TZDateTime.now(tz.local))) continue;
+        final scheduled = tz.TZDateTime.from(time, tz.local);
+        if (!scheduled.isAfter(now)) continue;
 
-      await _plugin.zonedSchedule(
-        _prayerBaseId + i,
-        '🕌 حان الآن موعد صلاة ${_arabicPrayerName(key)}',
-        'حيّ على الصلاة، الآن أذان ${_arabicPrayerName(key)}.',
-        scheduled,
-        NotificationDetails(
-          android: android,
-          iOS: ios,
-          macOS: mac,
-          windows: win,
-        ),
-        androidScheduleMode: mode,
-      );
+        await _plugin.zonedSchedule(
+          _prayerNotificationId(dayIndex, prayerIndex),
+          'حان الآن موعد صلاة ${_arabicPrayerName(key)}',
+          'حيّ على الصلاة، الآن أذان ${_arabicPrayerName(key)}.',
+          scheduled,
+          NotificationDetails(
+            android: android,
+            iOS: ios,
+            macOS: mac,
+            windows: win,
+          ),
+          androidScheduleMode: mode,
+        );
+      }
     }
   }
 
   Future<void> cancelPrayerNotifications() async {
-    for (var i = 0; i < 5; i++) {
-      await _plugin.cancel(_prayerBaseId + i);
+    for (var dayIndex = 0; dayIndex < _prayerScheduleWindowDays; dayIndex++) {
+      for (var prayerIndex = 0; prayerIndex < _prayerCount; prayerIndex++) {
+        await _plugin.cancel(_prayerNotificationId(dayIndex, prayerIndex));
+      }
     }
   }
 
@@ -390,7 +435,7 @@ class NotificationService {
     if (!enabled) return;
     await scheduleReminder(
       id: _azkarMorningId,
-      title: '🌅 أذكار الصباح',
+      title: 'أذكار الصباح',
       body: 'ابدأ يومك بذكر الله ونور الطمأنينة.',
       when: DateTime(2000, 1, 1, 8, 0),
       daily: true,
@@ -402,7 +447,7 @@ class NotificationService {
     if (!enabled) return;
     await scheduleReminder(
       id: _azkarEveningId,
-      title: '🌙 أذكار المساء',
+      title: 'أذكار المساء',
       body: 'اختم يومك بذكر الله ودعاء السكينة.',
       when: DateTime(2000, 1, 1, 18, 0),
       daily: true,
@@ -445,7 +490,7 @@ class NotificationService {
 
       await _plugin.zonedSchedule(
         _azkarPrayerBaseId + i,
-        '✨ أذكار بعد الصلاة',
+        'أذكار بعد الصلاة',
         'حان وقت أذكار ما بعد صلاة ${_arabicPrayerName(key)}.',
         scheduled,
         const NotificationDetails(
@@ -471,6 +516,10 @@ class NotificationService {
   Future<void> cancelAll() => _plugin.cancelAll();
 
   static String _prayerChannelId(String soundId) => 'prayer_adhan_ch_$soundId';
+
+  int _prayerNotificationId(int dayIndex, int prayerIndex) {
+    return _prayerBaseId + (dayIndex * 10) + prayerIndex;
+  }
 
   String _arabicPrayerName(String key) {
     switch (key) {
