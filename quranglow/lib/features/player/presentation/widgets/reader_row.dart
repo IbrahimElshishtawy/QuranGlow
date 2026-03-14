@@ -1,4 +1,3 @@
-// lib/features/ui/pages/player/widgets/reader_row.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quranglow/core/model/book/surah.dart';
@@ -28,7 +27,7 @@ class ReaderRow extends StatelessWidget {
         Expanded(
           child: editions.when(
             loading: () => const LinearProgressIndicator(),
-            error: (e, _) => Text('خطأ بالإصدارات: $e'),
+            error: (e, _) => Text('خطأ في القراء: $e'),
             data: (list) {
               final items = list
                   .whereType<Map>()
@@ -61,7 +60,7 @@ class ReaderRow extends StatelessWidget {
         Expanded(
           child: surahs.when(
             loading: () => const LinearProgressIndicator(),
-            error: (e, _) => Text('خطأ بالسور: $e'),
+            error: (e, _) => Text('خطأ في السور: $e'),
             data: (list) {
               if (list.isEmpty) return const Text('لا توجد سور');
               return DropdownButtonFormField<int>(

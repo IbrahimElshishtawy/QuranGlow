@@ -1,10 +1,10 @@
-// lib/core/audio/my_audio_handler.dart
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:just_audio/just_audio.dart';
 
 class MyAudioHandler extends BaseAudioHandler with SeekHandler {
-  final _player = AudioPlayer();
+  final AudioPlayer _player = AudioPlayer();
+  String? _activeUrl;
 
   MyAudioHandler() {
     _init();
@@ -38,13 +38,24 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
   }
 
   Future<void> playUri(Uri uri, {String? title}) async {
-    final item = MediaItem(
-      id: uri.toString(),
-      title: title ?? 'تشغيل',
-      artUri: null,
+    final nextUrl = uri.toString();
+    if (_activeUrl == nextUrl &&
+        _player.processingState != ProcessingState.idle) {
+      if (!_player.playing) {
+        await _player.play();
+      }
+      return;
+    }
+
+    mediaItem.add(
+      MediaItem(
+        id: nextUrl,
+        title: title ?? 'تشغيل',
+      ),
     );
-    mediaItem.add(item);
-    await _player.setUrl(uri.toString());
+
+    _activeUrl = nextUrl;
+    await _player.setUrl(nextUrl);
     await play();
   }
 
@@ -56,6 +67,7 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
 
   @override
   Future<void> stop() async {
+    _activeUrl = null;
     await _player.stop();
     await super.stop();
   }

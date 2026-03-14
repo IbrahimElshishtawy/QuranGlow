@@ -35,8 +35,13 @@ class DownloadService {
       url,
       savePath,
       onReceiveProgress: onProgress,
-      options: Options(responseType: ResponseType.stream),
+      options: Options(
+        sendTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(minutes: 2),
+        followRedirects: true,
+      ),
       cancelToken: cancelToken,
+      deleteOnError: true,
     );
   }
 

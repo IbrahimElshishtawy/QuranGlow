@@ -1,4 +1,3 @@
-// lib/features/ui/pages/player/player_page.dart
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
 import 'package:flutter/material.dart';
@@ -27,6 +26,8 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
   DateTime? _listeningStartedAt;
   bool _trackingSessionStarted = false;
   late final dynamic _trackingService;
+  String? _forwardedUrl;
+  bool _wasPlaying = false;
 
   @override
   void initState() {
@@ -38,11 +39,11 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
       if (!mounted) return;
       _trackingSessionStarted = true;
     });
+
     _playbackSub = ref.listenManual<AsyncValue<PlayerUiState>>(
       playerControllerProvider,
       (prev, next) async {
-        if (!mounted) return;
-        if (!isAudioHandlerReady) return;
+        if (!mounted || !isAudioHandlerReady) return;
 
         final state = next.valueOrNull;
         if (state == null) {
@@ -55,16 +56,25 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
         final isPlaying = state.isPlaying ?? false;
         final url = state.currentUrl;
         final title =
-            (state.surahName ?? 'Ø³ÙˆØ±Ø©') +
+            (state.surahName ?? 'سورة') +
             (state.reciterName != null ? ' - ${state.reciterName}' : '');
 
         _trackListeningState(isPlaying);
 
         if (isPlaying && url != null && url.isNotEmpty) {
-          await audioHandler.playUri(Uri.parse(url), title: title);
+          final shouldReload = _forwardedUrl != url;
+          if (shouldReload) {
+            _forwardedUrl = url;
+            await audioHandler.playUri(Uri.parse(url), title: title);
+          } else if (!_wasPlaying) {
+            await audioHandler.play();
+          }
         } else if (!isPlaying) {
+          _forwardedUrl = url;
           await audioHandler.pause();
         }
+
+        _wasPlaying = isPlaying;
       },
       fireImmediately: false,
     );
@@ -115,7 +125,9 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
         ),
         builder: (ctx) {
           return Padding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(ctx).viewInsets.bottom,
+            ),
             child: AyahPickerSheet(reciterId: editionId, surah: chapter),
           );
         },
@@ -139,7 +151,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
       if (urls.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Ù„Ø§ ØªÙˆØ¬Ø¯ Ø±ÙˆØ§Ø¨Ø· ØµÙˆØª'),
+            content: const Text('لا توجد روابط صوت متاحة لهذه السورة.'),
             backgroundColor: cs.error,
           ),
         );
@@ -157,7 +169,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('ØªØ¹Ø°Ø± Ø¨Ø¯Ø¡ Ø§Ù„ØªÙ†Ø²ÙŠÙ„: $e'),
+          content: Text('تعذر بدء التنزيل: $e'),
           backgroundColor: cs.error,
         ),
       );
@@ -173,19 +185,15 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
     final editions = ref.watch(audioEditionsProvider);
     final settings = ref.watch(settingsProvider).whenOrNull(data: (s) => s);
     final surahName = kSurahNamesAr[ch - 1];
-    final downloadLabel = settings?.audioDownloadMode ==
-            AudioDownloadMode.selectedAyat
-        ? 'Ø§Ø®ØªÙŠØ§Ø± Ø¢ÙŠØ§Øª'
-        : 'ØªÙ†Ø²ÙŠÙ„ Ø§Ù„Ø³ÙˆØ±Ø©';
+    final downloadLabel =
+        settings?.audioDownloadMode == AudioDownloadMode.selectedAyat
+        ? 'اختيار آيات'
+        : 'تنزيل السورة';
 
     final surahs = AsyncValue.data(
       List<Surah>.generate(
         kSurahNamesAr.length,
-        (i) => Surah(
-          number: i + 1,
-          name: kSurahNamesAr[i],
-          ayat: const <Aya>[],
-        ),
+        (i) => Surah(number: i + 1, name: kSurahNamesAr[i], ayat: const <Aya>[]),
         growable: false,
       ),
     );
@@ -251,7 +259,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Text(
-                        'ØªØ¹Ø°Ø± Ø§Ù„ØªØ­Ù…ÙŠÙ„: $e',
+                        'تعذر التحميل: $e',
                         style: TextStyle(color: cs.onErrorContainer),
                       ),
                     ),
@@ -277,7 +285,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                                 AppRoutes.downloadsLibrary,
                               ),
                               icon: const Icon(Icons.library_music),
-                              label: const Text('Ø§Ù„Ù…ÙƒØªØ¨Ø©'),
+                              label: const Text('المكتبة'),
                             ),
                           ),
                         ],
@@ -289,8 +297,8 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                           child: Text(
                             settings.audioDownloadMode ==
                                     AudioDownloadMode.selectedAyat
-                                ? 'ÙˆØ¶Ø¹ Ø§Ù„ØªÙ†Ø²ÙŠÙ„ Ø§Ù„Ø­Ø§Ù„ÙŠ: Ø§Ø®ØªÙŠØ§Ø± Ø¢ÙŠØ§Øª Ù…Ù† Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª'
-                                : 'ÙˆØ¶Ø¹ Ø§Ù„ØªÙ†Ø²ÙŠÙ„ Ø§Ù„Ø­Ø§Ù„ÙŠ: Ø§Ù„Ø³ÙˆØ±Ø© ÙƒØ§Ù…Ù„Ø© Ù…Ù† Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª',
+                                ? 'وضع التنزيل الحالي: اختيار آيات من الإعدادات'
+                                : 'وضع التنزيل الحالي: السورة كاملة من الإعدادات',
                             style: TextStyle(
                               color: cs.onSurfaceVariant,
                               fontWeight: FontWeight.w600,
@@ -377,16 +385,14 @@ class _PlayerAppBar extends StatelessWidget implements PreferredSizeWidget {
                 decoration: BoxDecoration(
                   color: cs.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: cs.primary.withValues(alpha: 0.18),
-                  ),
+                  border: Border.all(color: cs.primary.withValues(alpha: 0.18)),
                 ),
                 child: Icon(Icons.graphic_eq_rounded, color: cs.primary),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Ø§Ù„ØªØ´ØºÙŠÙ„',
+                  'المشغل',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.titleLarge?.copyWith(
@@ -398,7 +404,7 @@ class _PlayerAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '$surahName â€¢ Ø§Ø³ØªÙ…Ø§Ø¹ØŒ ØªÙ‚Ø¯Ù… ÙƒØ§Ù…Ù„ØŒ ÙˆØªÙ†Ø²ÙŠÙ„ Ø³Ø±ÙŠØ¹',
+            '$surahName • استماع، تقدم كامل، وتنزيل سريع',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -414,13 +420,13 @@ class _PlayerAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Row(
             children: [
               _PlayerAppBarAction(
-                tooltip: 'Ø§Ù„Ù…ÙƒØªØ¨Ø© Ø§Ù„ØµÙˆØªÙŠØ©',
+                tooltip: 'المكتبة الصوتية',
                 icon: Icons.library_music_rounded,
                 onPressed: onOpenLibrary,
               ),
               const SizedBox(width: 8),
               _PlayerAppBarAction(
-                tooltip: 'ØªÙ†Ø²ÙŠÙ„ Ø§Ù„ØµÙˆØª',
+                tooltip: 'تنزيل الصوت',
                 icon: Icons.download_rounded,
                 onPressed: onDownload,
               ),

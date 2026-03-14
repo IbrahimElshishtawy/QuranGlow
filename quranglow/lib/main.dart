@@ -9,8 +9,6 @@ import 'package:quranglow/core/app/app_bootstrap_scope.dart';
 Future<void> main() async {
   SplashBootstrap.initBinding();
   await AppBootstrap.initialize();
-
   runApp(const ProviderScope(child: AppBootstrapScope(child: QuranGlowApp())));
-
   SplashBootstrap.removeSplash();
 }

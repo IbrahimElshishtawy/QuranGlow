@@ -20,7 +20,7 @@ Future<void> initAudioHandler() async {
     builder: () => MyAudioHandler(),
     config: const AudioServiceConfig(
       androidNotificationChannelId: 'playback_ch',
-      androidNotificationChannelName: 'ØªØ´ØºÙŠÙ„ Ø§Ù„ØµÙˆØª',
+      androidNotificationChannelName: 'تشغيل الصوت',
       androidNotificationOngoing: true,
       androidStopForegroundOnPause: true,
       androidNotificationClickStartsActivity: true,

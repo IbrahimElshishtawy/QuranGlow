@@ -59,9 +59,14 @@ class DownloadsPageState extends ConsumerState<DownloadsPage>
       });
 
       if (!mounted) return;
+      final preferred = editions.any((e) => e['id'] == 'ar.alafasy')
+          ? 'ar.alafasy'
+          : editions.isNotEmpty
+          ? editions.first['id']
+          : null;
       setState(() {
         _editions = editions;
-        _reciterId = editions.isNotEmpty ? editions.first['id'] : null;
+        _reciterId = preferred;
         _loading = false;
       });
       _ac.forward();

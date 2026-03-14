@@ -117,10 +117,7 @@ class _Pill extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             text,
-            style: TextStyle(
-              color: cs.onSurface,
-              fontWeight: FontWeight.w700,
-            ),
+            style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w700),
           ),
         ],
       ),

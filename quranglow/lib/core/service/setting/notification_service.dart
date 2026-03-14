@@ -114,6 +114,37 @@ class NotificationService {
     return AndroidScheduleMode.exactAllowWhileIdle;
   }
 
+  Future<void> _ensurePrayerChannel(AppSettings settings) async {
+    if (kIsWeb || !Platform.isAndroid) return;
+
+    final android = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    if (android == null) return;
+
+    final adhanSound = settings.adhanSound;
+    final channelId = _prayerChannelId(adhanSound.id);
+
+    try {
+      await android.deleteNotificationChannel(channelId);
+    } catch (_) {}
+
+    await android.createNotificationChannel(
+      AndroidNotificationChannel(
+        channelId,
+        'أذان الصلوات',
+        description: 'تنبيهات الأذان مع صوت أذان مخصص',
+        importance: Importance.max,
+        playSound: true,
+        sound: RawResourceAndroidNotificationSound(adhanSound.resourceName),
+        audioAttributesUsage: AudioAttributesUsage.alarm,
+        enableVibration: true,
+        showBadge: true,
+      ),
+    );
+  }
+
   tz.TZDateTime _nextInstanceOf(TimeOfDay t) {
     final now = tz.TZDateTime.now(tz.local);
     var scheduled = tz.TZDateTime(
@@ -337,6 +368,7 @@ class NotificationService {
     if (kIsWeb) return;
 
     final activeSettings = settings ?? await SettingsService().load();
+    await _ensurePrayerChannel(activeSettings);
     final adhanSound = activeSettings.adhanSound;
     await _plugin.show(
       991002,
@@ -372,6 +404,7 @@ class NotificationService {
     if (!enabled || kIsWeb || days.isEmpty) return;
 
     final settings = await SettingsService().load();
+    await _ensurePrayerChannel(settings);
     final adhanSound = settings.adhanSound;
     final android = AndroidNotificationDetails(
       _prayerChannelId(adhanSound.id),
