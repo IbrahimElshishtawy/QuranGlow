@@ -420,10 +420,15 @@ class NotificationService {
     final activeSettings = settings ?? await SettingsService().load();
     await _ensurePrayerChannel(activeSettings);
     final adhanSound = activeSettings.adhanSound;
-    await _plugin.show(
+    final mode = await _androidScheduleMode();
+    final scheduled = tz.TZDateTime.now(
+      tz.local,
+    ).add(const Duration(seconds: 1));
+    await _plugin.zonedSchedule(
       991002,
       title,
       body,
+      scheduled,
       NotificationDetails(
         android: AndroidNotificationDetails(
           _prayerChannelId(adhanSound.id),
@@ -442,6 +447,7 @@ class NotificationService {
         macOS: const DarwinNotificationDetails(),
         windows: const WindowsNotificationDetails(),
       ),
+      androidScheduleMode: mode,
     );
   }
 
